@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>屏幕共享demo</title>
+        <meta charset="utf-8">
+        <style>
+            #view {
+                border: 1px solid grey;
+                max-width: 860px;
+            }
+        </style>
+    </head>
+    <body>
+        <video id="view" autoplay></video>
+        <button id="startCaptureButton">开始</button>
+        <button id="stopCaptureButton">结束</button>
+        <button id="grab">截屏</button>
+        <script>
+            var view = document.getElementById("view");
+            var startCaptureButton = document.getElementById("startCaptureButton");
+            var stopCaptureButton = document.getElementById("stopCaptureButton");
+            var grab = document.getElementById("grab");
+            var mediaOptions = { 
+                audio: false, 
+                video: true
+            }
+            var image;
+
+            startCaptureButton.addEventListener("click", e => {
+                /* 在google浏览器会询问用户想要分享哪个屏幕，
+                   在Safari浏览器不会询问，直接默认是当前页面*/
+                navigator.mediaDevices.getDisplayMedia(mediaOptions)
+                .then(stream => {
+                        view.srcObject = stream;
+                }).catch(err => console.log("err: ", err));
+
+                /**
+                 * 上边的代码换成这段代码后，展示的不是屏幕，而是计算机摄像头捕捉到
+                 * 的屏幕前的用户，结合grab对象的click事件，可以把摄像头捕捉到的一帧
+                 * 图像保存到本地图片，也可以结合<img>的DOM对象的srcObject将截取的
+                 * 图像展示在DOM的某个地方。
+                 * navigator.mediaDevices.getUserMedia({video: true})
+                   .then(stream => {
+                        view.srcObject = stream;
+                        const track = stream.getVideoTracks()[0];
+                        image = new ImageCapture(track);
+                }).catch(err => console.log("err: ", err));
+                */
+            });
+
+            stopCaptureButton.addEventListener("click", e => {
+                const trackList = view.srcObject.getTracks();
+                trackList.forEach(element => {
+                    element.stop();
+                });
+                view.srcObject = null;
+            });
+
+            grab.addEventListener("click", e => {
+                
+                image.takePhoto().then(picture => {
+                    const url = URL.createObjectURL(picture);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = "截屏";
+                    a.style.display = "none";
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                })
+            });
+            
+        </script>
+    </body>
+</html>

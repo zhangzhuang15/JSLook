@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <body>
+        <button>change path</button>
+        <script>
+            // 历史回退时触发
+            // 第一次回退， e.target = { m: 'p' }
+            // 第二次回退， e.target = null
+            window.onpopstate = function(e) {
+                console.log(e)
+            }
+            window.onload = function(e) {
+                history.pushState({ m: 'p'}, '', '/jack')
+            }
+            const button = document.querySelector('button')
+            button.addEventListener('click', e => {
+                setTimeout( _ => {
+                    history.pushState({ m: 'q'}, '', '/pack')
+                }, 2 * 1000)
+            })
+        </script>
+    </body>
+</html>

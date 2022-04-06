@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>upload and download file demo</title>
+    </head>
+    <body>
+        <input type="file" value="upload">
+        <input type="button" onclick="downloadFile()" value="download">
+        <script type="text/javascript">
+        var uploadButton = document.querySelector("input[type=file]");
+        uploadButton.addEventListener("change", uploadFile);
+        function uploadFile(event){
+            const files = event.target.files;
+            const xhr = new XMLHttpRequest();
+            xhr.onload = function(){
+                console.log("response type", xhr.responseType);
+                console.log("response text", xhr.responseText);
+            }
+            const reader = new FileReader();
+            /* reader 读取完毕时 */
+            reader.onload = function(){
+                xhr.open("PUT", `http://localhost:8099/path/${files[0].name}`);
+                xhr.setRequestHeader("content-type", "application/octet-stream");
+                const data = new Uint8Array(reader.result);
+                xhr.send(data);
+            };
+            reader.readAsArrayBuffer(files[0]);
+        }
+        function downloadFile(){
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", "http://localhost:8099/download/test.mp3");
+            xhr.setRequestHeader("Content-Type", "application/octet-stream");
+            xhr.onload = function(){
+                // 没有指定 responseType时，按照DOMString处理
+                // 如果指定一个类型，比如 blob json arraybuffer document
+                // xhr在收到后端返回的字节数据时，会将字节数据转换为该类型
+                console.log("response type: ", xhr.responseType);
+                // 后端传回的数据是字节流，必须要指定blob形式，否则下载的是乱码
+                // Blob第一个参数必须是序列
+                // Blob可以将数据转换为非javascript内置二进制数据，比如说MIME类型
+                const blob = new Blob([xhr.response], { type: "audio/mpeg"});
+                // 如果想下载blob中的数据，必须要创建 <a></a>，通过触发a来下载文件
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = "test.mp3";
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+            xhr.send(null);
+        }
+    </script>
+    </body>
+</html>

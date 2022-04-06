@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="description" content="http2.0 例子">
+        <title>http2.0 demo</title>
+    </head>
+    <body>
+        <button>加载</button>
+        <img src="" alt="image1">
+        <script>
+            const button = document.querySelector('button')
+            const img = document.querySelector('img')
+
+            button.addEventListener('click', _ => {
+                img.src = ""
+                setTimeout( _ => {
+                    img.src = "http://localhost:8077/image1.png"
+                }, 5 * 1000)
+            })
+        </script>
+    </body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <style>
+            table, th, td {
+                border: 1px solid;
+            }
+            table {
+                border-spacing: 0px;
+                border-collapse: collapse;
+            }
+            td:first-child, td:first-of-type {
+                text-align: center;
+            }
+            p::before{
+                display: block;
+                content: attr(mycolor);
+                color: attr(mycolor color, 'blue');
+                position: absolute;
+                z-index: 100;
+            }
+        </style>
+    </head>
+    <body>
+        <input type="text" spellcheck="false"  tabindex="0" readonly='true'/>
+        <button id="button">案件</button>
+        <p contenteditable="true" style="display: none;"> 这一行是可以编辑的 </p>
+        <input type="datetime-local" />
+        <cite>标题</cite>
+        <mark>强调突出</mark>
+        <video controls="true"></video> 
+        <article>
+            <h1>标题</h1>
+            <p>这是第一段</p></article>
+        <article>这是第二段</article>
+        <section>这是第一段</section>
+        <section>这是第二段</section>
+        <p mycolor="red" style="text-indent: 2em; text-transform: capitalize;">aa随便便的文字</p>
+        <table style="border: 1px solid;">
+            <colgroup>
+             <col style="width: 135px;">
+             <col style="background-color: lightcoral;">
+            </colgroup>
+            <caption>标题</caption>
+            <thead>
+                <tr>
+                    <th>姓名</th>
+                    <th align="center">年龄</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>章三</td>
+                    <td align="center">21</td>
+                </tr>
+            </tbody>
+        </table>
+        <meter value="34.8" max="100"></meter>
+        <progress max="100" value="25"></progress>25%
+        <span style="color: red; background: currentColor">Yes</span>
+        <time>2022-01-24</time>
+        <address>北京市房山区</address>
+        <em>重要</em>
+        <strong>重要</strong>
+        <article>
+            <p>这是谁写的文章</p>
+            <aside><p>一些个辅助信息</p></aside>
+        </article>
+
+        <ruby>this is ruby</ruby>
+        
+        <script>
+            const button = document.querySelector('#button')
+            //button.setAttribute('disabled', false)
+
+            
+            window.onhashchange = function(e){
+                console.log('hash change')
+                console.log('old url:', e.oldURL)
+                console.log('new url:', e.newURL)
+            }
+
+            window.onpopstate = function(e) {
+                console.log('popstate: ', e)
+            }
+
+            setTimeout( () => {
+                history.pushState(null, '', '/name')
+            }, 10 * 1000)
+        </script>
+        
+    </body>
+</html>
