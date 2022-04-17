@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>canvas绘制文字demo</title>
+    </head>
+    <body>
+        <canvas id="block" 
+                width="300" 
+                height="300" 
+                style="display: block; 
+                        border: 1px solid black; 
+                        margin: 100px auto;
+                        box-shadow: 0px 0px 10px grey;"></canvas>
+        <script>
+            const canvas = document.getElementById('block')
+            let pencile
+
+            if(canvas.getContext) {
+                pencile = canvas.getContext('2d')
+            } else {
+                document.write("抱歉, 您的浏览器不支持canvas API, 换成google浏览器试试?🤣")
+            }
+
+            pencile.font = '40px serif'
+
+            pencile.strokeStyle = 'red'
+
+            pencile.fillStyle = 'lightblue'
+
+            pencile.fillText('hello world', 10, 80)
+
+            pencile.strokeText('hello world', 10, 180)
+
+
+            // direction     设置文字方向 'rtl'  'ltr'  
+            // textBaseline  设置基线对齐方式  'top'  'bottom' 'middle' 'hanging' 'alphabetic' 'ideographic'
+            //                 ---------------------------- top
+            //                 ---------------------------- hangling
+            //                 ---------------------------- middle
+            //                 ---------------------------- alphabetic
+            //                 ---------------------------- ideographic
+            //                 ---------------------------- bottom
+            //                默认 'alphabetic'
+         </script>
+    </body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>canvas画矩形demo</title>
+    </head>
+    <body>
+        <canvas id="block" 
+                width="300" 
+                height="300" 
+                style="display: block; 
+                        border: 1px solid black; 
+                        margin: 100px auto;
+                        box-shadow: 0px 0px 10px grey;"></canvas>
+        <script>
+            const canvas = document.getElementById('block')
+            let pencile
+
+            if(canvas.getContext) {
+                pencile = canvas.getContext('2d')
+            } else {
+                document.write("抱歉, 您的浏览器不支持canvas API, 换成google浏览器试试?🤣")
+            }
+
+            // 画一个红色的实心矩形，
+            // 矩形左上角位于 (10, 10), 宽30， 高30
+            pencile.fillStyle= 'red'
+            pencile.fillRect(10, 10, 30, 30)
+
+            // 画一个蓝色的空心矩形，
+            // 矩形左上角位于(5, 5), 宽36， 高40
+            pencile.strokeStyle = 'blue'
+            pencile.strokeRect(5, 5, 36, 40)
+
+            setTimeout( _ => {
+                // 清除一个矩形区域内的内容，该矩形区域的左上角位于(0, 0),宽50，高50
+                pencile.clearRect(0, 0, 50, 50)
+            }, 10 * 1000)
+        </script>
+    </body>
+</html>

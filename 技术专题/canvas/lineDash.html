@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>canvas虚线设置</title>
+    </head>
+    <body>
+        <canvas id="block" 
+                width="300" 
+                height="300" 
+                style="display: block; 
+                        border: 1px solid black; 
+                        margin: 100px auto;
+                        box-shadow: 0px 0px 10px grey;"></canvas>
+        <script>
+            const canvas = document.getElementById('block')
+            let pencile
+
+            if(canvas.getContext) {
+                pencile = canvas.getContext('2d')
+            } else {
+                document.write("抱歉, 您的浏览器不支持canvas API, 换成google浏览器试试?🤣")
+            }
+            
+
+            pencile.beginPath()
+            pencile.moveTo(10, 10)
+            pencile.lineTo(250, 10)
+            pencile.stroke()
+          
+            pencile.beginPath()
+            pencile.setLineDash([2, 3]) // 2unit线条， 3unit空隙
+            pencile.moveTo(10, 50)
+            pencile.lineTo(250, 50)
+            pencile.stroke()
+
+            pencile.beginPath()
+            pencile.setLineDash([2, 3, 1]) // 等效于[2,3,1,2,3,1] 2unit线条 3unit空隙 1unit线条 2unit空隙 3unit线条 1unit空隙
+            pencile.moveTo(10, 90)
+            pencile.lineTo(250, 90)
+            pencile.stroke()
+
+            pencile.beginPath()
+            pencile.lineDashOffset = 3   // 虚线向后偏移 3unit
+            pencile.moveTo(10, 130)
+            pencile.lineTo(250, 130)
+            pencile.stroke()
+        </script>
+    </body>
+</html>

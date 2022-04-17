@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>canvas使用demo</title>
+    </head>
+    <body>
+        <canvas id="block" width="300" height="300"></canvas>
+        <script>
+            const canvas = document.querySelector('canvas#block')
+            let pencile
+
+            if(canvas.getContext) {
+                pencile = canvas.getContext('2d')
+            } else {
+                document.write("抱歉, 您的浏览器不支持canvas API, 换成google浏览器试试?🤣")
+            }
+        </script>
+    </body>
+</html>
