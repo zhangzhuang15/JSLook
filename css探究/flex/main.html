@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            .container1 {
+                display: flex;
+                width: 100px;
+                border: 1px solid black;
+            }
+
+            .child {
+                width: 50px;
+                border: 1px solid royalblue;
+                flex-shrink: 0;
+            }
+
+            .h50 {
+                height: 50px;
+                border: 1px solid red;
+                width: 60%;
+            }
+
+            .taller {
+                height: 100px;
+            }
+
+            .container2{
+                height: 100px;
+                width: 50px;
+                border: 1px solid lightcoral;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- 
+            指定 display: flex 的 div 将成为 flex 容器，
+            但它依旧保留着 block元素的性质：
+            1、如果不指定width， 宽度占据整行；
+            2、如果不指定高度，高度由子元素撑开，最高的子元素就是容器的高度；
+            3、如果指定宽度，不指定高度，子元素超过宽度就会换行，将容器撑开；
+            4、如果指定宽度，指定高度，子元素超过宽度就会换行，如果超过高度，就会露在外边；
+
+            flex容器子元素也保留着这样的默认特征，除非你修改了子元素的display属性。
+            flex容器子元素依旧可以指定display属性，比如 设置display为 flex、inline-block、inline-flex等等。
+
+            flex容器特有的地方：
+            1、默认情况下, flex容器子元素横向排列，flex容器子元素如果设置了width, 子元素并不总是保持这个宽度，根据
+            容器剩余空间的情况，子元素可能会收缩，但不会变宽；
+            2、给容器子元素设置 flex-shrink ，可以改变容器子元素的收缩表现；
+            3、当指定子元素的 flex-shrink： 0，子元素将不会收缩，一旦超过flex容器的宽度，子元素不会自动换行，只会露在容器外边;
+            4、指定flex容器 flex-wrap: wrap，如果flex容器的剩余宽度放不下子元素，子元素就会换行，flex容器的高度如果没有
+            被设置为定高，就会被撑开，如果flex容器被设置为定高，高度不会变化，子元素换行超出高度的部分，会露在外边；
+
+        -->
+        <div class="container1">
+            <div class="child h50">ok, ok, ok, ok, ok</div>
+            <div class="child">ok, ok, ok, ok, ok, ok, ok, ok, ok, ok</div>
+            <div class="child taller"></div>
+        </div>
+
+        <div class="container2">
+            this is a try, try to catch the chance, you will be a king of the world
+        </div>
+
+        <div style="width: 100px; border: 1px solid greenyellow">
+            this is a try, try to catch the chance, you will be a king of the world</div>
+    </body>
+</html>

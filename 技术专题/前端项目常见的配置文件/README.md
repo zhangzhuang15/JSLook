@@ -99,3 +99,27 @@ tsc是typescript的编译器，负责将ts代码转化为js代码；
 <br>
 
 ---
+
+### package.json中`husky`和`lint-staged`
+```
+{
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged'
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  }
+}
+```
+
+`husky`是一个可以监听git hooks工具，需要用npm安装后使用，它可以帮助开发人员在git某个阶段（例如本例子中的commit之前这个阶段）要发生前执行一些命令。
+
+`lint-staged`是一个对已经加入到git暂存区文件进行处理的工具，也需要用npm安装。在本例子中，表示对暂存区中的.js结尾的文件，使用`eslint`和 `prettier`进行处理。
+
+`husky` 和  `lint-staged` 也可以有自己单独的配置文件，就像 eslint那样，
+但是他们也可以在package.json中进行配置，就像本例子所示那样。
