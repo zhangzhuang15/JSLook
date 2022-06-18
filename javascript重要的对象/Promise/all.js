@@ -9,3 +9,10 @@ Promise.all([Promise.resolve("hello"), Promise.resolve("world"), Promise.reject(
 Promise.all([Promise.resolve("hello"), Promise.resolve("world")])
        .then( data => console.log("resolved: ", data) )
        .finally( () => console.log("finished again!") );
+
+
+
+// Promise.all 这个API可以并发发送请求，
+// Promise.all([A, B])
+// request A ---------------------
+// request B       ---------------------

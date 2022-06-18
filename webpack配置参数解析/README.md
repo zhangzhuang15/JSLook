@@ -4,7 +4,7 @@ npm install webpack -D
 npm install webpack-cli -D
 ```
 
-```json
+```json {.line-numbers}
 // package.json
 
 {
@@ -33,7 +33,7 @@ npm install webpack-cli -D
 ```
 
 
-```javascript
+```javascript {.line-numbers}
 // webpack.config.js
 
 const path = require('path')
@@ -155,3 +155,85 @@ module.exports = {
 }
 
 ```
+
+
+## output.path 和 output.publicPath
+#### 当你使用webpack打包，打包之后生成的文件要存储在哪里呢？
+output.path解决的就是这个问题。设置好output.path，打包好的文件就会存储在这个路径下边。**注意，这个路径必须是绝对路径。** 执行完打包操作后，你就能在这个路径下找到结果。
+
+*情景举例*：  
+你位于 `/Project/`，该文件夹下拥有`webpack.config.js`文件，在该文件中设置`output.path = path.resolve(__dirname, "dist")`.
+打包之后，你就可以在`/Project/dist/`下看到打包后的文件了。
+
+
+#### 在html文件中引用静态资源的路径问题？
+我们在 `.css` 文件中会使用`url()`指定图片来源，比如设置一个`div`的背景图。
+如果图片是存放在远程的服务器上，我们直接在`url()`中写出图片完整的http路径即可。
+
+但也有另一种情况：我们的图片来源于本地，可能css文件位于`/Project/css/`，被引用的图片位于`/Project/images/`，此时我们就会在`url()`中使用相对路径的做法，`../images/picture1.jpg`。
+
+---
+问题来了，打包之后，`../images/picture1.jpg`的`..`是相对于谁呢？
+
+webpack会在处理css文件的时候发现url中的路径，并且它会对这个路径进行修改。
+它会用`output.publicPath + 打包后filename` 的方式修改。
+比如 
+* `output.publicPath="./"`,   
+* 你在`url()`中写的路径`../images/picture1.jpg`，  
+* 你在处理图片的loader中指定 `filename: static/[hash][ext]`,   
+* 并且假设 picture1.jpg 的 hash为 `mmm`,   
+
+则
+* webpack 会将 `../images/picture1.jpg` 直接替换为 `static/mmm.jpg`
+
+* webpack修改后的路径`./static/mmm.jpg`.
+  > `./` + `static/mmm.jpg`
+
+---
+问题又来了，`output.publicPath="./"`中的`.`是相对于谁而言的呢？
+
+当`output.publicPath`指定的是相对路径，那么它相对的是浏览器当前URL。
+举个例子：
+* 假设 css文件中定义了 `.box`这个类，该类中使用了`url("./images/pin.png")`, 
+* 同时 `output.publicPath="./"`, 
+* 你在处理图片的loader中指定 `filename: static/[hash][ext]`,   
+* 并且假设 pin.png 的 hash为 `mmm`,   
+* `.box`在`index.html`中使用，
+* `index.html`在浏览器的URL为`http://localhost:8081/dist/index.html`,
+
+则
+1. webpack处理之后的 url 中的路径为 `./static/mmm.png`，
+2. 该路径对应的URL为`http://localhost:8081/dist/static/mmm.png`。
+3. `output.publicPath="./"`指的就是 `http://localhost:8081/dist/`
+
+
+---
+`output.publicPath` 该写成相对路径还是绝对路径，到底该怎么写呢？
+
+问题根源在于，你打包好的静态文件，你想放在哪里。
+你是想放在和入口html文件同目录下呢，还是放在别的服务器上。
+
+假设打包之后的dist文件夹结构如下：
+```
+dist ------- index.html (入口 html 文件)
+       |
+       |
+       ----- static --- mmm.png
+       |
+       |
+       ----  js  ---- main.js
+```
+假设你把 dist 部署到一个服务器上，并且使用 nginx 等手段设置好路由，
+一旦访问 `http://localhost:8001/index.html`，浏览器上显示的就是 index.html的内容。
+那么此时，output.publicPath 就应该取相对路径"./"，因为这样设置的话，
+webpack处理之后的 `url()` 刚好是 `url("./static/mmm.png")`, 又在 `index.html`中出现，
+刚好就可以拿到 mmm.png 图片。
+
+假设你在此基础上做一下调整，将 js 文件夹，static文件夹放在别的服务器上，并且访问
+`http://ddd.com/static/mmm.png` 就能访问 mmm.png 文件，访问 `http://ddd.com/js/main.js`就能访问 main.js 文件， 那么你的 `output.publicPath` 应该设置为 `http://ddd.com/`.
+
+
+> output.publicPath 和 output.path没有直接联系；
+> 你一开始在css文件中写的url相对路径，都会被webpack替换为 `output.publicPath + filename`;
+> output.publicPath 具体写成什么，要看你打包后的静态资源和入口html文件存放在哪里；
+> 入口html文件中，非html-webpack-plugin插件生成的路径，也就是你自己写死的`src` `href`, webpack不会去调整，如果不对劲，你需要自己调整。 

@@ -79,7 +79,7 @@
 
 字体类的：font开头的属性, `font-size` `font-family` `font-weight`  `font-variant`  
 
-文本间距类的属性：`white-space` `letter-spaing` `word-spacing`    
+文本间距类的属性：`white-space` `letter-spacing` `word-spacing`    
  
 文本颜色： `color`    
 

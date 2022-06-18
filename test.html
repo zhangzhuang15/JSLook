@@ -20,6 +20,13 @@
                 position: absolute;
                 z-index: 100;
             }
+            .box {
+                display: block;
+                width: 10px;
+                height: 10px;
+                background-image: radial-gradient(circle at 0 0, transparent 70%, #2d323f 70%);
+                border: 1px solid green;
+            }
         </style>
     </head>
     <body>
@@ -75,6 +82,12 @@
                     border-radius: 50%; 
                     background: conic-gradient(transparent, transparent 10%, #fa7 10%, #fa7);
                     -webkit-mask: radial-gradient(transparent, transparent 47.5px, #000 48px, #000);"></div>
+       
+        
+
+       <div class="box"></div>
+            
+       
         
         <script>
             const button = document.querySelector('#button')
