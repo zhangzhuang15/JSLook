@@ -65,4 +65,9 @@ vue3.0下的插件。
 * 支持 vetur 的功能；
 * 对 ts 支持非常好；
 * 包含其他非常有用的功能；
+> volar 和 vetur 只能二选一使用
   
+
+### thunder client 插件
+![](./thunderClient.png)
+功能等同于 postman，功能完整，比较轻量
