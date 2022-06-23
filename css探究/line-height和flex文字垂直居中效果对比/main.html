@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            div {
+                box-sizing: border-box;
+            }
+            .container, .container-flex {
+                width: 100px;
+                height: 50px;
+            }
+            .container {
+                display: inline-block;
+                line-height: 50px;
+                text-align: center;
+
+                border: 1px solid lightblue;
+            }
+
+            .container-flex {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid lightgreen;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- 
+            flex实现垂直居中，效果会更方便一些。
+
+            对于 flex 容器中的文字而言，text-align: center 不起作用，
+            请使用 justify-content 。
+        -->
+        <div class="container">你好</div>
+        <div class="container-flex">你好</div>
+    </body>
+</html>

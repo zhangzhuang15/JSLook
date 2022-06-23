@@ -342,6 +342,15 @@ list.push(70, 80)
 
 <br>
 
+
+### Typescript中type和interface区别
+* interface可以重复被定义，type不可以；
+* 二者都可以有联合类型（｜）和交叉类型（&）；
+* type定义的类型，在编辑器的悬浮提示里，可以看到具体的键名，interface定义的类型只能看到interface全名；
+* type只是对类型起一个别名，interface可以定义一个新的类型。
+
+<br>
+
 ### 如何获取用户的地理位置 
 ```javascript
 

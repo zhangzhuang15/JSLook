@@ -79,7 +79,7 @@
 
 字体类的：font开头的属性, `font-size` `font-family` `font-weight`  `font-variant`  
 
-文本间距类的属性：`white-space` `letter-spaing` `word-spacing`    
+文本间距类的属性：`white-space` `letter-spacing` `word-spacing`    
  
 文本颜色： `color`    
 
@@ -177,3 +177,13 @@ IE：
 * Base64
   > 可以将一副图片数据编码成一串字符串，使用该字符串代替图像地址。  
   > 图片的下载始终都要向服务器发出请求，而通过base64编码后可以随着 HTML的下载同时下载到本地，减少 http 请求。
+
+<br>
+
+
+### marginTop 和 marginBottom 的叠加条件
+* 两个元素相邻，且位于垂直方向上比邻
+* 上元素的marginBottom 和 下元素的marginTop之间没有被分割；
+  > 没有被其他html元素隔开；  
+  > 没有被 padding border隔开；
+* 两个元素位于同一个BFC中，且这两个元素本身不是BFC。
