@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黑暗模式判断</title>
+    <style>
+        .box {
+            text-align: center;
+        }
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: black;
+            }
+            .box {
+                width: 200px;
+                height: 200px;
+                background-color: white;
+                color: black;
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            body {
+                background-color: white;
+            }
+            .box {
+                width: 400px;
+                height: 400px;
+                background-color: black;
+                color: white;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="box" id="content"></div>
+    <script>
+        const isDarkMode = () => {
+            return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        }
+
+        const ct = document.getElementById('content')
+        ct.innerText = isDarkMode() ? '黑暗模式' : '浅色模式'
+    </script>
+</body>
+</html>
