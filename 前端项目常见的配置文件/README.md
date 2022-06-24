@@ -123,3 +123,8 @@ tsc是typescript的编译器，负责将ts代码转化为js代码；
 
 `husky` 和  `lint-staged` 也可以有自己单独的配置文件，就像 eslint那样，
 但是他们也可以在package.json中进行配置，就像本例子所示那样。
+
+---
+
+### package.json中“browserslist”
+用于指定项目所支持的浏览器版本，一些插件会读取这个信息，完成 css 前缀补全、js polyfill功能。比如 babel插件，postcss-normalize插件, autoprefixer插件。
