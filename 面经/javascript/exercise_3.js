@@ -10,7 +10,6 @@ console.log(j == 10)
 
 
 
-
 // [1, 2, 3].forEach( callback )    callback 执行三次
 // [1, undefined].forEach( callback ) callback 执行一次
 
