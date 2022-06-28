@@ -5,8 +5,9 @@
     </head>
     <body>
         <button onclick="connect()">connect websocket server</button>
-        <button onclick="send()">send message</button>
+        <button onclick="send()">send websocket message</button>
         <button onclick="_close()">close connection</button>
+        <button onclick="sendHttp()">send http message</button>
         <script>
             var websocket;
 
@@ -44,6 +45,16 @@
                 else {
                     window.alert("这就断开和websocket服务端的连接");
                     websocket.close();
+                }
+            }
+
+            function sendHttp() {
+                const request = new XMLHttpRequest()
+                request.open('POST', "http://localhost:4433/")
+                request.setRequestHeader('content-type', 'application/json')
+                request.send(JSON.stringify({ name: 'jack', hobby: ['football', 'tennis'] }))
+                request.onload = e => {
+                    console.log('http response:', e.target.response)
                 }
             }
         </script>

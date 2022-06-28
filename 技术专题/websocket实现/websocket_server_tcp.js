@@ -20,6 +20,8 @@ const server = net.createServer(
       // data是Buffer，字节码，需要转为字符串处理
       let d = data.toString();
      
+      console.log('http data: ', d)
+
       // 记录请求头各个字段
       let map = {};
 
@@ -78,6 +80,7 @@ const server = net.createServer(
 
       socket.on('data', (data) => {
    
+        console.log("http data ? : ", data.toString())
         let result = generator.next(data).value;
         
         // 对方发送的是连续帧，还有一个部分数据没有到达
