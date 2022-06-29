@@ -14,6 +14,16 @@ console.log(result)
 
 console.log(result.groups.Name) // cc
 
+console.log(result[0]) // 0cc
+
+console.log(result[1]) // cc
+ 
+console.log(result.index) // 0
+
+console.log(result.input) // 0cc0a
+
+console.log(typeof result) // object
+
 
 // 输出结果解析:
 //
@@ -28,6 +38,3 @@ console.log(result.groups.Name) // cc
 // groups 组对象
 //        在正则表达式中有 (?<Name>) 这样的写法，那么匹配的字符串就会有一个组名Name,
 //        (?<Name>) 就是有名捕捉。
-//
-//
-// reg.exec 等同于  string.match

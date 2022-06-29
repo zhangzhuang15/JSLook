@@ -5,8 +5,8 @@ Object.defineProperty(dog, 'birth', {
     value: 'China',
 })
 
-// NOTE: 非索引的属性名也能获取到
+// NOTE: 非遍历属性名无法获取到
 
-const names = Object.getOwnPropertyNames(dog);
+const names = Object.keys(dog);
 
 names.forEach(name => console.log("property name: ", name));
