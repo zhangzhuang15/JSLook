@@ -115,6 +115,7 @@ const getCurrentHash = () => location.hash
 const reloadWebsite = () => location.reload()
 
 // 加载指定网页
+// NOTE: 上一页的记录会被替代，无法返回到上一页
 const loadWebsite = (url) => location.replace(url)
 
 // 在新的标签页打开网页
@@ -206,3 +207,15 @@ const openWebsiteInWindow = (url, width, height, left, top) => {
  const getInSession = (key) => sessionStorage.getItem(key)
 
  // NOTICE: localStorage sessionStorage的区别见 /面径/javascript/localStorage和sessionStorage/README.md
+
+ // 获取浏览器窗口尺寸
+ const getNavigatorSize = () => ({ width: window.outerWidth, height: window.outerHeight })
+ 
+ // 获取浏览器窗口内部尺寸
+ const getNavigatorInnerSize = () => ({ width: window.innerWidth, height: window.innerHeight })
+
+ // 获取可视窗口尺寸
+ const getViewportSize = () => ({ 
+    width: document.documentElement.clientWidth || document.body.clientWidth,
+    height: document.documentElement.clientHeight || document.body.clientHeight
+ })

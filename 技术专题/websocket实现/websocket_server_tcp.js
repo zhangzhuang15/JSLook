@@ -3,6 +3,7 @@ const crypto = require("crypto");
 
 // GUID格式为 XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
 // X 取值范围 [0-9A-Z]
+// NOTE: GUID是RFC协议中固定的字符串
 const GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
 
@@ -40,7 +41,7 @@ const server = net.createServer(
       let websocketKey = map['sec-websocket-key'];
 
       // 使用sha1算法
-      let hash =crypto.createHash("sha1");
+      let hash = crypto.createHash("sha1");
       // 送入要hash的内容
       hash.update(`${websocketKey}${GUID}`);
       // 计算摘要值，也就是hash值
@@ -111,6 +112,10 @@ const server = net.createServer(
       console.log("websocket连接关闭");
     }
   });
+
+  socket.on('error', err => {
+    console.log('发生了一些错误')
+  })
 });
 
 

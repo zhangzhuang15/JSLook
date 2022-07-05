@@ -13,15 +13,42 @@
                 margin-bottom: 5px;
             }
 
+            .box {
+                width: 300px;
+                margin-bottom: 5px;
+            }
+
             .container-1 {
                 width: 200px;
                 border: 1px solid black;
+                margin-bottom: 5px;
             }
 
             .container-2 {
                 width: 200px;
                 height: 30px;
                 border: 1px solid black;
+            }
+
+            .container-3 {
+                width: 200px;
+                height: 30px;
+                border: 1px solid black;
+                white-space: nowrap;
+            }
+
+            .container-4 {
+                width: 200px;
+                height: 30px;
+                border: 1px solid black;
+                word-break: break-word;
+            }
+
+            .container-5 {
+                width: 200px;
+                height: 30px;
+                border: 1px solid black;
+                word-break: break-all;
             }
         </style>
     </head>
@@ -41,6 +68,9 @@
                      -webkit-line-clamp: 1  设定行数为1
                      overflow: hidden 
             不要设置 height 的高度
+
+            white-space 属性控制空白符导致的换行问题；
+            word-break 属性控制换行行为发生时，对单词完整性的设定；
         -->
         <div class="container">
             ok, I will take a try here, you don't know my mind.
@@ -51,23 +81,45 @@
         </div>
 
         <!-- 不会换行 -->
-        <div style="width: 300px">
+        <div class="box">
+            <h3>1</h3>
             <div class="container-1">okkkkkkkkkkkfdkfkadsafkadskfaksdfkasdkfaskdfkasfk</div>
         </div>
 
         <!-- 会换行 -->
-        <div style="width: 300px">
+        <div class="box">
+            <h3>2</h3>
             <div class="container-1">okkkkkkkkkkkfdkfka dsafkadskfaksdfkasdkfaskdfkasfk</div>
         </div>
 
         <!-- 不会换行 -->
-        <div style="width: 300px">
+        <div class="box">
+            <h3>3</h3>
             <div class="container-2">okkkkkkkkkkkfdkfkadsafkadskfaksdfkasdkfaskdfkasfk</div>
         </div>
 
         <!-- 会换行 -->
-        <div style="width: 300px">
+        <div class="box">
+            <h3>4</h3>
             <div class="container-2">okkkkkkkkkkkfdkfkad safkadskfaksdfkasdkfaskdfkasfk</div>
+        </div>
+
+        <!-- 不会换行 -->
+        <div class="box">
+            <h3>5</h3>
+            <div class="container-3">okkkkkkkkkkkfdkfkad safkadskfaksdfkasdkfaskdfkasfk</div>
+        </div>
+
+        <!-- 会换行, 保留单词完整性 -->
+        <div class="box">
+            <h3>6</h3>
+            <div class="container-4">okkkkkkkkkkkfdkfkad safkadskfaksdfkasdkfaskdfkasfk</div>
+        </div>
+
+        <!-- 会换行，不保留单词完整性 -->
+        <div class="box">
+            <h3>7</h3>
+            <div class="container-5">okkkkkkkkkkkfdkfkad safkadskfaksdfkasdkfaskdfkasfk</div>
         </div>
     </body>
 </html>
