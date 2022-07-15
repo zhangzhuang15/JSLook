@@ -1,5 +1,6 @@
 // NOTE: 浏览器的一些工具函数
 
+// Tag: 兼容篇
 // 浏览器环境
 const isBrowser = () => window !== undefined
 
@@ -31,6 +32,10 @@ const isMobile = () => ['Android', 'iPhone', 'SymbianOS', 'Windows Phone', 'iPad
 // 系统为黑暗模式
 const isDarkMode = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
 
+
+
+
+// Tag: 缓存篇
 // 获取cookie
 const getCookie = (key) => {
     const result = new RegExp(`(?:^|\\s)${key}=(.*?);`).exec(key)
@@ -72,6 +77,43 @@ const removeCookie = (key, value) => {
     setCookie(key, value, { expires: past })
 }
 
+/**
+  * 在localStorage存储数据
+  * @param {string} key 
+  * @param {*} value 
+  * @returns 
+  * @NOTICE 存储是按照域名来管理的
+  */
+ const saveInLocal = (key, value) => localStorage.setItem(key, value)
+
+ /**
+  * 从localStorage读取数据
+  * @param {string} key 
+  * @returns 
+  */
+ const getInLocal = (key) => localStorage.getItem(key)
+
+ /**
+  * 在sessionStorage存储数据
+  * @param {string} key 
+  * @param {*} value 
+  * @returns 
+  */
+ const saveInSession = (key, value) => sessionStorage.setItem(key, value)
+
+ /**
+  * 从sessionStorage读取数据
+  * @param {string} key 
+  * @returns 
+  */
+ const getInSession = (key) => sessionStorage.getItem(key)
+
+ // NOTICE: localStorage sessionStorage的区别见 /面径/javascript/localStorage和sessionStorage/README.md
+
+
+
+
+// Tag: 路由篇
 // 获取当前网页url
 const getCurrentURL = () => location.href
 
@@ -115,12 +157,14 @@ const getCurrentHash = () => location.hash
 const reloadWebsite = () => location.reload()
 
 // 加载指定网页
-// NOTE: 上一页的记录会被替代，无法返回到上一页
-const loadWebsite = (url) => location.replace(url)
+// NOTE: 上一页的记录会被替代，无法返回到上一页; 如果需要后续可以回到上一页，使用 loadWebsite;
+const replaceWebsite = (url) => location.replace(url)
 
 // 在新的标签页打开网页
 const openWebsite = (url) => window.open(url, '_blank')
 
+// 在当前标签页打开网页
+const loadWebsite = (url) => window.open(url, '_self')
 /**
  * 在新的浏览器窗口打开网页
  * @param {string} url 
@@ -175,39 +219,8 @@ const openWebsiteInWindow = (url, width, height, left, top) => {
   */
  const goWithReplace = (url, state) => history.replaceState(state, '', url)
 
- /**
-  * 在localStorage存储数据
-  * @param {string} key 
-  * @param {*} value 
-  * @returns 
-  * @NOTICE 存储是按照域名来管理的
-  */
- const saveInLocal = (key, value) => localStorage.setItem(key, value)
-
- /**
-  * 从localStorage读取数据
-  * @param {string} key 
-  * @returns 
-  */
- const getInLocal = (key) => localStorage.getItem(key)
-
- /**
-  * 在sessionStorage存储数据
-  * @param {string} key 
-  * @param {*} value 
-  * @returns 
-  */
- const saveInSession = (key, value) => sessionStorage.setItem(key, value)
-
- /**
-  * 从sessionStorage读取数据
-  * @param {string} key 
-  * @returns 
-  */
- const getInSession = (key) => sessionStorage.getItem(key)
-
- // NOTICE: localStorage sessionStorage的区别见 /面径/javascript/localStorage和sessionStorage/README.md
-
+ 
+ // Tag: 浏览器样式篇
  // 获取浏览器窗口尺寸
  const getNavigatorSize = () => ({ width: window.outerWidth, height: window.outerHeight })
  
@@ -216,6 +229,43 @@ const openWebsiteInWindow = (url, width, height, left, top) => {
 
  // 获取可视窗口尺寸
  const getViewportSize = () => ({ 
+    width: window.innerWidth,
+    height: window.innerHeight
+ })
+
+ // 获取不带滚动条的可视窗口尺寸
+ const getNoScrollBarViewportSize = () => ({
     width: document.documentElement.clientWidth || document.body.clientWidth,
     height: document.documentElement.clientHeight || document.body.clientHeight
  })
+
+ // 获取垂直滚动条的宽度
+ const getYScrollBarWidth = () => window.innerWidth - document.documentElement.clientWidth
+
+ // 获取水平滚动条高度
+ const getXScrollBarHeight = () => window.innerHeight - document.documentElement.clientHeight
+
+ // 获取浏览器垂直滚动条滚动距离
+ const getYScrollOffset = () => window.scrollY || window.pageYOffset || document.documentElement.scrollTop
+
+ // 获取浏览器水平滚动条滚动距离
+ const getXScrollOffset = () => window.scrollX || window.pageXOffset || document.documentElement.scrollLeft
+
+ // 获取浏览器窗口左边界距离计算机屏幕左边界的间距
+ const getNavigatorLeftOffset = () => window.screenLeft
+
+ const getNavigatorTopOffset = () => window.screenTop
+
+ // 获取浏览器窗口所在屏幕的高度
+ const getScreenHeight = () => screen.height
+
+ const getScreenWidth = () => screen.width
+
+ // 获取浏览器所在屏幕左边界到主屏幕左边界的距离
+ // NOTE: 多屏幕下才能看到效果，否则值为 0
+ const getScreenLeftOffset = () => screen.availWidth
+
+ const getScreenTopOffset = () => screen.availHeight
+
+ // 获取浏览器所在屏幕的像素深度
+ const getScreenPixelDepth = () => screen.pixelDepth

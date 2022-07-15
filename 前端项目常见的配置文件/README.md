@@ -4,7 +4,22 @@ babel的配置文件，babel用于不同版本js代码的转化、兼容、功�
 **怎么用**
 * npm安装babel
 * 按照官网说明，编写好babel.config.js文件
-  
+
+**开发中要安装的babel库**
+> 从**版本7**开始，babel相关的库**以@babel**命名，之前是**以babel**命名
+* @babel/core
+> 由@babel/parser、@babel/traverse、@babel/generate组成
+* @babel/cli
+> babel命令行工具，是一个可执行程序
+* @babel/plugin-*
+> babel周边插件，*是名字泛称标记
+* @babel/preset-env
+> babel常见环境的预配置
+* babel-loader
+> 告诉babel应该如何处理js文件，babel提供编译代码的能力，但babel不知道哪些.js文件需要编译，哪些不需要编译，像这些内容，就需要babel-loader告知babel.
+* @babel/runtime
+> 要结合 @babel/plugin-transform-runtime使用，将开发人员注入到编译过程中的代码打包成一个运行时库来管理，减少重复代码。
+
 <br>
 
 ---
