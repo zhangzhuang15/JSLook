@@ -15,7 +15,7 @@
 const net = require('net')
 const events = require('events')
 const WsFrame = require('./util').WsFrame
-
+const http = require('http')
 const PORT = 4433
 
 const generateRandomKey = (size) => {

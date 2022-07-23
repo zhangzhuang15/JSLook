@@ -71,3 +71,7 @@ vue3.0下的插件。
 ### thunder client 插件
 ![](./thunderClient.png)
 功能等同于 postman，功能完整，比较轻量
+
+### code metrics
+![](./code-metrics.png)
+计算 javascript 或者 typescript 代码片段的复杂度，适用于 code review 阶段。
