@@ -32,6 +32,8 @@
 7. 编写cpp文件和gyp文件：
    ```c++
     // main.cpp
+    // 引入 napi.h 的时候可能会找不到，如果你使用的是vscode，
+    // 安装了 c/c++ 插件，那么可以通过快速修复功能解决
     #include <napi.h>
     #include <iostream>
 
