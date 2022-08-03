@@ -148,6 +148,8 @@ const getCurrentQueryObj = () => {
             })
     return obj
 }
+// 另一种实现: 将url中的query参数直接转化为对象
+const getCurrentQueryObjInline = url => JSON.parse(`{ "${decodeURI(url.split('?')[1]).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"')}"}`)
 
 // 获取当前网页hash
 // NOTE: 不包含 `#`

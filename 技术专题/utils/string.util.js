@@ -68,3 +68,26 @@ const decodeString = (content, decode) => {
     }
     return ''
 }
+
+/**
+ * 生成随机的十六进制颜色值
+ * @returns 
+ */
+const getRandomHexColor = () => `#${Math.floor(Math.random() * 0xffffff).toString(16).padEnd(6, '0')}`
+
+
+/**
+ * (r, g, b) 转换为 十六进制表示的字符串
+ * @param {number} r 
+ * @param {number} g 
+ * @param {number} b 
+ * @returns 
+ * 
+ * @example
+ * ```js
+ * const [r, g, b] = [255, 255, 255]
+ * // true
+ * assert.equal(rgbHex(r, g, b), '#ffffff')
+ * ```
+ */
+const rgb2Hex = (r, g, b) => `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`
