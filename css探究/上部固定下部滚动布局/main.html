@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上部固定，下部滚动的布局</title>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 300px;
+            height: 800px;
+            border: 1px solid black;
+            background-color: antiquewhite;
+        }
+
+        .nav {
+            height: 200px;
+            flex-shrink: 0;
+            background-color: aqua;
+        }
+        
+        .scroll-area {
+            overflow: auto;
+            background-color: brown;
+            margin-bottom: 10px;
+        }
+
+        .content-element {
+            height: 900px;
+            padding: 10px;
+            background-color: lightcyan;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">我是nav区域</div>
+        <div class="scroll-area">
+            <div class="content-element">我很长的</div>
+        </div>
+    </div>
+
+    <!--
+        scroll-area 没有设置height，但设置了overflow，
+        如果 content-element 不是很高，顶不到 container 底部，content-element不会自动拉伸；
+        如果 content-element 很高，超过了 container 底部，content-element会收缩，刚刚顶到 container 底部，同时支持滚动浏览content-element;
+
+        值得注意的是，scroll-area设置了margin-bottom, 在设置overflow前提下，margin-bottom 是有效的，
+        scroll-area会和container底部会间距10px，如果没有设置overflow，scroll-area会超出 container，
+        scroll-area和container底部之间不会有10px间距（毕竟都越界超出了，哪里来的间距）
+    -->
+</body>
+</html>
