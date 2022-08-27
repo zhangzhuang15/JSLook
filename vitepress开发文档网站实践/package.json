@@ -1,0 +1,17 @@
+{
+  "name": "vitepress-demo",
+  "version": "1.0.0",
+  "description": "使用vitepress开发一个文档网站",
+  "main": "main.js",
+  "author": "zhangzhuang",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:serve": "vitepress serve docs"
+  },
+  "devDependencies": {
+    "vitepress": "^1.0.0-alpha.4"
+  }
+}

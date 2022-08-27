@@ -77,7 +77,7 @@ vite 是一个开发工具，等效于 webpack，其 devServer是根据es6原理
 
 ### `.eslintrc`
 eslint 的配置文件；  
-eslint 用语检测js的语法问题，但并不提供修改、格式调整；  
+eslint 用语检测js、ts的语法、风格问题，并给出正确的格式化；  
 eslint 主要用于使用编辑器敲代码的时候给出错误提示，而不是在编译项目的时候给出提示，这需要你：
 1. npm安装了eslint；
 2. vscode上安装了eslint插件；

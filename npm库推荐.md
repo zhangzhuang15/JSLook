@@ -25,6 +25,8 @@ http请求库
 ### 🌟umi-request
 阿里巴巴开源的一款http客户端，支持浏览器和node环境，与axios功能相同。
 
+### 🌟vite-press
+用于开发文档网站站点的框架。比如某些技术的官方文档，就是属于文档网站站点，甚至你可以开发自己的博客网站。
 ### PM2
 进程管理器（<span style="color: green">源码挺好的，可以看看</span>）
 
