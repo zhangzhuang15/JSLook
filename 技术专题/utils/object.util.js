@@ -19,6 +19,8 @@ const isUndefined = (obj) => typeof obj === 'undefined'
 
 const isNull = (obj) => typeof obj === 'object' && toString.call(obj) === '[object Null]'
 
+const isEmpty = (obj) => Reflect.ownKeys(obj).length === 0 && obj.constructor === Object
+
 const isFunction = (func) => typeof func === 'function'
 
 const isArray = (array) => toString.call(array) === '[object Array]'
