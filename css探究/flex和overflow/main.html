@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .box {
+            display: flex;
+            width: 300px;
+            height: 200px;
+            background-color: lightblue;
+        }
+        .son {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        .overflow {
+            overflow: scroll;
+        }
+        .flex-column {
+            flex-direction: column;
+        }
+        .nowrap {
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <!-- 本篇内容是对 “上部固定下部滚动布局” 一节的补充内容 -->
+
+    <section>
+        <h1>实验一</h1>
+        <div class="box">
+            <div class="son nowrap">tttfadsfd ffdafadfttra fdassfasf fdsafsf fdasfsf fdasfdsf fdasf</div>
+        </div>
+        <br>
+        <div class="box overflow">
+            <div class="son nowrap">tttfadsfd ffdafadfttra fdassfasf fdsafsf fdasfsf fdasfdsf fdasf</div>
+        </div>
+    </section>
+
+    <section>
+        <h1>实验二</h1>
+        <div class="box">
+            <div>
+                <div class="son nowrap">tttfadsfd ffdafadfttra fdassfasf fdsafsf fdasfsf fdasfdsf fdasf</div>
+            </div>
+        </div>
+        <br>
+        <div class="box overflow">
+            <div>
+                <div class="son nowrap">tttfadsfd ffdafadfttra fdassfasf fdsafsf fdasfsf fdasfdsf fdasf</div>
+            </div>
+        </div>
+        <br>
+        <div class="box">
+            <div>
+                <div class="son nowrap overflow">tttfadsfd ffdafadfttra fdassfasf fdsafsf fdasfsf fdasfdsf fdasf</div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h1>实验三</h1>
+        <div class="box flex-column">
+            <div>
+                <div class="son nowrap overflow">tttfadsfd ffdafadfttra fdassfasf fdsafsf fdasfsf fdasfdsf fdasf</div>
+            </div>
+        </div>
+        <br>
+        <div class="box flex-column overflow">
+            <div>
+                <div class="son nowrap">tttfadsfd ffdafadfttra fdassfasf fdsafsf fdasfsf fdasfdsf fdasf</div>
+            </div>
+        </div>
+
+    </section>
+
+    
+</body>
+</html>
