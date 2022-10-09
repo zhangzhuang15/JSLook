@@ -1,0 +1,11 @@
+{
+  "name": "demo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "launch-editor": "^2.6.0",
+    "mongo": "^0.1.0",
+    "open": "^8.4.0"
+  }
+}

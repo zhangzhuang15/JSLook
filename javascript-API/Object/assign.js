@@ -21,3 +21,5 @@ console.log(julie)
 // { color: 'lightblue', age: 28, name: 'julie' }
 // Peter的 age 会覆盖掉 julie 的 age，之后 John 的 age 覆盖掉 julie 的 age，
 // 因此julie的 age  17 -> 18 -> 28
+
+// Object.assign中发生的拷贝是浅拷贝，如果遇到引用类型数据，要小心🥺
