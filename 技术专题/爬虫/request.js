@@ -2,9 +2,8 @@ const https = require('https')
 const fs = require('fs')
 
 const url = 
-"https://upos-sz-mirrorhw.bilivideo.com/upgcxcode/18/44/470594418/470594418-1-30280.m4s?e=ig8euxZM2rNcNbdlhoNvNC8BqJIzNbfqXBvEqxTEto8BTrNvN0GvT90W5JZMkX_YN0MvXg8gNEV4NC8xNEV4N03eN0B5tZlqNxTEto8BTrNvNeZVuJ10Kj_g2UB02J0mN0B5tZlqNCNEto8BTrNvNC7MTX502C8f2jmMQJ6mqF2fka1mqx6gqj0eN0B599M=&uipk=5&nbs=1&deadline=1654012105&gen=playurlv2&os=hwbv&oi=0&trid=5eb50971ab174234915e5344c201db31u&platform=pc&upsig=5ff7eb0ef7a237f113a81e2a3948b742&uparams=e,uipk,nbs,deadline,gen,os,oi,trid,platform&mid=523100943&bvc=vod&nettype=0&orderid=0,2&agrr=0&bw=40221&logo=80000000"
-
-const file = "泪海.mp3"
+"https://upos-sz-estgoss.bilivideo.com/upgcxcode/93/09/166270993/166270993-1-30216.m4s?e=ig8euxZM2rNcNbdlhoNvNC8BqJIzNbfqXBvEqxTEto8BTrNvN0GvT90W5JZMkX_YN0MvXg8gNEV4NC8xNEV4N03eN0B5tZlqNxTEto8BTrNvNeZVuJ10Kj_g2UB02J0mN0B5tZlqNCNEto8BTrNvNC7MTX502C8f2jmMQJ6mqF2fka1mqx6gqj0eN0B599M=&uipk=5&nbs=1&deadline=1665134063&gen=playurlv2&os=upos&oi=1875369849&trid=9db0d75ae611464880a2ad10c54db620u&mid=523100943&platform=pc&upsig=2c23f183e90ab19c81eaf33cbdcdfd06&uparams=e,uipk,nbs,deadline,gen,os,oi,trid,mid,platform&bvc=vod&nettype=0&orderid=0,3&agrr=1&bw=8418&logo=80000000"
+const file = "追.mp3"
 
 const stream = fs.createWriteStream(__dirname + '/' + file, 'binary')
 
@@ -15,8 +14,8 @@ const request = https.request(url, {
         'Accept': "*/*",
         'Origin': "https://www.bilibili.com",
         'Accept-Language': "zh-CN,zh-Hans;q=0.9",
-        'Range': "bytes=0-12589435",
-        'Host': 'upos-sz-mirrorhw.bilivideo.com',
+        'Range': "bytes=0-1776319",
+        'Host': 'upos-sz-estgoss.bilivideo.com',
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.1 Safari/605.1.15',
         'Referer': 'https://www.bilibili.com/',
         'Accept-Encoding': 'identity',
