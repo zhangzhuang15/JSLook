@@ -21,6 +21,89 @@
 #### engines
 强烈建议设置此选项。当你搭起一个项目，设置好研发环境时，你安装依赖的库可能对node版本有要求。如果另外有一个人拉取你的项目，想做些贡献，很可能被本地node版本号坑到，无法顺利安装依赖库。通过engines指定好版本，可以提早给出提示，先行告知用户升级node。
 
+#### exports
+node v14.13.0开始支持的字段。
+exports 字段可以配置不同环境对应的模块入口文件，并且当它存在时，它的优先级最高。
+```json
+{
+   "name": "packageA",
+   "exports": {
+      ".": {
+         "require": "./dist/main.common.js",
+         "import": {
+            "node": "./dist/main.m.js",
+            "default": "./dist/main.esm.js"
+         },
+         "types": "./dist/types/index.d.ts"
+      },
+      "./css/*": "./dist/css/*",
+   }
+}
+```
+在node环境，使用`import "packageA"`,会引入 `./dist/main.m.js`;
+在node环境，使用`require("packageA")`会引入`./dits/main.common.js`；
+如果是 node + typescript 环境，使用 `import "packageA"`，会引入`./dist/main.esm.js`，声明文件从 `./dist/types/index.d.ts`去找。
+在浏览器环境，通过cdn引入的是 `./dist/main.esm.js`；
+
+
+#### unpkg
+这是第三方工具要在package.json中用到的字段，package.json本身并没有定义该字段。
+`unpkg`指定入口文件。当用户使用unpkg官网的cdn向浏览器中导入npm包的时候，就会将`unpkg`指定的文件导入。
+```json
+{
+   "name": "packageA",
+   "unpkg": "./dist/main.esm.js",
+}
+```
+若`<script src="http://unpkg.com/packageA" />`，就会将packageA项目中的`dist/main.esm.js`文件导入。
+
+
+#### jsdelivr
+第三方工具所需字段。  
+`jsdelivr`指定入口文件。当用户使用jsdelivr官网的cdn向浏览器导入npm包的时候，就会将`jsdelivr`指定的文件导入。
+```json
+{
+   "name": "packageA",
+   "jsdelivr": "./dist/main.esm.js",
+}
+```
+若`<script src="http://cdn.jsdelivr.net/npm/packageA" />`, 就会将packageA项目中的`dist/main.esm.js`文件导入。
+
+#### browserslist
+第三方工具所需字段。  
+指定浏览器兼容性。  
+当使用babel编译代码时，需要知道编译成和什么样的浏览器兼容的代码，此时babel就会读取package.json中的 `browserslist`字段。当然，你可以不用写在package.json中，单独放在`.browserslistrc`文件中。
+```json
+{
+   "name": "packageA",
+   "browserslist": [
+      ">5%",
+      "last 1 version"
+   ]
+}
+```
+
+#### sideEffects
+第三方工具所需字段。
+指定有副作用的文件有哪些，阻止webpack对这些文件的tree-shaking。
+比如使用 webpack 打包的时候，如果 `import css from "packageA/css"` 引入某个包下面的css资源，可是webpack发现你没有使用，就不会把这些css资源打包，此时设置 `sideEffects: ["*.less", "*.scss", "*.stylus"]`，告诉webpack这些文件有副作用，别对它们使用tree-shaking。
+
+#### lint-staged
+第三方工具所需字段。
+配置 `lint-staged`工具对git暂存区的文件，做哪些操作。
+```json
+{
+   "name": "packageA",
+   "lint-staged": {
+      "src/**/*.{js,jsx,ts,tsx}": [
+         "eslint --fix",
+         "prettier --write",
+         "git add -A"
+      ],
+   }
+}
+```
+> 不要忘记 `npm install lint-staged`
 
 ## 前端工程化的具体场景
 ### 浏览器端js库开发
