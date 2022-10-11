@@ -31,6 +31,18 @@
 2. 你的项目是多package管理的根项目，各个package要发布到npm上，根项目无需发布
    > 这个情形下，你还要指定 workspace，交代多个 package 分布在哪些文件夹下，一般都是放在一个叫 packages 的文件夹下。
 
+#### workspace 
+```json
+{
+   "name": "packageA",
+   "private": true,
+   "workspace": [
+      "./package/*"
+   ]
+}
+```
+表示package文件夹下的每个文件夹，都带有 package.json 文件，也就是说这些文件夹都是一个npm包。
+
 #### engines
 强烈建议设置此选项。当你搭起一个项目，设置好研发环境时，你安装依赖的库可能对node版本有要求。如果另外有一个人拉取你的项目，想做些贡献，很可能被本地node版本号坑到，无法顺利安装依赖库。通过engines指定好版本，可以提早给出提示，先行告知用户升级node。
 
@@ -54,6 +66,9 @@ files的作用就是告诉 npm publish, 项目中到底哪些文件要被打包�
 如果你在 .js 文件使用 module 方式导出，在另一个 .js 文件中使用 commonjs 方式导入，需要使用 @babel/register 这样的工具进行及时编译，否则报错！
 
 #### types 
+第三方工具所需字段。
+这个字段供 typescript 使用。
+
 如果你的库要供给typescript使用，需要为你的js库加入声明文件，而types就是指出声明文件的位置。
 
 #### module
@@ -82,6 +97,18 @@ exports 字段可以配置不同环境对应的模块入口文件，并且当它
 如果是 node + typescript 环境，使用 `import "packageA"`，会引入`./dist/main.esm.js`，声明文件从 `./dist/types/index.d.ts`去找。
 在浏览器环境，通过cdn引入的是 `./dist/main.esm.js`；
 
+#### packageManager
+该字段告诉别人你使用什么包管理工具，但是这个字段并不会阻止别人用其它包管理工具。  
+比如，package.json
+```json
+{
+  "packageManager": "yarn@1.20.2",
+  "scripts": {
+   "dev": "node index.js"
+  }
+}
+```
+别人依旧可以正常执行`npm run dev`
 
 #### unpkg
 这是第三方工具要在package.json中用到的字段，package.json本身并没有定义该字段。
@@ -141,6 +168,32 @@ exports 字段可以配置不同环境对应的模块入口文件，并且当它
 }
 ```
 > 不要忘记 `npm install lint-staged`
+
+### 工程化必备工具
+#### babel 
+js的编译器。
+* 将源代码转化为指定模块化格式的js代码；
+  > 你用 commonjs代码写的，它可以转为 module 模块风格的代码；
+* 将源代码转化为指定标准的js代码；
+  > 你用新的es语法标准写的代码，它可以转为 es5 代码；
+
+一般不单独使用，会在前端构建工具生态中作为插件或者loader使用。
+
+单独使用时，一般是有要自定义修改AST的需求，生成特别的js代码。这时候常用@babel/parser包，用它提供的API，在nodejs环境代码中去实现。
+
+#### eslint 
+一个 js 或者 ts 的语法检测器。
+* 配合vs code中的 eslint 插件，在你编写 js 或者 ts 代码时，检测书写的语法错误，给出自动修改格式化；
+* 配合 eslint的 typescript 插件，才可以检测到 ts 的语法问题；
+  > 如果使用 eslint检测  ts 语法问题了，就不需要在 tsconfig.json 配置类型检测方面的参数了。
+* 多配合 eslint 的 prettier 插件，对 代码风格进行检测并修改；
+  > 此时不需要加入 prettier 配置文件了
+
+eslint 的CLI一般配置在package.json的 scripts中，用于对指定的文件做一次整体检测，而不是依赖vscode eslint插件在书写代码的时候检测。
+
+在 lint-staged 常会用到 eslint CLI，对暂存区的文件做整体检测。
+> 文件越多，eslint整体检测一遍的时间越长；但实际上，暂存区的文件并不多，所以要这么做。
+
 
 ## 前端工程化的具体场景
 ### 浏览器端js库开发

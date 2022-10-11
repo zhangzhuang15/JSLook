@@ -16,5 +16,4 @@ const server = http2.createSecureServer(
   },
   app.callback(),
 );
-
 server.listen(8003);

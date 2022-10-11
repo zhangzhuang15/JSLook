@@ -46,6 +46,9 @@
 ### 🌟etag
 生成 http 的 ETag 内容
 
+### 🌟source-map 
+sourcemap文件解析器和生成器
+
 ### 🌟selfsigned
 Generate a self signed x509 certificate from node.js.
 
