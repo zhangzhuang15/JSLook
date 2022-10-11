@@ -144,7 +144,9 @@ const getCurrentQueryObj = () => {
             .split('&')
             .forEach( query => {
                 const [key, value] = query.split('=')
-                obj[key] = value
+                if (obj[key] && obj[key].length) obj[key] = obj[key].concat(value)
+                else if (obj[key]) obj[key] = [obj[key], value]
+                else obj[key] = value
             })
     return obj
 }
