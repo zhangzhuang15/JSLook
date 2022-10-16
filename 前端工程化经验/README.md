@@ -169,6 +169,8 @@ exports 字段可以配置不同环境对应的模块入口文件，并且当它
 ```
 > 不要忘记 `npm install lint-staged`
 
+<br>
+
 ### 工程化必备工具
 #### babel 
 js的编译器。
@@ -180,6 +182,9 @@ js的编译器。
 一般不单独使用，会在前端构建工具生态中作为插件或者loader使用。
 
 单独使用时，一般是有要自定义修改AST的需求，生成特别的js代码。这时候常用@babel/parser包，用它提供的API，在nodejs环境代码中去实现。
+
+更多信息参考 [配置文件.md](./%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6.md)
+
 
 #### eslint 
 一个 js 或者 ts 的语法检测器。
@@ -194,6 +199,64 @@ eslint 的CLI一般配置在package.json的 scripts中，用于对指定的文�
 在 lint-staged 常会用到 eslint CLI，对暂存区的文件做整体检测。
 > 文件越多，eslint整体检测一遍的时间越长；但实际上，暂存区的文件并不多，所以要这么做。
 
+FAQ🤔：   
+1. 为什么使用了eslint，还要使用prettier呢？
+   这个是令人非常困惑的事情。  
+   eslint本身除了代码语法检测之外，也支持格式化。  
+   prettier专注于代码的格式化。  
+     
+   eslint 主要检测 js 代码语法是否有错误，如果有错误，可以进行纠正，也就是格式化。但是eslint没有办法检测到 ts、css、less 等其他语言的语法错误。  
+   
+   * 如果要检测ts语法错误，并且纠正语法错误:
+     * 必须要安装eslint的ts插件`@typescript-eslint/eslint-plugin` 和 `@typescript-eslint/parser`;
+     * 还要安装ts编译器`npm install -D typescript`;
+     * 往extends参数加入 `plugin: @typescript-eslint/recommended`;
+     * 往parser 参数加入 `@typescript-eslint/parser`。  
+     * 
+   * 如果想纠正处理`js，ts`的代码风格，比如不该缩进的地方缩进了，你想在vscode一保存代码，就直接格式化为正确的风格，就必须使用eslint的prettier插件:
+     * 安装`eslint-plugin-prettier`;
+     * 安装`prettier`;
+     * 安装`eslint-config-prettier`;
+     * 往extends 参数加入 `plugin: prettier/recommended`;
+     * 往plugin 参数加入 `prettier`；
+     > `plugin: prettier/recommended`存在黑魔法👇 https://github.com/prettier/eslint-plugin-prettier#recommended-configuration ；
+     > 这个黑魔法令配置中看不到 `eslint-config-prettier`的踪影，但实际上确实用到了它；
+     * 还要配置vscode
+       * 在settings中输入`editor.save`，保证`formatOnSave`✅;
+       * 在settings中输入`editor.defaultFormat`, 保证`Default Formatter` 是 `ESLint` 或者 `Prettier ESLint`
+      > 找不到这两个选项，请安装vscode的 ESLint 插件， Prettier ESlint插件， Prettier 插件；
+
+2. 怎么检测css、less、scss的错误，格式化代码风格？
+在上个问题中，我们加入了 `plugin: prettier/recommended`, 引入了 prettier r推荐的配置，这个配置中就包含着  css less scss 的格式化设置，因此上个问题配置好后，就可以直接保存，格式化这些文件了。推荐的配置中，还支持` markdown `文件。
+stylus是个例外。需要单独安装 vscode 的 stylus 插件。不过本人受不了 stylus 的古怪语法，不会使用该工具，就不介绍如何配置了，
+欢迎补充：👇
+   ```
+
+   ```
+
+
+#### rollup 
+常用于 库或者框架 的打包工具。
+原生支持 es6 标准下的js代码打包，不支持其他资源的代码，如 .css .png .jpeg .mp3;
+
+如果要打包ts，需要引入 rollup的 typescript 插件`rollup-plugin-typescript` 或者 `rollup-plugin-typescript2`；
+
+如果支持 es5 的 api pollyfill， 需要加入 rollup的 babel 插件`rollup-plugin-babel`;
+
+
+#### esbuild 
+使用go实现的js打包器。
+在 vite 中得到应用。
+
+#### swc 
+
+#### parcel
+
+#### webpack 
+最成熟的构建工具。
+支持的范围非常广，无所不包，生态最好。
+可以打包js， 也可以打包 ts， 还可以打包 .css .png .jpeg .mp4 等等静态资源，只需要引入对应的 plugin 或者 loader。
+和 rollup 不同的是，主张拆包，多作为前端 app 开发的构建工具。
 
 ## 前端工程化的具体场景
 ### 浏览器端js库开发
