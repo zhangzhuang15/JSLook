@@ -1,0 +1,3 @@
+- namespace 和 module 在最终生成的代码中是等效的，只是名字不同；
+- 引入namespace 是避免和 commonJS 的module概念混淆；
+- 官方推荐使用 namespace;
