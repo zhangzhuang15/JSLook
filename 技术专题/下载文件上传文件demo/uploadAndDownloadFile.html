@@ -4,11 +4,17 @@
         <title>upload and download file demo</title>
     </head>
     <body>
-        <input type="file" value="upload">
+        <input type="file" value="upload form data">
+        <input type="file" value="upload file">
         <input type="button" onclick="downloadFile()" value="download">
         <script type="text/javascript">
-        var uploadButton = document.querySelector("input[type=file]");
-        uploadButton.addEventListener("change", uploadFile);
+        var uploadButton = document.querySelectorAll("input[type=file]");
+        const [uploadFormDataButton, uploadFileButton] = uploadButton;
+
+        uploadFormDataButton.addEventListener("change", uploadFormData);
+        uploadFileButton.addEventListener("change", uploadFile);
+
+        // 在 body 中单纯以 binary stream 的方式发送
         function uploadFile(event){
             const files = event.target.files;
             const xhr = new XMLHttpRequest();
@@ -26,6 +32,28 @@
             };
             reader.readAsArrayBuffer(files[0]);
         }
+
+        // 在 body 中以 form data 的方式发送
+        function uploadFormData(event) {
+            const files = event.target.files;
+            const xhr = new XMLHttpRequest();
+            xhr.responseType = "json";
+
+            const formData = new FormData();
+            formData.append('file', files[0]);
+
+            xhr.onload = () => {
+                console.log("response body: ", xhr.result);
+            };
+
+            xhr.upload.onprogress = (event) => {
+                console.log("process: ", event.loaded / event.total)
+            }
+
+            xhr.open("POST", `http://localhost:8099/form`);
+            xhr.send(formData);
+        }
+
         function downloadFile(){
             const xhr = new XMLHttpRequest();
             xhr.open("GET", "http://localhost:8099/download/test.mp3");
