@@ -61,6 +61,12 @@ sourcemap文件解析器和生成器
 ### 🌟selfsigned
 Generate a self signed x509 certificate from node.js.
 
+### 🌟debug
+输出日志信息的轻量级库，输出信息中自带执行时间
+
+### 🌟hash-sum
+生成hash值的轻量级库
+
 ### resolve
 查询一个模块入口文件的绝对路径
 ### isbuiltin
