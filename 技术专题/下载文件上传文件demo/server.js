@@ -17,6 +17,7 @@ const server = http.createServer((req, res) => {
       res.end("ok");// 如果不返回给客户端信息，客户端会等到超时后报错
     const reg = /\/path\//;
     const regDownload = /\/download\//;
+    const regForm = /\/form/;
     if( req.url.search(reg) != -1){
         fs.existsSync("./path") || fs.mkdirSync("./path");
         name = req.url.split("/path/")[1];
@@ -35,6 +36,59 @@ const server = http.createServer((req, res) => {
         readStream.on("end", () => {
             res.end("ok too ");
         });    
+    }
+    if(req.url.search(regForm) !== -1) {
+        console.log("form data request headers: ", req.headers);
+        const [_, boundary] = /boundary=(.*)$/.exec(req.headers['content-type']) || [];
+        const data = [];
+        req.on("data", (chunk) => {
+            data.push(chunk);
+        });
+        req.on("end", () => {
+            // content-type 是 multipart/form-data 的body格式:
+            // --{boundary}\r\n
+            // Content-Disposition: {value}\r\n
+            // Content-Type: {value}\r\n
+            // \r\n
+            // {content}\r\n
+            // --{boundary}--
+            const joinedData = Buffer.from(data.join(""));
+            const formData = data.join("").split('\r\n');
+
+            const content_start = joinedData.indexOf('\r\n\r\n') + 4;
+            const content_end = joinedData.lastIndexOf(`\r\n--${boundary}--`);
+            // let content_start = 0;
+            // for (let i = 0; i < 4; i+=1) {
+            //     let index = joinedData.slice(content_start).indexOf('\r\n');
+            //     content_start += index + 2
+            // }
+            // let content_end = joinedData.length;
+            // for (let i = 0; i < 1; i +=1) {
+            //     let index = joinedData.slice(0, content_end).lastIndexOf('\r\n');
+            //     content_end = index
+            // }
+            let index = formData.findIndex((value) => value === '--' + boundary);
+            if (index > -1) {
+                console.log(formData.slice(-3));
+                console.log(formData.length);
+                const ContentDispositionString = formData[index + 1];
+                const ContentTypeString = formData[index + 2];
+                const content = joinedData.subarray(content_start, content_end);
+                
+                const [__, fileName] = /filename="(.*)"$/.exec(ContentDispositionString) || [];
+                const [___, type] = /Type: (.*)$/.exec(ContentTypeString) || [];
+
+                if (fileName && type) {
+                    
+                    const writer = fs.createWriteStream(`./path/${fileName}`, 'binary');
+                    writer.write(content);
+                    writer.end();
+                }
+            }
+            //res.writeHead(200, 'yes');
+            res.end("ok");
+        });
+        return;
     }
     // 接收到客户端传来的数据时
     req.on("data", chunk => {
@@ -56,3 +110,5 @@ const server = http.createServer((req, res) => {
 server.listen(8099, () => {
     console.log("server is listening");
 });
+
+// TODO: 为什么下载后的 png 无法打开？content 的编码有问题？

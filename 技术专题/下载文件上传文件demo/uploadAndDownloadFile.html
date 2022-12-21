@@ -4,11 +4,17 @@
         <title>upload and download file demo</title>
     </head>
     <body>
-        <input type="file" value="upload">
+        <input type="file" value="upload form data">
+        <input type="file" value="upload file">
         <input type="button" onclick="downloadFile()" value="download">
         <script type="text/javascript">
-        var uploadButton = document.querySelector("input[type=file]");
-        uploadButton.addEventListener("change", uploadFile);
+        var uploadButton = document.querySelectorAll("input[type=file]");
+        const [uploadFormDataButton, uploadFileButton] = uploadButton;
+
+        uploadFormDataButton.addEventListener("change", uploadFormData);
+        uploadFileButton.addEventListener("change", uploadFile);
+
+        // 在 body 中单纯以 binary stream 的方式发送
         function uploadFile(event){
             const files = event.target.files;
             const xhr = new XMLHttpRequest();
@@ -26,6 +32,28 @@
             };
             reader.readAsArrayBuffer(files[0]);
         }
+
+        // 在 body 中以 form data 的方式发送
+        function uploadFormData(event) {
+            const files = event.target.files;
+            const xhr = new XMLHttpRequest();
+            xhr.responseType = "json";
+
+            const formData = new FormData();
+            formData.append('file', files[0]);
+
+            xhr.onload = () => {
+                console.log("response body: ", xhr.result);
+            };
+
+            xhr.upload.onprogress = (event) => {
+                console.log("process: ", event.loaded / event.total)
+            }
+
+            xhr.open("POST", `http://localhost:8099/form`);
+            xhr.send(formData);
+        }
+
         function downloadFile(){
             const xhr = new XMLHttpRequest();
             xhr.open("GET", "http://localhost:8099/download/test.mp3");
@@ -35,19 +63,28 @@
                 // 如果指定一个类型，比如 blob json arraybuffer document
                 // xhr在收到后端返回的字节数据时，会将字节数据转换为该类型
                 console.log("response type: ", xhr.responseType);
+
                 // 后端传回的数据是字节流，必须要指定blob形式，否则下载的是乱码
                 // Blob第一个参数必须是序列
                 // Blob可以将数据转换为非javascript内置二进制数据，比如说MIME类型
                 const blob = new Blob([xhr.response], { type: "audio/mpeg"});
+
+
                 // 如果想下载blob中的数据，必须要创建 <a></a>，通过触发a来下载文件
+
+                // blob在内存中存储二进制文件，url就是该内存的链接
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
+                // 下载文件弹窗中的默认文件命名
                 link.download = "test.mp3";
                 link.style.display = 'none';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                // 除非 document 卸载，url 所链接的内存区不会被释放，内存泄漏，
+                // 必须用 revokeObjectURL 释放
+                setTimeout(() => URL.revokeObjectURL(url), 0);
             };
             xhr.send(null);
         }

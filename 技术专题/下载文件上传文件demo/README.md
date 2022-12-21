@@ -70,3 +70,22 @@
         xhr.send(null);
    }
 ```
+## 浏览器端应该注意什么
+1. 浏览器可以预览PDF，图片，但是无法预览.doc .xls .ppt, 这些文件默认行为是下载；
+2. 后端如果返回 Content-Type: application/x-download，可二进制流实际是一个pdf，即便指定了 Content-Disposition: inline,
+   浏览器仍旧会去下载，而不是预览；
+3. `<a>` 的 download 只在 href 是同源路径才有效，href 如果是 objectURL, 算作同源；
+4. `<img>` 不受同源策略限制；
+
+## 服务端应该做什么
+1. 必须解决好 CORS 问题；
+   > 响应头不能重复设置, 比如设置了两个 `Access-Control-Allow-Origin`；
+   > 如果经过Nginx反向代理，要过滤掉不合适的响应头；
+   > 不要相信 postman 调用接口的结果，它和浏览器环境存在差距；
+   > 同源策略： 协议名，域名，端口号，全部一致，才算同源；
+2. 必须给出 `Access-Control-Expose-Headers`, 让浏览器端读取到必要的响应头数据，比如 `Content-Disposition`;
+   > 在google 浏览器 network 选项卡中，看到的响应头，AJAX可能获取不到；
+
+3. 必须给出 `Content-Disposition`, 告诉浏览器是去下载文件(attachment)，还是在页面预览文件(inline);
+4. 必须给出正确的 `Content-Type`, 否则前端不指定type的情况下，创建了一个Blob，该Blob是无法被正确解析的；
+   > 选择正确的 MIME 类型，避免浏览器产生意外的结果；
