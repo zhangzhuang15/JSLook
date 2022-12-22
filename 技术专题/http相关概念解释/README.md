@@ -12,6 +12,12 @@
 其 src 格式如下：
 `data:[图片的 mime-type-name]；base64,[图片字节码的base64编码内容]`
 
+
+### source-map 的 base64 链接格式
+在使用rollup等工具打包项目，指定生成source-map时，编译好的 js 文件结尾总会有一个source-map链接字符串，告知浏览器，编译后的代码到源代码的位置映射。这个链接字符串的格式为
+```\n//# sourceMappingURL=data:application/json;base64,[source-map字节码的base64编码字符串]```
+> source-map 是 js 中的一种Object对象，其 key-value，记录了编译后代码到源代码的映射关系
+
 ### Referer 指的是什么？
 当你：
 1. 处于页面 http://lisi.com/page-a；
