@@ -232,6 +232,9 @@ js代码安全沙盒，将js代码隔离到安全的环境中执行。
 ### 🌟husky
 git-hooks 的工具库，注册git hook；
 
+### 🌟simple-git-hooks 
+git-hooks 的工具库，vite项目中应用了这个库。比 husky 更简单，更友好。
+
 ### chromedriver
 使用代码的方式完成chrome浏览器操作，比如打开网页，点击网页上的元素等等
 
