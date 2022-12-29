@@ -7,8 +7,15 @@ server.listen(4433)
 const pool = []
 
 server.on("request", (req, res) => {
+    console.log("before res.end():")
     console.log("req socket === res socket ? ", req.socket === res.socket)
+    console.log("res socket closed: ", res.socket.closed)
+    console.log("res socket writable:", res.socket.writable)
+    console.log("res writable:", res.writable)
+    console.log("res closed:", res.closed)
+
     console.log("remote message: ", res.socket.remoteAddress,':', res.socket.remotePort)
+
     if (pool.indexOf(res.socket) === -1) {
         pool.push(res.socket)
     } else {
@@ -56,9 +63,20 @@ server.on("request", (req, res) => {
         res
          .writeHead(200, { "content-type": "application/json" })
          .end(JSON.stringify({ name: 'jack', age: 24, phones: ['12233456', '33456445'] }))
+
+        console.log()
+        console.log("after res.end():")
+        console.log("res socket closed: ", res.socket.closed)
+        console.log("res socket writable:", res.socket.writable)
+        console.log("res writable:", res.writable)
+        console.log("res closed:", res.closed)
+
+        res.write()
     })
 })
 
 server.on("upgrade", (req, socket, head) => {
-
+    if (req.socket === socket) {
+        console.log('socket are same');
+    }
 })
