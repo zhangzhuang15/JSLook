@@ -281,3 +281,46 @@ stylus是个例外。需要单独安装 vscode 的 stylus 插件。不过本人�
 2. 引入 @babel/preset-typescript
    > 使用 babel 和 @babel/plugin-transform-typescript 插件对 ts 进行编译；
    > 预设 @babel/preset-typescript 包含插件@babel/plugin-transform-typescript；
+
+## FAQ🤔
+
+### 1. 使用 vscode 写 nodejs 程序，代码没有智能提示？
+使用nodejs标准库的某个函数时，可能忘记具体怎么使用了，又不想到官网去查API，我们期望 vscode 给出函数原型，提供给我们这些信息： 函数功能是什么，函数的参数具体长什么样，该函数用法举例。
+
+具体来说，如果你在vscode 直接书写如下代码，鼠标悬浮在 `createHttpServer` 上时，你得不到任何提示：
+```js
+const http = require("http")
+
+http.createServer((req, res) => {})
+```
+
+如何给出提示呢？
+
+```bash
+$ pnpm install -D @types/node
+```
+就是这么简单！
+你都不需要写成 ts 文件！
+
+> 在 ts 文件中，使用 import 和 require 都可以引用nodejs 模块，区别在于，import 的方式会保留类型信息，拥有智能提示，require 不会保留类型提示；
+
+
+### 2. 怎么去理解 ts 配置文件中 module 参数 ？
+该参数就是指定 tsc 编译器产出何种 module 管理风格的js代码；
+
+如果指定 `CommonJS`, 在最终代码产物中，你会看到 `require` 函数，看不到 `import`;
+
+如果指定 `ES2015`，在最终代码产物中，你会看到 `import` ， 看不到 `require`;
+
+这仅仅是模块管理形式上的一个语法变化。
+
+但是，如果涉及到 node标准库模块 的引入，指定哪种风格全在于 `node` 理解哪种风格； 
+
+默认状况下，node只能识别 CommonJS，因此编译的结果，你不得不采用 CommonJS ;
+> node 也识别 `.mjs`, 在该文件中，你可以使用 esModule 风格的模块管理；
+
+同理，浏览器只能识别 esModule 模块管理风格的代码，因此编译的结果，你不得不采用 ES2015 之类的风格；
+> ESNext， ES2016 等等
+
+
+ts 所做的一件好事就是在编码阶段统一为 import 风格，在编译阶段再转化为具体环境所支持的风格；

@@ -235,8 +235,20 @@ git-hooks 的工具库，注册git hook；
 ### 🌟simple-git-hooks 
 git-hooks 的工具库，vite项目中应用了这个库。比 husky 更简单，更友好。
 
+### 🌟puppeteer
+chrome浏览器自动化工具，自动化完成浏览器打开，html点击、输入文字，浏览器截图等一系列操作，解放双手，无需手动操作。
+
+npm包有两种安装选择：
+* `puppeteer`
+* `puppeteer-core`
+
+如果你没有安装 Chrome 浏览器，请选择前者，它会下载一个 Chrome;
+如果本地已经安装 Chrome 浏览器，你只是想用 programmatic 的方式编写代码，驱动浏览器完成自动化内容，请选择后者；
+
 ### chromedriver
 使用代码的方式完成chrome浏览器操作，比如打开网页，点击网页上的元素等等
+
+
 
 ### geckodriver
 使用代码的方式完成firefox浏览器操作，比如打开网页，点击网页上的元素等等
