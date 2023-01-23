@@ -1,6 +1,7 @@
 ## 内容
 * 调试 node js 程序
 * 调试 node ts 程序
+* 根据进程号调试 node 程序
 * 调试 React 程序
 * 调试 Vue 程序
 
@@ -115,14 +116,24 @@ main()
     "skipFiles": [
         "<node_internals>/**"
     ],  
-    "cwd": "${workspaceFolder}/用ts编写node程序",
+    "cwd": "${workspaceFolder}/调试/nodets",
     "type": "node"
 }
 ```
 * runtimeArgs 是固定配置，开启ts-node的编译器
+* -r 是传给 node 的参数，用于运行时加载外部模块
 * cwd指定进程的工作目录，也就是被调试的ts文件所在的目录
+* ${workspaceFolder}指vscode打开的项目挂载在哪个文件夹下
 * args 的 ${file} 表示vscode编辑器中当前处于编辑状态的文件绝对路径
 
+---
+
+### 根据进程号调试node程序
+[详细参考 Attaching to Nodejs](https://code.visualstudio.com/docs/nodejs/nodejs-debugging#_attaching-to-nodejs)
+
+* 被调试的node程序启动方式必须是 `node --inspect main.js` or `node --inspect-brk main.js`；
+* 打好断点；
+* Command+Shift+P 打开vscode命令面板，输入`Attach to Nodejs`回车，根据提示选择要调试的进程ID；
 ---
 
 ### 调试 React 程序

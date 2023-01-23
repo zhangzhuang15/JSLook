@@ -238,6 +238,9 @@ js代码安全沙盒，将js代码隔离到安全的环境中执行。
 ### 🌟lerna
 多个package的集中管理器
 
+### 🌟only-allow
+限制项目使用哪个包管理器
+
 ### 🌟husky
 git-hooks 的工具库，注册git hook；
 
