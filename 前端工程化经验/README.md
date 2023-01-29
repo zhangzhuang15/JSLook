@@ -70,6 +70,10 @@ js的编译器。
 * 将 describe、it 等方法挂载到 global 对象上，实现无需引用即可使用；
 * 使用 nodejs 内置的 import 方法引用单元测试文件，触发 describe函数执行，收集回调函数，这些回调函数就是单元测试任务；
 * 利用 hooks 原理、插件系统维护整个框架的逻辑；
+
+
+### publish npm package
+[前往](https://snyk.io/blog/best-practices-create-modern-npm-package/)
   
 #### FAQ
 ##### 研发的代码是按照 es6 模块化组织的，单元测试代码跑在 node 环境，单元测试代码使用require引用模块，会产生引入冲突

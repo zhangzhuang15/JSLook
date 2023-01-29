@@ -11,4 +11,13 @@ node_modules
 **/*/temp/*
 **/*/toy
 **/toy
+*.lock
+.vscodeignore
+.yarnrc
+*.test.js
+*.test.ts
+*.test.js.*
+*.js.map
+*/**/dist
+*/dist
 JSLook.code-*

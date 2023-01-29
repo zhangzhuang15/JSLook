@@ -1,0 +1,15 @@
+{
+  "name": "example",
+  "version": "1.0.0",
+  "description": "example for how to use electron",
+  "main": "dist/main.js",
+  "author": "JasonZhang",
+  "license": "MIT",
+  "scripts": {
+    "dev": "tsc && electron ."
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0-dev.20230129",
+    "electron": "^22.1.0"
+  }
+}

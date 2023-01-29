@@ -42,7 +42,7 @@ npm： 程序继续执行；
 
 npm只会建立一个软连接到项目中，不会触发 files 字段，导致你开发的包的所有文件都被放进了 node_modules中。
 
-解决方法，是使用 git 路径作为依赖路径：
+解决方法一：使用 git 路径作为依赖路径
 ```json
 {
   "dependencies": {
@@ -51,6 +51,18 @@ npm只会建立一个软连接到项目中，不会触发 files 字段，导致�
 }
 ```
 这里假设你开发的包名叫做 `tool`;
+
+解决方法二： 使用 npm-packlist
+```bash
+$ cd <your-project>
+$ npx npm-packlist
+```
+你将看到哪些文件会被发版
+[本方法出处](https://snyk.io/blog/best-practices-create-modern-npm-package/)
+
+解决方法三： 使用 npm pack 
+进入项目根目录, `npm pack`, 生成一个 .tgz 文件；
+进入引用该package的项目根目录，执行 `npm install <path-of-tgz>`;
 
 #### type
 指定你的npm项目采用哪种模块化管理方式，"module" 或者 "commonjs"，**只能二选一**！如果你指定了 “module”，可实际上代码用的是commonJS的方式，node会在执行的过程中报错，但是在vscode编码过程中不会报错。  
