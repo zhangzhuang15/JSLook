@@ -31,6 +31,13 @@
 1. 处于页面 http://lisi.com/page-a;
 2. 点击页面的一个按钮，触发了一次AJAX请求。
 
-请求头中就会包含 Origin 字段，值为 `http://lisi.com`, 表明 发出请求的页面 处于哪种协议、哪个域名、哪个端口下的 web app。
+请求头中就会包含 Origin 字段，值为 `http://lisi.com`, 表明 发出请求的页面 处于哪种协议、哪个域名、哪个端口下的 web app。这样可以让服务方正确处理 cross-origin request。
 
 > Origin 比 Referer 优秀的地方在于，只会暴露 协议名、域名、端口号，不会暴露url的 path 部分。
+
+### Host 指的是什么？
+当你：
+1. 处于页面 http://lisi.com/;
+2. 在该页面发送请求，http://hcp.com/api/v2/list;
+   
+请求头中就会包含 Host字段： "http://hcp.com", 表示请求的域名和协议是什么，方便服务方的虚拟service工作。
