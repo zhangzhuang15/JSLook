@@ -126,6 +126,9 @@ main()
 * ${workspaceFolder}指vscode打开的项目挂载在哪个文件夹下
 * args 的 ${file} 表示vscode编辑器中当前处于编辑状态的文件绝对路径
 
+补充：
+1. 如果在main.ts文件中使用import，执行`ts-node main.ts`会因为module引入格式的问题报错，应该使用`NODE_OPTIONS="--loader ts-node/esm" ts-node main.ts`
+更多关于 ts-node 的信息见其在npm官网的介绍
 ---
 
 ### 根据进程号调试node程序
