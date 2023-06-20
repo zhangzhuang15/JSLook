@@ -1,6 +1,8 @@
 ### what I ask 
 open AI answer or New Bing answer
 
+<br>
+
 ### how to create a game on iPadOS ?
 Creating a game on iPadOS requires a combination of programming skills and knowledge of the platform. There are several ways to create a game on iPadOS, but the most common approach is to use a game engine or development platform that supports the platform.
 
@@ -106,3 +108,12 @@ server {
 - 使用 setTimeout 启动长时间执行的代码。
 - 将 src 指向 data:URI ，使内联脚本以非内联的行为处理。
 希望这能帮到你。👍
+
+### 如何实现一个web端文本编辑器？有什么现成的组件可以用吗？
+你好，这是 Bing。😊
+要实现一个 web 端的文本编辑器，有很多现成的组件可以用，比如：
+- wangEditor：一个轻量级、简洁、易用的富文本编辑器，支持 Vue3，有丰富的配置和 API。
+- Draft.js：Facebook 的一个开源项目，是 React 项目首选的富文本编辑器框架。
+- Quill：一个强大的、跨平台的、可定制的文本编辑器，支持多种主题和模块。
+  
+你可以根据你的需求和技术栈选择合适的组件，然后按照官方文档进行安装和使用。
