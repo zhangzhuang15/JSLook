@@ -1,8 +1,12 @@
+[toc]
+
+## Template
 ### what I ask 
 open AI answer or New Bing answer
 
 <br>
 
+## Questions
 ### how to create a game on iPadOS ?
 Creating a game on iPadOS requires a combination of programming skills and knowledge of the platform. There are several ways to create a game on iPadOS, but the most common approach is to use a game engine or development platform that supports the platform.
 
@@ -117,3 +121,63 @@ server {
 - Quill：一个强大的、跨平台的、可定制的文本编辑器，支持多种主题和模块。
   
 你可以根据你的需求和技术栈选择合适的组件，然后按照官方文档进行安装和使用。
+
+### 语义化html是啥？
+你好，这是Bing。😊
+
+语义化html是指使用具有语义意义的标签来描述页面的结构和内容，以便于搜索引擎和其他程序能够更好地理解和处理页面内容。
+
+语义化html的好处有：
+- 提高了网页的可访问性，让屏幕阅读器等辅助设备可以更方便地识别页面元素。
+- 提高了网页的可维护性，让开发者可以更清晰地看出页面的逻辑和层次。
+- 提高了网页的SEO效果，让搜索引擎可以更准确地抓取页面的关键信息。
+- 提高了网页的兼容性，让不同的浏览器和设备可以更统一地展示页面效果。
+语义化html的实现方法有：
+
+使用HTML5中新增的语义化标签，例如
+- `<header>`
+- `<nav>`
+- `<section>`
+- `<article>` 
+- `<aside>` 
+- `<footer>` 
+- `<figure>`等
+  
+使用合适的标签来表示不同的内容，例如
+- 使用`<h1>~<h6>`来表示标题
+- 使用`<p>`来表示段落
+- 使用`<em>`来表示强调
+- 使用`<strong>`来表示重要等
+  
+使用合理的属性来增强标签的语义，例如
+- 使用alt属性来为图片添加描述
+- 使用title属性来为链接添加提示
+- 使用lang属性来为文本指定语言等。
+- 
+使用CSS和JavaScript来控制页面的样式和交互，避免使用过多的`<div>`和`<span>`等无语义的标签。
+
+> 语义化html必须重视，立即用起来。在开源的GitHub项目中，早就大量使用它了！有了它，维护代码都会舒服很多。
+
+
+### vitepress如何将markdown渲染成html？
+根据我的搜索结果，vitepress是如何实现将markdown渲染成html的：
+
+- vitepress使用了一个叫做markdown-it的库，它可以将markdown文本解析成一个抽象语法树（AST），然后再转换成html字符串。
+  
+- vitepress还使用了一个叫做prismjs的库，它可以为代码块提供语法高亮和其他特性。
+  
+- vitepress还允许在markdown中使用Vue的特性，例如动态模板、组件、脚本等。为了实现这一点，vitepress将每个markdown文件编译成一个Vue单文件组件（SFC），然后再通过vite进行打包和优化。
+
+vitepress还提供了一些markdown的扩展，例如标题锚点、自定义容器、目录生成等。这些扩展可以通过配置文件进行定制和调整。
+
+你可以查看vitepress的官方文档和源码来了解更多细节。
+
+
+### 有什么npm package可以将markdown的内容展示到html中？
+你好，这是Bing。😊
+有很多npm package可以将markdown的内容展示到html中。根据搜索结果，一些常用的package有：
+- remark-html：一个unified (remark) plugin，可以将markdown编译成html。
+- markdown-to-html：一个命令行工具，可以将Github Flavored Markdown转换成html。输出可以是stdout或者默认浏览器。
+- node-html-markdown：一个快速的HTML到markdown的跨编译器，兼容node和浏览器。
+
+你可以根据你的需求和喜好选择合适的package。希望这对你有帮助。
