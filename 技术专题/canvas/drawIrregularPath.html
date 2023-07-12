@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>canvas画不规则path的demo</title>
+    </head>
+    <body>
+        <canvas id="block" 
+                width="300" 
+                height="300" 
+                style="display: block; 
+                        border: 1px solid black; 
+                        margin: 100px auto;
+                        box-shadow: 0px 0px 10px grey;"></canvas>
+        <script>
+            const canvas = document.getElementById('block')
+            let pencile
+
+            if(canvas.getContext) {
+                pencile = canvas.getContext('2d')
+            } else {
+                document.write("抱歉, 您的浏览器不支持canvas API, 换成google浏览器试试?🤣")
+            }
+        
+            // 下面画一下不规则曲线
+            // quadraticCurveTo(cpx, cpy, x, y)
+            // 根据参考点(cpx, cpy) 画出一条不规则曲线，连接当前点和(x, y)
+            
+            // 为了更直观，接下来会将 (cpx, cpy) (x, y) 当前点 画出来，
+            // （cpx, cpy） 用红色， (x, y) 用绿色， 当前点用黑色
+
+            // 画 (cpx, cpy) = （80， 140）
+            pencile.beginPath()
+            pencile.fillStyle = 'red'
+            pencile.moveTo(85, 140)
+            pencile.arc(80, 140, 5, 0, 360)
+            pencile.fill()
+
+            // 画 (x, y) = ( 50, 30)
+            pencile.beginPath()
+            pencile.fillStyle = 'green'
+            pencile.moveTo(55, 30)
+            pencile.arc(50, 30, 5, 0, 360)
+            pencile.fill()
+
+            // 画当前点 = ( 200, 230)
+            pencile.beginPath()
+            pencile.fillStyle = 'black'
+            pencile.moveTo(205, 230)
+            pencile.arc(200, 230, 5, 0, 360)
+            pencile.fill()
+
+            // 画不规则曲线
+            pencile.beginPath()
+            pencile.strokeStyle = 'blue'
+            pencile.moveTo(200, 230)
+            pencile.quadraticCurveTo(80, 140, 50, 30)
+            pencile.stroke()
+
+            // 加上一些线，更便于看出quadraticCurveTo画线的策略
+            pencile.beginPath()
+            pencile.strokeStyle = 'lightblue'
+            pencile.moveTo(80, 140)
+            pencile.lineTo(50, 30)
+            pencile.stroke()
+            pencile.moveTo(80, 140)
+            pencile.lineTo(200, 230)
+            pencile.stroke()
+
+
+            // 还可以使用 bezierCurveTo 画，详情见：
+            // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/bezierCurveTo
+        </script>
+    </body>
+</html>

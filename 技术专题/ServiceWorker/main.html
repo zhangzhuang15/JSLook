@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>service worker demo</title>
+    </head>
+    <body>
+        <button>发送请求</button>
+        <script>
+            const button = document.querySelector('button')
+            button.addEventListener('click', e => {
+                fetch("https://wwww.baidu.com", { mode:"no-cors"})
+                .then(response => response.body)
+                .then( async response => {
+                    return await response.getReader().read().then(data => data.value)
+                })
+                .then(response => {
+                    window.alert("response: " + response.toString())
+                })
+            })
+            async function registerServiceWorker() {
+                if('serviceWorker' in navigator) {
+                    const registry = await navigator.serviceWorker.register('/worker.js', { scope: '/'})
+                    if(registry.installing) {
+                        window.alert('service worker is installing')
+                    } else if(registry.waiting) {
+                        window.alert('service worker is installed')
+                    } else if(registry.active) {
+                        window.alert('service worker is active')
+                    }
+                }
+            }
+
+            registerServiceWorker()
+        </script>
+    </body>
+</html>

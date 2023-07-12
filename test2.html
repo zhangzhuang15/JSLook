@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            overflow: hidden;
+        }
+        #scroller {
+            height: 800px;
+            overflow: auto;
+        }
+
+        .blue-line {
+            position: fixed;
+            left: 50%;
+            bottom: 75%;
+            width: 2px;
+            height: 300px;
+            transform: scaleY(0);
+            transform-origin: bottom;
+            background-color: blue;
+        }
+        .circle {
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border: 2px solid red;
+            border-radius: 50%;
+            background-color: bisque;
+        }
+
+        .content {
+            width: 50%;
+            height: 1500px;
+            background-color: lightblue;
+        }
+    </style>
+</head>
+<body>
+      <div id="scroller">
+        <div class="blue-line" id="line"></div>
+        <div class="circle"></div>
+        <div class="content">
+            <div style="height: calc(25% - 12px); background-color: pink"></div>
+        </div>
+      </div>
+       
+  
+    <script>
+        const line = document.getElementById("line")
+        const scroller = document.getElementById("scroller")
+
+        scroller.addEventListener("scroll", (e) => {
+            console.log('rihgt')
+            const top = scroller.scrollTop;
+            const all = scroller.scrollHeight - scroller.clientHeight;
+            const auto = top / all * 2.14;
+            console.log(top, all)
+            line.style.transform = `scaleY(${auto})`;
+        })
+    </script>
+</body>
+</html>

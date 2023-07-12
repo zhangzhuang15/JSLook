@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>canvas画线形path的demo</title>
+    </head>
+    <body>
+        <canvas id="block" 
+                width="300" 
+                height="300" 
+                style="display: block; 
+                        border: 1px solid black; 
+                        margin: 100px auto;
+                        box-shadow: 0px 0px 10px grey;"></canvas>
+        <script>
+            const canvas = document.getElementById('block')
+            let pencile
+
+            if(canvas.getContext) {
+                pencile = canvas.getContext('2d')
+            } else {
+                document.write("抱歉, 您的浏览器不支持canvas API, 换成google浏览器试试?🤣")
+            }
+        
+            // 进入到画path模式
+            pencile.beginPath()
+            pencile.fillStyle = 'lightblue'
+            pencile.strokeStyle = 'red'
+            // 将画笔移动到(10, 10)位置
+            pencile.moveTo(10, 10)
+            // 画一条线到(10, 30)
+            pencile.lineTo(10,30)
+            pencile.lineTo(40, 30)
+            pencile.lineTo(40, 10)
+            pencile.lineTo(30, 10)
+            pencile.lineTo(30, 20)
+            pencile.lineTo(20, 20)
+            pencile.lineTo(20, 10)
+            pencile.closePath() // 封口
+            pencile.fill()
+            pencile.stroke()
+        </script>
+    </body>
+</html>

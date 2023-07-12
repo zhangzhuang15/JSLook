@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+    </head>
+    <body>
+        <button onclick="send()">发送jsonp请求</button>
+        <script>
+            function send() {
+
+                // 创建一个 <script> 节点
+                var script = document.createElement('script');
+
+                // 设置<script>节点的属性 src
+                script.src = 'http://localhost:5400/utils/?user=Jack&callback=handler';
+                
+                // 把 <script>节点加入到 <head>节点，
+                // 会触发浏览器向后端发送请求，请求的url就是 <script>的 src 属性值；
+                // 这就是一个jsonp请求。
+                document.head.appendChild(script);
+
+            }
+            
+
+            // 后端将返回一个 javascript 代码段，该代码段
+            // 会调用 hanler函数，所以这里要预先定义出来。
+
+            function handler(data){
+                // 创建 <p> 节点
+                let p = document.createElement('p');
+                // 创建 文本节点
+                let text = document.createTextNode("password:"+data.password);
+                // 用 头插法 将文本节点加入到<p>节点
+                p.insertAdjacentText("afterbegin", text.textContent);
+                // <p> 节点加入到 <body>节点中，这个时候，我们才能从浏览器看到结果
+                document.body.append(p);
+            }
+
+            // 为什么后端知道handler函数？ 
+            //
+            // 因为发送的请求里 user=Jack&callback=handler 有handler
+
+            // jsonp请求有什么特别之处？
+            //
+            // 后端基于前端写好的API（比如本例的handler函数），制定好数据处理
+            // 过程（也就是返回给前端的代码片段），交给前端执行。而且代码片段
+            // 抵达浏览器就可以直接执行啦。
+        </script>
+
+    </body>
+</html>

@@ -1,0 +1,32 @@
+[
+    {
+        "name": "Jack",
+        "age": 17,
+        "hobby": "football",
+        "id": "0001"
+    },
+    {
+        "name": "Jessy",
+        "age": 19,
+        "hobby": "cartoon movie",
+        "id": "0002"
+    },
+    {
+        "name": "Peter",
+        "age": 24,
+        "hobby": "tennis",
+        "id": "0003"
+    },
+    {
+        "name": "Josh",
+        "age": 28,
+        "hobby": "writing",
+        "id": "0004"
+    },
+    {
+        "name": "Lucy",
+        "age": 21,
+        "hobby": "cooking",
+        "id": "0005"
+    }
+]

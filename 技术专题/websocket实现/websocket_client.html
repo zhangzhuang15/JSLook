@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+    </head>
+    <body>
+        <button onclick="connect()">connect websocket server</button>
+        <button onclick="send()">send websocket message</button>
+        <button onclick="_close()">close connection</button>
+        <button onclick="sendHttp()">send http message</button>
+        <script>
+            var websocket;
+
+            function connect() {
+                /* 执行 new WebSocket时，就会发送http Get请求，升级为websocket连接 */
+                websocket = websocket == null ? new WebSocket("ws://localhost:4433/"): websocket;
+
+                 /** websocket连接成功时 */
+                websocket.onopen = function(e){
+                    window.alert("连接上了");
+                };
+
+                 /** websocket服务端发送过来数据时 */
+                websocket.onmessage = function(response){
+                    window.alert("server发来了数据");
+                    window.alert("发来的数据是", response.data);
+                };
+
+                 /** websocket连接断开时 */
+                websocket.onclose = function(){
+                    window.alert("已经关闭websocket连接啦");
+                    websocket = null;
+                    /* 所谓断点重连也是在这里发生的 */
+                };
+
+            }
+            
+            function send(){
+                if (websocket == null) window.alert("请先连接websocket服务端");
+                else websocket.send("hello");
+            }
+
+            function _close(){
+                if (websocket == null) window.alert("websocket客户端都没连接上服务端，关个屁呀");
+                else {
+                    window.alert("这就断开和websocket服务端的连接");
+                    websocket.close();
+                }
+            }
+
+            function sendHttp() {
+                const request = new XMLHttpRequest()
+                request.open('POST', "http://localhost:4433/")
+                request.setRequestHeader('content-type', 'application/json')
+                request.send(JSON.stringify({ name: 'jack', hobby: ['football', 'tennis'] }))
+                request.onload = e => {
+                    console.log('http response:', e.target.response)
+                }
+            }
+        </script>
+    </body>
+</html>

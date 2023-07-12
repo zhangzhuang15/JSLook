@@ -1,0 +1,14 @@
+{
+  "name": "npm-bin-demo",
+  "version": "1.0.0",
+  "description": "npm编写可执行程序示例",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "zhangzhuang",
+  "license": "MIT",
+  "bin": {
+    "carda": "./main.js"
+  }
+}

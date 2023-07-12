@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>canvas画圆弧path的demo</title>
+    </head>
+    <body>
+        <canvas id="block" 
+                width="300" 
+                height="300" 
+                style="display: block; 
+                        border: 1px solid black; 
+                        margin: 100px auto;
+                        box-shadow: 0px 0px 10px grey;"></canvas>
+        <script>
+            const canvas = document.getElementById('block')
+            let pencile
+
+            if(canvas.getContext) {
+                pencile = canvas.getContext('2d')
+            } else {
+                document.write("抱歉, 您的浏览器不支持canvas API, 换成google浏览器试试?🤣")
+            }
+        
+            pencile.beginPath()
+            pencile.fillStyle = 'blue'
+            pencile.strokeStyle = 'purple'
+            // 我们打算画一个圆心为(25, 40) 半径为10的圆，
+            // 落笔处不能选择(25, 40)，这是因为圆的结束点位于(35, 40)，
+            // 会将 (25, 40) 和 （35， 40）连接，额外多出来一条线。
+            pencile.moveTo(35, 40)
+            // 画一个圆弧
+            // arc(x, y, radius, startAngle, endAngle, counterclockwise)
+            // x 圆心横坐标
+            // y 圆心纵坐标
+            // radius 圆半径
+            // startAngle 起始角度
+            // endAngle 结束角度
+            // counterclockwise 是否为逆时针方向，默认值 false
+            pencile.arc(25, 40, 10, 0, Math.PI * 2) 
+            pencile.fill()  // 填充上色
+            pencile.stroke() // 描边上色
+        </script>
+    </body>
+</html>

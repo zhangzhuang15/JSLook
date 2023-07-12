@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>拖拽文件或图片demo</title>
+        <style>
+            #fileArea {
+                width: 300px;
+                height: 300px;
+                border: 1px solid grey;
+            }
+            #fileArea::placeholder{
+                content: "文件放置区";
+            }
+            #initArea {
+                width: 200px;
+                height: 200px;
+                border: 1px solid lime;
+            }
+            #newArea {
+                width: 500px;
+                height: 500px;
+                border:1px solid goldenrod;
+            }
+            #newArea::placeholder {
+                content: "新图片放置区";
+            }
+        </style>
+    </head>
+    <body>
+        <div id="fileArea"></div>
+        <div id="initArea">
+            <img src="apple.jpg" alt="苹果logo" draggable="true">
+        </div>
+        <div id="newArea">新图片所在区</div>
+        <script>
+            // 你可以将本地文件夹中文件拖拽到该区域
+            var fileArea = document.getElementById("fileArea");
+            var initArea = document.getElementById("initArea");
+            var newArea = document.getElementById("newArea");
+            const img = document.querySelector("#initArea > img");
+
+            fileArea.addEventListener("drop", event => {
+                /* 必须加上这句，因为默认动作会让图片占据整个页面 */
+                event.preventDefault();
+                /* 由dataTransfer可以得到你从本地所拖拽的文件 */
+                const files = event.dataTransfer.files;
+                console.log("client drag files : ", files.length);
+                for (let i = 0; i < files.length; i++) {
+                /* files[i] is File Object 
+                   File extends Blob
+                   it has properties such as
+                      name: string
+                      lastModified: number      a timeStamp
+                      lastModifiedDate: Date
+                      size: number    use byte as unit
+                      type: string    return MIME TYPE
+                    use these methods transferring File to Stream in order to 
+                    deal with the content of the file
+                      arrayBuffer()  return a promise with resolved ArrayBuffer Object
+                      text()   return a promise with resolved USVString
+                      stream() return a ReadableStream  which can get content of the file
+                */
+                    console.log("file: ", files[i].name, " type: ", files[i].type, " size: ",  files[i].size, " lastModified: ", files[i].lastModified);
+                }
+                if (files[0].type == "image/jpeg") {
+                    const url = URL.createObjectURL(files[0]);
+                    const image = document.createElement("img");
+                    image.src = url;
+                    // 内链 style 可以使用 fileArea.style 访问，但是外部链接style方式，要使用 document.defaultView.getComputedStyle访问
+                    image.style.width = document.defaultView.getComputedStyle(fileArea).width ;
+                    image.style.height = document.defaultView.getComputedStyle(fileArea).height;
+                    fileArea.appendChild(image);
+                }
+            });
+            fileArea.addEventListener("dragover", e => {
+                /* 必须加上这行代码，因为默认的动作是将图片移动回原位置 */
+                e.preventDefault();
+            });
+
+            // 开始拖动图片时
+            img.addEventListener("dragstart", event => {
+                initArea.style.borderStyle = "dashed";
+                event.dataTransfer.setData("img", img);
+            });
+
+            // 释放鼠标
+            img.addEventListener("dragend", event => {
+                initArea.style.borderStyle = "solid";
+            });
+
+            // 释放鼠标，图片落在 newArea上
+            newArea.addEventListener("drop", event => {
+                event.target.appendChild(img);
+            });
+
+            // 图片在newArea中移动时
+            newArea.addEventListener("dragover", ev => {
+                /* 必须加上这行代码，因为默认的动作是将图片移动回原位置 */
+                event.preventDefault();
+            });
+           
+        </script>
+    </body>
+</html>

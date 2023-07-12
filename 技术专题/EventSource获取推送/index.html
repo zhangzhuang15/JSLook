@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>EventSource获取服务端推送数据的实验</title>
+        <meta charset="utf8">
+    </head>
+    <body>
+        <div>展示服务端推送过来的数据:<span id="main"></span></div>
+        <script type="text/javascript">
+        /*
+            client 如果不调用close方法，会一直向后端发送请求，
+            中途如果发生错误，也会自行端点重连
+        */
+        var client = new EventSource("http://localhost:8099/vm/data/message");
+        var content = document.getElementById("main");
+
+        client.onmessage = function (e) {
+            content.innerHTML = e.data;
+        }
+
+        client.onerror = function(e) {
+            console.log(e);
+        }
+        </script>
+    </body>
+</html>
