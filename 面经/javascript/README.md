@@ -1,3 +1,5 @@
+[TOC]
+
 ### javascript中原始的数据类型有哪些？
 * boolean
 * string
@@ -408,8 +410,8 @@ observer.observe(element)
 
 
 ### 浏览器端和node环境下js执行的差异
-在 node11之后，二者在结果不存在差异；  
-在 node11之前，差异如下：
+在 node >= 11，二者在结果不存在差异；  
+在 node < 11，差异如下：
 ```
 浏览器端：
 存在宏任务和微任务队列，js脚本自身作为宏任务理解。
@@ -427,6 +429,10 @@ observer.observe(element)
 宏任务： setTimeout setInterval IO requestAnimationFrame
 微任务： Promise mutationObserver
 ```
+> `window.requestAnimationFrame(callback)`, 用于使用
+> javascript实现动画，callback(timeStamp)中完成下一帧动画的设置，比如修改下一帧中某个元素的宽度，timeStamp记录每次执行callback的时刻，单位毫秒，凭借它可以追踪动画的时间。
+
+> `MutationObserver`用于监测DOM节点的变化，具体能监测到节点的哪些信息，由`new MutationObserver().observe`的第二个参数`options`决定。
 ```
 node环境：
 存在若干阶段，每个阶段有对应的宏任务和微任务队列。

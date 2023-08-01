@@ -155,7 +155,17 @@ const getCurrentQueryObjInline = url => JSON.parse(`{ "${decodeURI(url.split('?'
 
 // 获取当前网页hash
 // NOTE: 不包含 `#`
-const getCurrentHash = () => location.hash
+const getCurrentHash = () => {
+    if (isFirefox()) {
+         // from https://github.com/vuejs/vue-router/blob/dev/src/history/hash.js#L118:
+         // We can't use window.location.hash here because it's not
+         // consistent across browsers - Firefox will pre-decode it!
+         const url = getCurrentURL();
+         const position = url.indexOf('#'); 
+         return position >= 0 ? url.slice(position + 1) : '';
+    }
+    return location.hash;
+};
 
 // 刷新网页
 const reloadWebsite = () => location.reload()
@@ -273,3 +283,18 @@ const openWebsiteInWindow = (url, width, height, left, top) => {
 
  // 获取浏览器所在屏幕的像素深度
  const getScreenPixelDepth = () => screen.pixelDepth
+
+
+ // 控制页面滚动到某个位置
+ // howToScroll: "smooth" | "instant"
+ const scrollPageTo = (leftOffset, topOffset, howToScroll) => window.scrollTo({ left: leftOffset, top: topOffset, behavior: howToScroll });
+
+ // misc
+ // 获取你当前的地理坐标（纬度和经度）
+ const getWhereYouAre = () => {
+    return new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition((v) => {
+            resolve(v.coords);
+        }, (err) => reject(err));
+    });
+ };

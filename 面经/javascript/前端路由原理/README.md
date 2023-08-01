@@ -86,3 +86,12 @@
 > 从上边的流程操作中可以看到，pushState 和 replaceState 还是很危险的，
 > 一旦 location.reload() 出现404界面，不能一步回退，只能两步走，回退+重新加载。
 > 在url发生变化的时候，浏览器并不会发送http请求，可一旦reload，就会发出请求。
+
+
+## `popstate` and `hashchange`
+像`vue-router`这样的路由框架：
+- 核心是监听`window`对象的`popstate`事件和`hashchange`事件
+- 触发前端路由变更：
+  - 调用 `history`对象的 `popState` `pushState`方法
+  - 修改 `location`对象的 `hash`属性
+- 结合具体前端框架，做组件上的渲染更新

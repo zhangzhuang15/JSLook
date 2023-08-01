@@ -1,3 +1,5 @@
+[toc]
+
 ### css3新特性
 * CSS3选择器
 * CSS3边框(Borders)
@@ -8,7 +10,7 @@
 * CSS3转换和变形
   * 2D转换方法
   * 3D转换属性
-* CSS3过度（transition属性）
+* CSS3过渡（transition属性）
 * CSS3动画（@keyframes规则 animation属性）
 * CSS3多列
 * CSS3盒模型

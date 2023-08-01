@@ -19,6 +19,8 @@
 > source-map 是 js 中的一种Object对象，其 key-value，记录了编译后代码到源代码的映射关系
 
 ### Referer 指的是什么？
+Referer 是一个 HTTP 请求头，用于指示来源页面。它指定了发送请求的页面的 URL。服务器可以使用 Referer 头部字段来获取请求的上下文信息，例如用户从哪个页面跳转过来的.
+
 当你：
 1. 处于页面 http://lisi.com/page-a；
 2. 点击页面的超链接，跳转到页面 http://lisi.com/page-b；
@@ -27,6 +29,10 @@
 请求头中就会包含 Referer 字段，值为 `http://lisi.com/page-a`, 表明 发出请求的页面 是从哪个页面跳转来的。
 
 ### Origin 指的是什么？
+Origin 是一个 HTTP 请求头部字段，用于指示请求的来源。它指定了发送请求的页面的源（协议，域名和端口）。
+
+Origin 头部字段通常用于跨域请求的安全性验证。服务器可以使用 Origin 头部字段来判断是否允许来自特定源的请求。
+
 当你：
 1. 处于页面 http://lisi.com/page-a;
 2. 点击页面的一个按钮，触发了一次AJAX请求。
@@ -36,6 +42,8 @@
 > Origin 比 Referer 优秀的地方在于，只会暴露 协议名、域名、端口号，不会暴露url的 path 部分。
 
 ### Host 指的是什么？
+Host 是一个 HTTP 请求头部字段，用于指示请求的目标主机。它指定的域名或 IP 地址。在发送 HTTP 请求时，浏览器会自动添加 Host 头部字段，以便服务器知道请求的目标。
+
 当你：
 1. 处于页面 http://lisi.com/;
 2. 在该页面发送请求，http://hcp.com/api/v2/list;
