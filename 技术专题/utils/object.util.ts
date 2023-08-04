@@ -1,4 +1,4 @@
-const toString = Object.prototype.toString
+const rawToString = Object.prototype.toString
 const hasOwnProperty = Object.prototype.hasOwnProperty
 
 const isPlainObject = (obj) => {
@@ -17,7 +17,7 @@ const isBoolean = (bool) => typeof bool === 'boolean'
 
 const isUndefined = (obj) => typeof obj === 'undefined'
 
-const isNull = (obj) => typeof obj === 'object' && toString.call(obj) === '[object Null]'
+const isNull = (obj) => typeof obj === 'object' && rawToString.call(obj) === '[object Null]'
 
 const isEmpty = (obj) => Reflect.ownKeys(obj).length === 0 && obj.constructor === Object
 

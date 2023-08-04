@@ -21,7 +21,7 @@ const isOpera = () => ['OPR', 'Opera'].some(key => navigator.userAgent.indexOf(k
 
 // 判断IE浏览器
 // NOTE: IE is dead
-const isIE = () => !isOpera() && ( navigator.userAgent.indexOf('.Net') > -1 || userAgent.indexOf("compatible") > -1 && userAgent.indexOf("MSIE") > -1 )
+const isIE = () => !isOpera() && ( navigator.userAgent.indexOf('.Net') > -1 || navigator.userAgent.indexOf("compatible") > -1 && navigator.userAgent.indexOf("MSIE") > -1 )
 
 // NOTICE: navigator.userAgent 对应于浏览器请求头中的 User-Agent 字段，服务器发送代理请求时，会修改User-Agent字段，所以该字段严格意义上并不能判断
 // 请求是来自浏览器，一台服务器，还是爬虫程序
@@ -32,7 +32,21 @@ const isMobile = () => ['Android', 'iPhone', 'SymbianOS', 'Windows Phone', 'iPad
 // 系统为黑暗模式
 const isDarkMode = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
 
+// 是否为横屏
+const isLandscape = () => {
+    if (window.orientation !== undefined) {
+        return [90, -90].includes(window.orientation);
+    }
+    const screenWidth = window.innerWidth || document.documentElement.clientWidth;
+    const screenHeight = window.innerHeight || document.documentElement.clientHeight;
+    return screenWidth > screenHeight;
 
+    /**
+     * css 中媒体查询判断横屏还是竖屏
+     * 横屏： @media screen and (orientation: landscape)
+     * 竖屏： @media screen and (orientation: portrait)
+     */
+};
 
 
 // Tag: 缓存篇
