@@ -395,3 +395,10 @@ js代码安全沙盒，将js代码隔离到安全的环境中执行。
 一个解决平台兼容性的 返回 `document.currentScript` 的工具库。
 > `document.currentScript`可以获取当前页面执行的代码位于哪个`<script>`，并判断是异步执行还是同步执行；
 > 在 `type="module"`的`<script>`中不能使用`document.currentScript`
+
+## 应用场景归类
+### web app 
+| 要处理的问题 | package |
+|--|--|
+|解析url中的query| `qs` |
+|操作cookie| `js-cookie`|
