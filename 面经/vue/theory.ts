@@ -85,13 +85,47 @@ function ref(initialValue?: any) {
 
 function computed(getter: Function) {
     let result = ref();
+    
+    // 在 const a = computed(); 的时候，我们不希望
+    // effect 执行，只在之后的 a.value 的时候， effect
+    // 才会被执行，因此加入此变量。
+    //
+    // 如果没有该变量，会有如下情况：
+    // ```html
+    // <script lang="ts" setup>
+    //   import {ref, computed} "our-vue";
+    //    
+    //   const v = ref(0);
+    //   
+    //   // 尽管后边没有使用到 val.value，但在定义的时候，
+    //   // 就会执行回调函数，打印出 “hello”， 这是我们不
+    //   // 想要的。
+    //   const val = computed(() => {
+    //        console.log("hello");
+    //        return v.value + 2;
+    //   });
+    // 
+    // </script>
+    //
+    // ```
+    let readyToBeCalledFromOutside = false;
     effect(() => {
-        // 如果没有此处代码，将会直接 trigger, 没有track
-        result.value;
-        result.value = getter();
+       
+        if (readyToBeCalledFromOutside === false) {
+            // 如果没有此处代码，将会直接 trigger, 没有track
+            result.value;
+        }
+        if (readyToBeCalledFromOutside) {
+            result.value = getter();
+        };
+        readyToBeCalledFromOutside = true;
     });
 
-    return result;
+    return {
+        get value() {
+            return result.value;
+        }
+    };
 }
 
 const product = reactive({ price: 5,  quantity: 2 });

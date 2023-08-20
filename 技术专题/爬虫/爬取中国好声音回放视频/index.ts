@@ -18,7 +18,7 @@ function useSignal<T>(): [((value: T) => void), ((reason: any) => void), Promise
 
 // 1. get M3U file
 function getM3UFile(): Promise<string> {
-    const url = "http://hw-vl.cztv.com/channels/lantian/channel01/360p.m3u8/1690546939000,1690553139000";
+    const url = "http://hw-vl.cztv.com/channels/lantian/channel01/360p.m3u8/1691157979000,1691164800000";
     const headers = {
         'Accept': "*/*",
         'Origin': "http://tv.cztv.com",
@@ -130,7 +130,7 @@ function downloadTsFile(urls: string[]): Promise<string[]> {
             
             // avoid sending request so frequently,
             // in this way, server won't consider us as a hacker attack
-            setTimeout(() => { fetchFile(url)}, 50);
+            setTimeout(() => { fetchFile(url)}, 0);
         });
         
     return promise;  

@@ -4,6 +4,7 @@
 [vue2原理介绍文章](https://vue-js.com/learn-vue/reactive/object.html#_3-依赖收集)
 [vue3原理介绍视频](https://www.bilibili.com/video/BV1SZ4y1x7a9?p=2&vd_source=8e22a21e39978743c185c338fa9b6d6d)
 
+### 为什么在vue3中，解构会破坏响应式？
 
 ### 如何理解vue的单向数据流？
 父组件通过props传递数据给子组件，子组件只能读取数据。如果一旦子组件修改了数据，那么

@@ -38,7 +38,7 @@ vuex 创建的数据，其实就是一个js对象。
 state Map是个例外，它的结构不是平铺的，而是父到子到孙的层级结构。
 
 ## state
-state就是维护的数据，和redux不同的时候，vuex的state颗粒度更细，只更新必要的，而redux会将state整体再生成一遍。
+state就是维护的数据，和redux不同的是，vuex 的state颗粒度更细，只更新必要的，而redux会将state整体再生成一遍。
 
 store拥有state属性，module也拥有state属性。因此这里的state，有全局和局部概念之分。
 
@@ -65,4 +65,4 @@ store._state是响应式的，store.state也是响应式的，是利用`vue.reac
 使用不当的话，reactive可能会带来意料之外的数据变更，给开发者带来困惑。
 
 ## future
-随着vue3.0稳定并发布，vuex已经无法胜任，应改用[`pinia`](https://pinia.vuejs.org/core-concepts/)
+随着vue3.0稳定并发布，vuex已经无法胜任，应改用[pinia](https://pinia.vuejs.org/core-concepts/)

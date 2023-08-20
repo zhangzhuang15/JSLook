@@ -12,27 +12,32 @@ class MyPromise {
 
     constructor(fn){
 
-        let reject = reason => {
-            if(reason instanceof MyPromise) {
-                reason.then( data => {}, err => { this.reason = err;})
-            } else {
+        const reject = reason => {
+            /**
+             * 和 Promise 实际运行效果对比后，发现
+             * 无需判断 reason 是否为 Promise
+             */
+            
+            // if(reason instanceof MyPromise) {
+            //     reason.then( data => {}, err => { 
+            //         this.reason = err;
+            //         this.onRejectedFn.forEach( fn => { fn(err);});
+            //         this.onRejectedFn = [];
+            //         this.status = "Rejected";
+            //     });
+            //     return
+            // } else {
                 this.reason = reason;
-            }
+            // }
             // 使用 this.reason的拷贝执行 reject 回调函数，
             // 不要破坏 this.reason 本身！
-            let __reason = this.reason;
+            const __reason = this.reason;
             this.onRejectedFn.forEach( fn => { fn(__reason);});
             this.onRejectedFn = [];
             this.status = "Rejected";
         };
 
-        let resolve = value => {
-            if( value instanceof MyPromise){
-                value.then(data => { this.value = data;})
-            }else{
-                this.value = value;
-            }
-            let __value = this.value;
+        const dispatchOnFulfilledFn = (value) => {
             this.onFulfilledFn.forEach(
                 fn => { 
                     try { 
@@ -40,11 +45,31 @@ class MyPromise {
                         // 因为调用 then 方法注册回调函数后，回调函数
                         // 的返回值 属于 then方法返回的新的Promise对象；
                         // fn(__value) 本身会触发 resolve方法，将值交给新的Promise对象；
-                        fn(__value);
+                        fn(value);
                     } catch(e) {
                         reject(e);
                     }
                 });
+        };
+
+        const resolve = value => {
+            if( value instanceof MyPromise){
+                value
+                    .then(
+                        data => { 
+                            this.value = data;
+                            dispatchOnFulfilledFn(data);
+                            this.onFulfilledFn = [];
+                            his.status = "Fulfilled";
+                        },
+                        reason => {
+                            reject(reason);
+                        });
+                return
+            }else{
+                this.value = value;
+            }
+            dispatchOnFulfilledFn(value);
             this.onFulfilledFn = [];
             this.status = "Fulfilled";
         };
@@ -72,7 +97,13 @@ class MyPromise {
                 return new MyPromise((resolve, reject) => { reject(e)});
             }
             // then 返回的是一个新的 Promise
-           return new MyPromise((resolve, reject) => { resolve(value);});
+           return new MyPromise((resolve, reject) => { 
+            if (value instanceof MyPromise) {
+                process.nextTick(() => resolve(value));
+            } else {
+                resolve(value);
+            }
+        });
         }
 
         if(this.status == "Rejected"){
@@ -82,7 +113,7 @@ class MyPromise {
            } catch(e) {
                return new MyPromise((resolve, reject) => { reject(e);});
            }
-           return new MyPromise((resolve, reject) => { reject(reason)});
+           return new MyPromise((resolve, reject) => { resolve(reason)});
         }
 
         if(this.status == "Pending"){
@@ -92,7 +123,7 @@ class MyPromise {
             // 对象，当 Promise 状态完结时，触发新的Promise状态完结。这当然要依赖Promise
             // 的回调函数队列实现了，因此是把 onFulfilled 和 onRejected 函数注册到Promise
             // 中，而不是注册到新的Promise中。
-            let p = new MyPromise((resolve, reject) => {
+            const p = new MyPromise((resolve, reject) => {
                 let _value, _reason;
                 _this.onFulfilledFn.push(value => {
                     try{
@@ -113,6 +144,10 @@ class MyPromise {
             });
             return p;
         }
+    }
+
+    catch(onRejected) {
+        return this.then(v => v, onRejected);
     }
 
 
@@ -162,6 +197,26 @@ class MyPromise {
                 }
             );
         }
+    }
+
+    static resolve(value) {
+        if (value instanceof MyPromise) {
+            return new MyPromise((resolve, reject) => {
+                value.then(data => resolve(data), reason => reject(reason));
+            });
+        }
+
+        else if (typeof value === "object" && typeof value.then === "function") {
+            return new Promise((resolve, reject) => {
+                value.then(resolve, reject);
+            });
+        }
+
+        return new MyPromise((resolve) => resolve(value));
+    }
+
+    static reject(reason) {
+        return new MyPromise((_, reject) => reject(reason));
     }
 }
 

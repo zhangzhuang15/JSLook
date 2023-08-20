@@ -58,3 +58,28 @@ tsc（typescript 编译器程序） 编译 ts 代码，遇到 import 语句，�
 
 ts 所做的一件好事就是在编码阶段统一为 import 风格，在编译阶段再转化为具体环境所支持的风格；
 
+#### 2. 想在import的时候，模块名位置处不写.ts，应该怎么实现？
+- 正确设置好`include`配置；
+- 开启`allowImportingTsExtensions`配置；
+
+之后就可以引入common.utils.ts文件了：
+```ts{.line-numbers} 
+import { hello } from "./common.utils";
+```
+
+> 不要使用`moduleSuffixes`，该配置已经作废了
+
+#### 3. import x from module的时候，想使用alias的方式表示module，怎么实现？
+设置 `path`配置，比如：
+```json{.line-numbers}
+{
+    "compilerOptions": {
+        "path": {
+            "@component/*": ["./src/component/*"]
+        }
+    }
+}
+```
+
+#### 4. 如何直接用import引入一个json文件？
+开启`resolveJsonModule`
