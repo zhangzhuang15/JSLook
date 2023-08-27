@@ -42,7 +42,7 @@
 <br>
 
 
-### $attrs 和 $listener 有什么了解
+### \$attrs 和 \$listener 有什么了解
 用于二次封装，将先辈组件的属性和事件传给后辈组件
 ```javascript
 // 在父组件中
@@ -191,6 +191,8 @@ vm.$watch('age',
  }
  ```
  详情见[history.html](./history.html)
+ 
+ 最新的版本中，只有`popstate`事件被保留下来，没有使用`hashchange`
 
  <br>
 

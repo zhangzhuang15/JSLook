@@ -123,7 +123,7 @@ W3C：
   
 * `event.stopPropagation()` 阻止事件向上冒泡传递
   
-* `event.stopImmediatePropagation()` 阻止事件向上冒泡传递，同时禁止当前事件的响应函数被调用
+* `event.stopImmediatePropagation()` 如果同一个html element的一个事件上，设置了多个事件响应函数，那么调用该方法的事件响应函数可以继续执行下去，排在其后边的事件响应函数不会执行。除此之外，还会阻止事件向上冒泡传递
 
 IE：
 * `event.cancelBubble()` 阻止事件冒泡

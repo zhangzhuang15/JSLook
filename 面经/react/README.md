@@ -151,3 +151,30 @@ const v = useMemo(() => 13, [m]);
 ```
 hook就会存储每次组件刷新时的状态值v，还有依赖 m；
 
+
+## useEffect的依赖数组形式
+- 省略依赖数组：每次组件更新的时候，useEffect都要执行
+- 依赖数组是空的：在组件初始化的时候，useEffect执行一次，之后组件更新，不会执行；
+- 依赖数组非空：当依赖项更新的时候，useEffect就会执行；
+
+## useEffect中的setup和cleanup函数顺序
+组件初始化的时候，会执行一次setup
+> dev模式下，会执行一次setup、cleanup, 然后再执行一次setup
+
+组件每次更新的时候，先执行cleanup，再执行setup.
+组件卸载的时候，执行一次cleanup.
+
+## useLayoutEffect和useEffect的差别
+- 都根据依赖项去做执行
+- useLayoutEffect执行时机是在浏览器重绘之前
+
+
+## 函数组件返回`<></>`包裹的html，`<></>`会被渲染成什么？
+这个问题可以在 typescript 官网的 playground 实验解决。
+
+`<></>`会被渲染成 DocumentFragment。
+
+在最终渲染的html页面上，`<></>`不会被渲染成任何 html tag.
+
+## react什么时候唤醒schedule的？具体怎么schedule的？
+ref: https://juejin.cn/post/6922302846524194829?searchId=20230826193629028D456744588B6075AB#heading-4

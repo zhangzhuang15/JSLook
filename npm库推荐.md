@@ -204,7 +204,7 @@ sourcemap文件解析器和生成器
 
 
 ### animation
-### driver.js 
+#### driver.js 
 页面引导动画库
 
 #### animate.css
@@ -219,6 +219,8 @@ js动画库，让我们使用svg制作动画
 #### GreenSock JS 
 绘制动画库
 
+苹果官网跟随滚动的页面动画，就可以用这个库实现
+
 #### SortableJS
 拖拽库
 
@@ -232,6 +234,19 @@ js动画库，让我们使用svg制作动画
 ### media player
 #### flv.js
 bilibli开源，html5 flash视频播放器
+
+---
+
+
+
+
+
+
+
+
+### editor app
+#### remarkable
+渲染并展示markdown
 
 ---
 

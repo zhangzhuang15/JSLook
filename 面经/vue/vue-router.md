@@ -23,7 +23,28 @@
 
 
 ## 编程技巧
-待补充
+### 前端的宏替换
+使用`@rollup/plugin-replace`插件完成。比如源码中的`__DEV__`就会在编译时被替换为正确的值，就像C语言的宏一样。
+
+### SetUp-CleanUp
+```ts 
+function setState() {
+    /** 
+     * some codes setting the state， called SetUp 
+     */
+
+    return () => {
+        /**
+         * some codes canceling setting the state upwards, called CleanUp
+         */
+    }
+}
+
+// 像setState函数这样的代码模式，就是 SetUp-CleanUp
+```
+应用案例：
+- 添加listener，删除listener
+- 添加订阅者，取消订阅者
 
 ## FAQ
 ### 路由发生变化的时候，如何触发页面更新？
@@ -361,5 +382,10 @@ currentRoute也就更新了。
 如果hash是通过浏览器人机交互的方式修改的，那么popstate事件也会被触发，无需监听hashchange事件；
 
 如果hash是通过API修改的，因为vue-router已经封装好API供用户使用，用户操作正常的话，一定是通过vue-router的API驱动路由改变，而不是用原生的API，路由变动就可以被API本身拦截到了，无需做任何事件监听。
+
+### MemoryHistory实现的思路
+所谓History对象，就是要提供和原生history一样的API，控制前端路由，这样既能完成原生history的路由控制功能，而且可以扩展原生API，将必要的逻辑处理注入。
+
+而MemoryHistory对象，并没有封装原生History API，而是使用内存中的队列数据结构，模拟History栈，并提供和原生History一样的API签名，修改队列。
 
 ### 为什么响应式变量更新后，vue组件会更新？
