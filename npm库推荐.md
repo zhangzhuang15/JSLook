@@ -115,7 +115,15 @@
 Generate a self signed x509 certificate from node.js.
 
 
+#### 🌟express
+web server framework
 
+#### 🌟koa 
+so light web server framework
+
+#### 🌟connect
+high performance server framework
+used by `vite`
 
 
 
@@ -177,6 +185,12 @@ http请求库， nodejs、移动端、浏览器、React Native均可
 
 #### slash
 将 windows 上的路径转换为 unix 风格的路径
+
+#### find-up 
+find files by walking up parent directories
+
+#### pathe 
+windows Unix 统一化的 "path" module of Node
 
 ---
 
@@ -288,6 +302,11 @@ Tells you if the string you pass in is a built-in node module
 #### KeyboardJS
 键盘绑定
 
+#### 🌟joi 
+js data validator
+
+#### 🌟zod 
+typescript-first validator
 
 ---
 
@@ -322,6 +341,8 @@ Tells you if the string you pass in is a built-in node module
 #### 🌟mock
 制造mock数据的工具，用于自测开发阶段，无需往数据库加入真实数据后才开发
 
+#### 🌟mocha
+
 #### json-schema-faker
 制造 Fake Schema 数据的工具，用于自测开发阶段，无需往数据库加入真实数据后才开发
 
@@ -334,6 +355,19 @@ npm包有两种安装选择：
 
 如果你没有安装 Chrome 浏览器，请选择前者，它会下载一个 Chrome;
 如果本地已经安装 Chrome 浏览器，你只是想用 programmatic 的方式编写代码，驱动浏览器完成自动化内容，请选择后者；
+
+#### 🌟jest
+FaceBook出品，开箱即用。
+
+使用它的项目：`vite`
+
+#### 🌟vitest 
+based on vite 
+
+使用它的项目：`vitepress` `vue2` `vue3`
+
+#### 🌟cypress
+E2E测试库
 
 #### chromedriver
 使用代码的方式完成chrome浏览器操作，比如打开网页，点击网页上的元素等等
@@ -379,9 +413,22 @@ node和浏览器端，全文本匹配的轻量搜索引擎
 ---
 
 
+### UI 
+#### 🌟tailwindcss
+css pre-defined class name library
 
+优点：复用度超高，不用重复定义相同的css；可定制；可扩展
+缺陷：学习成本较高
 
+#### lucide-react 
+icon library for react app
 
+### web app framework
+#### Next 
+based on react 
+
+#### Nuxt 
+based on Vue
 
 
 ### misc

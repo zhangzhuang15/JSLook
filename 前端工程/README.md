@@ -27,6 +27,9 @@
 
 部分内容这里没有说清，会在后文中分散介绍。
 
+### 各配置文件总结
+[前往](./配置文件.md)
+
 ### package.json 
 [前往](./packageJson%E6%96%87%E4%BB%B6.md)
 
@@ -63,7 +66,7 @@ js的编译器。
 支持的范围非常广，无所不包，生态最好。
 可以打包js， 也可以打包 ts， 还可以打包 .css .png .jpeg .mp4 等等静态资源，只需要引入对应的 plugin 或者 loader。
 和 rollup 不同的是，主张拆包，多作为前端 app 开发的构建工具。
-[webpack配置文件简短介绍](./%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6.md)
+[更具体的介绍](./webpack工程化/README.md)
 
 ### Mocha
 单元测试框架。

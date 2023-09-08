@@ -1,4 +1,6 @@
-#### private
+[toc]
+
+### private
 如果：
 * 你的项目不会发布到npm上，只会通过打包工具生成最终执行的代码部署到服务器上；
 * 你的项目是多package管理的根项目，各个package要发布到npm上，根项目无需发布
@@ -6,7 +8,7 @@
 
 private应该等于 true
 
-#### workspace 
+### workspace 
 ```json
 {
    "name": "packageA",
@@ -18,7 +20,7 @@ private应该等于 true
 ```
 表示package文件夹下的每个文件夹，都带有 package.json 文件，也就是说这些文件夹都是一个npm包。
 
-#### engines
+### engines
 强烈建议设置此选项。当你搭起一个项目，设置好研发环境时，你安装依赖的库可能对node版本有要求。如果另外有一个人拉取你的项目，想做些贡献，很可能被本地node版本号坑到，无法顺利安装依赖库。通过engines指定好版本，可以提早给出提示，先行告知用户升级node。
 
 不同的包管理器，有不同的处理方式。
@@ -28,10 +30,10 @@ yarn：yarn 进程立即 crash；
 pnpm: 打印出正确的 node 版本号，程序继续执行；
 npm： 程序继续执行；
 
-#### main
+### main
 当你开发的npm项目是一个库时，你要指定这一项，表明库的入口文件。这样，当别人npm install 你的库后，使用require引用你的库，node才知道应该引入哪个文件。
 
-#### files
+### files
 当你使用 `npm publish` 发布自己的npm项目时，实际上是将你项目中要发版的所有文件打包成 tar，然后将tar包上传到registry。别人 `npm install` 的时候，也是先下载这个 tar包，然后解压恢复成文件夹。  
 
 `files`的作用就是告诉 `npm publish`, 项目中到底哪些文件要被打包。默认情况下，`.gitignore` `.git`等文件不会被打包。
@@ -64,7 +66,7 @@ $ npx npm-packlist
 进入项目根目录, `npm pack`, 生成一个 .tgz 文件；
 进入引用该package的项目根目录，执行 `npm install <path-of-tgz>`;
 
-#### type
+### type
 指定你的npm项目采用哪种模块化管理方式，"module" 或者 "commonjs"，**只能二选一**！如果你指定了 “module”，可实际上代码用的是commonJS的方式，node会在执行的过程中报错，但是在vscode编码过程中不会报错。  
 如果你没有指定type, 默认为 commonjs.
 > 在 node v12.0.0开始，你可以用 module 的模块化管理方式，编写nodejs代码；
@@ -76,16 +78,16 @@ $ npx npm-packlist
 **注意：**
 如果你在 .js 文件使用 module 方式导出，在另一个 .js 文件中使用 commonjs 方式导入，需要使用 @babel/register 这样的工具进行及时编译，否则报错！
 
-#### types 
+### types 
 第三方工具所需字段。
 这个字段供 typescript 使用。
 
 如果你的库要供给typescript使用，需要为你的js库加入声明文件，而types就是指出声明文件的位置。
 
-#### module
+### module
 当别人用 module 模块化方式导入你的库时， module 将告诉 node 入口文件在哪里。
 
-#### exports
+### exports
 node v14.13.0开始支持的字段, 版本低的，只会识别 main 字段。
 
 exports 字段可以配置不同环境对应的模块入口文件，并且当它存在时，它的优先级最高。
@@ -138,8 +140,23 @@ r如果`import "packageA/package"` 会报错“找不到模块”；
 
 你就要在项目中加入 `jsconfig.json`来解决该问题，配置参数和`tsconfig.json`相同。
 
+### peerDependencies
+```json 
+// packageA 的 package.json 
+{
+   "peerDependencies": {
+      "packageB": "^1.2.3"
+   }
+}
+```
+在你的项目中，安装 packageA 的时候，不会自动安装 packageB. 经过检查，如果你没有手动安装 packageB(也就是 packageB 和 packageA 在你的node_modules属于同一级)，就会输出错误，告诉你packageB没有安装；否则，packageA中的代码直接使用你安装的packageB.
 
-#### packageManager
+### optionalDependencies
+这里面的依赖不会自动安装，只会安装里面合适的依赖。合适的判断条件有很多，比如你的os类型，cpu信息等，和依赖的package.json里的信息是否对应。
+
+> package.json中拥有 `os` `cpu` `engines`等字段哦
+
+### packageManager
 该字段告诉别人你使用什么包管理工具，但是这个字段并不会阻止别人用其它包管理工具。  
 比如，package.json
 ```json
@@ -154,7 +171,7 @@ r如果`import "packageA/package"` 会报错“找不到模块”；
 
 可以搭配 `only-allow` package 和 `preinstall` package script 去限制使用指定的包管理器；
 
-#### unpkg
+### unpkg
 这是第三方工具要在package.json中用到的字段，package.json本身并没有定义该字段。
 `unpkg`指定入口文件。当用户使用unpkg官网的cdn向浏览器中导入npm包的时候，就会将`unpkg`指定的文件导入。
 ```json
@@ -166,7 +183,7 @@ r如果`import "packageA/package"` 会报错“找不到模块”；
 若`<script src="http://unpkg.com/packageA" />`，就会将packageA项目中的`dist/main.esm.js`文件导入。
 
 
-#### jsdelivr
+### jsdelivr
 第三方工具所需字段。  
 `jsdelivr`指定入口文件。当用户使用jsdelivr官网的cdn向浏览器导入npm包的时候，就会将`jsdelivr`指定的文件导入。
 ```json
@@ -177,7 +194,7 @@ r如果`import "packageA/package"` 会报错“找不到模块”；
 ```
 若`<script src="http://cdn.jsdelivr.net/npm/packageA" />`, 就会将packageA项目中的`dist/main.esm.js`文件导入。
 
-#### browserslist
+### browserslist
 第三方工具所需字段。 
 
 用于指定项目所支持的浏览器版本，一些插件会读取这个信息，完成 css 前缀补全、js polyfill功能。比如 babel插件，postcss-normalize插件, autoprefixer插件。 
@@ -195,12 +212,12 @@ package.json
 }
 ```
 
-#### sideEffects
+### sideEffects
 第三方工具所需字段。
 指定有副作用的文件有哪些，阻止webpack对这些文件的tree-shaking。
 比如使用 webpack 打包的时候，如果 `import css from "packageA/css"` 引入某个包下面的css资源，可是webpack发现你没有使用，就不会把这些css资源打包，此时设置 `sideEffects: ["*.less", "*.scss", "*.stylus"]`，告诉webpack这些文件有副作用，别对它们使用tree-shaking。
 
-#### lint-staged
+### lint-staged
 第三方工具所需字段。
 配置 `lint-staged`工具对git暂存区的文件，做哪些操作。
 ```json
@@ -217,7 +234,7 @@ package.json
 ```
 > 不要忘记 `npm install lint-staged`
 
-#### husky
+### husky
 第三方工具所需字段
 
 ```json

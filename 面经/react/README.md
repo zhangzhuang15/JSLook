@@ -1,5 +1,8 @@
 [toc]
 
+## 参考
+[React渲染行为解析](https://blog.isquaredsoftware.com/2020/05/blogged-answers-a-mostly-complete-guide-to-react-rendering-behavior/)
+
 ## 如何减少组件重新渲染
 复用组件，让组件不会再次渲染，本质就是直接使用旧的fiber节点。
 方法：
@@ -178,3 +181,234 @@ hook就会存储每次组件刷新时的状态值v，还有依赖 m；
 
 ## react什么时候唤醒schedule的？具体怎么schedule的？
 ref: https://juejin.cn/post/6922302846524194829?searchId=20230826193629028D456744588B6075AB#heading-4
+
+
+## 如何理解React的渲染
+每次更新的时候，React会从 component tree 顶部开始，向下遍历各个组件，重新获得组件的 VNode(virtual DOM node):
+- 函数式组件会重新执行一次
+- 类组件会重新执行一次 render 方法
+
+然后计算新、旧VNode之间的changes；
+
+以上的这些工作，叫做 **reconcile**, 发生阶段就是 **Render 阶段**；
+> The render phase determines what changes need to be made to e.g. the DOM.
+
+React 之后会将这些 changes 同步到 DOM 上，这个阶段就是 **Commit 阶段**；
+> The commit phase is when React applies any changes
+
+DOM 更新后，React就会调用组件的 componentDidMount componentDidUpdate 等lifecycle hook function, 然后执行组件的useLayoutEffect hooks。
+> 这些也是发生在 commit 阶段
+
+间隔一小段时间后，执行所有的useEffect hooks，这个阶段就是 **Passive Effect 阶段**。这个阶段发生时，浏览器已经完成了repaint操作。
+
+在React 18 中，Render阶段可以被打断、恢复，由同步变成了异步操作。
+
+
+## React重点数据类型
+**Hook**
+```ts 
+type Hook = {
+  memoizedState: any,
+  baseState: any,
+  baseQueue: Update<any, any> | null,
+  queue: any,
+  next: Hook | null,
+}
+```
+
+**Effect**
+```ts 
+type Effect = {
+  tag: HookFlags,
+  create: () => (() => void) | void,
+  destroy: (() => void) | void,
+  deps: Array<mixed> | null,
+  next: Effect,
+}
+```
+
+**Update**
+```ts 
+type Update<S, A> = {
+  lane: Lane,
+  action: A,
+  hasEagerState: boolean,
+  eagerState: S | null,
+  next: Update<S, A>,
+}
+```
+
+**Fiber**
+```ts 
+// A Fiber is work on a Component that needs to be done or was done. There can
+// be more than one per component.
+export type Fiber = {
+  // These first fields are conceptually members of an Instance. This used to
+  // be split into a separate type and intersected with the other Fiber fields,
+  // but until Flow fixes its intersection bugs, we've merged them into a
+  // single type.
+
+  // An Instance is shared between all versions of a component. We can easily
+  // break this out into a separate object to avoid copying so much to the
+  // alternate versions of the tree. We put this on a single object for now to
+  // minimize the number of objects created during the initial render.
+
+  // Tag identifying the type of fiber.
+  tag: WorkTag,
+
+  // Unique identifier of this child.
+  key: null | string,
+
+  // The value of element.type which is used to preserve the identity during
+  // reconciliation of this child.
+  elementType: any,
+
+  // The resolved function/class/ associated with this fiber.
+  type: any,
+
+  // The local state associated with this fiber.
+  stateNode: any,
+
+  // Conceptual aliases
+  // parent : Instance -> return The parent happens to be the same as the
+  // return fiber since we've merged the fiber and instance.
+
+  // Remaining fields belong to Fiber
+
+  // The Fiber to return to after finishing processing this one.
+  // This is effectively the parent, but there can be multiple parents (two)
+  // so this is only the parent of the thing we're currently processing.
+  // It is conceptually the same as the return address of a stack frame.
+  return: Fiber | null,
+
+  // Singly Linked List Tree Structure.
+  child: Fiber | null,
+  sibling: Fiber | null,
+  index: number,
+
+  // The ref last used to attach this node.
+  // I'll avoid adding an owner field for prod and model that as functions.
+  ref:
+    | null
+    | (((handle: mixed) => void) & {_stringRef: ?string, ...})
+    | RefObject,
+
+  // Input is the data coming into process this fiber. Arguments. Props.
+  pendingProps: any, // This type will be more specific once we overload the tag.
+  memoizedProps: any, // The props used to create the output.
+
+  // A queue of state updates and callbacks.
+  updateQueue: mixed,
+
+  // The state used to create the output
+  memoizedState: any,
+
+  // Dependencies (contexts, events) for this fiber, if it has any
+  dependencies: Dependencies | null,
+
+  // Bitfield that describes properties about the fiber and its subtree. E.g.
+  // the ConcurrentMode flag indicates whether the subtree should be async-by-
+  // default. When a fiber is created, it inherits the mode of its
+  // parent. Additional flags can be set at creation time, but after that the
+  // value should remain unchanged throughout the fiber's lifetime, particularly
+  // before its child fibers are created.
+  mode: TypeOfMode,
+
+  // Effect
+  flags: Flags,
+  subtreeFlags: Flags,
+  deletions: Array<Fiber> | null,
+
+  // Singly linked list fast path to the next fiber with side-effects.
+  nextEffect: Fiber | null,
+
+  // The first and last fiber with side-effect within this subtree. This allows
+  // us to reuse a slice of the linked list when we reuse the work done within
+  // this fiber.
+  firstEffect: Fiber | null,
+  lastEffect: Fiber | null,
+
+  lanes: Lanes,
+  childLanes: Lanes,
+
+  // This is a pooled version of a Fiber. Every fiber that gets updated will
+  // eventually have a pair. There are cases when we can clean up pairs to save
+  // memory if we need to.
+  alternate: Fiber | null,
+
+  // Time spent rendering this Fiber and its descendants for the current update.
+  // This tells us how well the tree makes use of sCU for memoization.
+  // It is reset to 0 each time we render and only updated when we don't bailout.
+  // This field is only set when the enableProfilerTimer flag is enabled.
+  actualDuration?: number,
+
+  // If the Fiber is currently active in the "render" phase,
+  // This marks the time at which the work began.
+  // This field is only set when the enableProfilerTimer flag is enabled.
+  actualStartTime?: number,
+
+  // Duration of the most recent render time for this Fiber.
+  // This value is not updated when we bailout for memoization purposes.
+  // This field is only set when the enableProfilerTimer flag is enabled.
+  selfBaseDuration?: number,
+
+  // Sum of base times for all descendants of this Fiber.
+  // This value bubbles up during the "complete" phase.
+  // This field is only set when the enableProfilerTimer flag is enabled.
+  treeBaseDuration?: number,
+
+  // Conceptual aliases
+  // workInProgress : Fiber ->  alternate The alternate used for reuse happens
+  // to be the same as work in progress.
+  // __DEV__ only
+
+  _debugSource?: Source | null,
+  _debugOwner?: Fiber | null,
+  _debugIsCurrentlyTiming?: boolean,
+  _debugNeedsRemount?: boolean,
+
+  // Used to verify that the order of hooks does not change between renders.
+  _debugHookTypes?: Array<HookType> | null,
+};
+```
+
+## render batch
+每次调用 useState 会触发 re-render，如果连续调用可能就会触发多次 re-render。
+
+render batch 的目的就是在连续调用 useState 的时候，将这些state的操作合成一个 batch，放在一次 re-render 过程处理。
+
+在React 17 以及更早版本中，只会在**合成事件**中进行 render batch，在 **setTimeout** **Promise.resolve().then()** **原生事件** 中不会做 render batch.
+
+ref: https://github.com/reactwg/react-18/discussions/21
+
+
+
+## immutable updates 
+mutable updates:
+```ts 
+const child = () => {
+  const [data, setData] = useState([1,2,3])
+
+  const onClick = () => {
+    data[0] = 10;
+    setData(data);
+  }
+}
+```
+
+immutable updates:
+```ts 
+const child = () => {
+  const [data, setData] = useState([1,2,3])
+
+  const onClick = () => {
+    const nextData = data.map((item, index) => {
+      if (index === 0) return 10
+      return item
+    })
+
+    setData(nextData)
+  }
+}
+
+```

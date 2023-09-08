@@ -1,3 +1,5 @@
+[toc]
+
 ## What is plugin?
 * plugin是一个函数或者一个拥有apply方法的对象，其声明的类型为  
 `(compiler) => void` 或者   
@@ -54,3 +56,6 @@ import "./assets/main.css"
 
  ### workbox-webpack-plugin
  构建 service worker
+
+ ### webpack-bundle-analyzer
+ 打包结果的分析工具，帮助你分析哪些代码打包出来的体积偏大。

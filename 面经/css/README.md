@@ -189,3 +189,14 @@ IE：
   > 没有被其他html元素隔开；  
   > 没有被 padding border隔开；
 * 两个元素位于同一个BFC中，且这两个元素本身不是BFC。
+
+
+### css隔离的几种方案
+- scoped css 
+- css module 
+- styled component
+- shadow dom 
+
+[scoped css and css module](../公司/好未来.md#了解过css-module么)
+
+[use styled component in react app](https://www.bilibili.com/video/BV18a411C74j?p=5&vd_source=8e22a21e39978743c185c338fa9b6d6d)

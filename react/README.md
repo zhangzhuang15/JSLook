@@ -1,3 +1,5 @@
+[toc]
+
 ## Hooks
 
 ### useMemo & useCallback
@@ -15,6 +17,11 @@ React组件在更新的时候，会将变量再生成一次，会将函数在重
 2. 全局使用值；
 > Ref不会重新生成一个，新Ref和旧Ref是同一个引用，只是值的内容不同;
 > Ref的修改不会触发组件渲染更新, 同时意味着Ref的值发生变化时，React不会通知你；
+
+3. 配合 `forwardRef`，访问子组件的DOM节点；
+
+> Notice:useRef首次执行的时候，ref.current等于 initial value，在之后组件刷新时再执行的时候，
+将会返回旧值
 
 
 ### useReducer
@@ -52,5 +59,102 @@ function GrandChild(props) {
 
     // Great🌟
     // 之后你就可以使用 dispatch 向 App.tsx 中的组件发送信息了
+}
+```
+
+### useLayoutEffect
+当你想在页面更新之后，对页面的DOM元素做一些操作，你就可以使用这个hook
+
+## Server Side Rendering
+[jump](https://www.bilibili.com/video/BV1MS4y167Bz?p=11&vd_source=8e22a21e39978743c185c338fa9b6d6d)
+ 
+- `renderToString` from "react-dom/server"
+- `React.hydrate` instead of `React.render` in client-side code
+- `StaticRouter` in server-side code 
+- `BrowserRouter` in client-side code 
+- initial data context both two side
+
+## Terms
+ HOC( Higher-Order Component) 高阶组件
+
+
+## Interview
+[jump](../面经/react/README.md)
+
+
+## Redux 
+[jump](../面经/react/redux.md)
+
+## Architecture of React App 
+### React Router
+#### lazy component 
+```tsx 
+
+import { lazy, Suspense } from "React";
+
+const ChildComponent = lazy(() => import("./components/ChildComponent"));
+
+const Component = (props) => {
+  return (
+  <>
+    <Suspense fallback={<p>loading...</p>}>
+      <ChildComponent />
+    </Suspense>
+  </>)
+}
+```
+### SSR 
+### State Management
+Feature:
+  - loading data
+  - storing data
+  - persisting data
+  - sharing data 
+
+How to do:
+- useState hook
+- Context 
+- Recoil
+- Redux 
+- MobX
+
+
+## ErrorBoundary
+```tsx 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      error: null
+    }
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.log("error: ", error)
+    console.log("errorInfo: ", errorInfo)
+  }
+
+  static getDerivedStateFromError(error) {
+    return { error }
+  }
+
+  render() {
+    if (this.state.error) {
+      return <p>wrong</p>
+    }
+
+    return this.props.children;
+  }
+}
+```
+
+```tsx 
+
+const Component = () => {
+  return (
+  <ErrorBoundary>
+     <SubComponent />
+  </ErrorBoundary>
+  )
 }
 ```
