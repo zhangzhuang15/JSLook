@@ -125,12 +125,13 @@ so light web server framework
 high performance server framework
 used by `vite`
 
-
-
 #### 🌟jsonwebtoken
 生成和管理JWT的工具，用于服务端node开发。
 **可以先学习下JWT的知识，再看看源码**
 
+#### 🌟nest
+server framework inspired by spring boot maybe.
+supports many transport protocol including http;
 
 
 #### qs
@@ -430,6 +431,18 @@ based on react
 #### Nuxt 
 based on Vue
 
+
+---
+
+### database 
+#### prisma
+database ORM framework
+
+### pg 
+postgresql client, help you connect to postgresql server, do CRUD, but doesn't provide you ORM tool
+
+
+---
 
 ### misc
 

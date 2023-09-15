@@ -60,13 +60,13 @@ class MyPromise {
                             this.value = data;
                             dispatchOnFulfilledFn(data);
                             this.onFulfilledFn = [];
-                            his.status = "Fulfilled";
+                            this.status = "Fulfilled";
                         },
                         reason => {
                             reject(reason);
                         });
                 return
-            }else{
+            } else {
                 this.value = value;
             }
             dispatchOnFulfilledFn(value);

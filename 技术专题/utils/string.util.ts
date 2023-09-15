@@ -57,7 +57,7 @@ const encodeString = (content, encode) => {
  * @example
  * ```js
  * const s = 'aGVsbG8='
- * const result = decodeString(s)
+ * const result = decodeString(s, "base64")
  * // true
  * assert.equal(result, 'hello')
  * ```

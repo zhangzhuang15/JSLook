@@ -2,6 +2,9 @@ const path = require("path")
 const EslintWebpackPlugin = require("eslint-webpack-plugin")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 
+/**
+ * @type {import("webpack").Configuration}
+ */
 module.exports = {
   entry: "./src/main.js",
   output: {

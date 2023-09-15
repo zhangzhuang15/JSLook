@@ -124,6 +124,67 @@ QUIC提升速度的一些方法：
 ### http服务升级为websocket后，能不能继续提供服务
 可以的。http服务升级为websocket，意味着某个应答socket自此接受websocket形式的报文。当向监听socket发送一个新的http请求时，监听socket会生成一个新的应答socket去处理。二者的应答，发生在不同的socket上，不会冲突。
 
+### 前端如何设置Token，控制客户登录状态？
+Token假设是 [JWT(JSON Web Token)](https://jwt.io/introduction).
+
+Token可以在前端生成，也可以在后端生成。
+
+如果是在前端生成，前端会使用 XMLHttpRequest 设置 `Authorization` http header, 采用 `Bear` scheme, 然后伴随请求发送给后端，同时前端会将这个token存储在本地，比如 localStorage。
+> Authorization不是 forbidden header，因此可以用XMLHttpRequest设置。
+> 
+当前端发送请求的时候，可以检查这个token，判断用户登录是否超时了，由前端将用户踢出登录状态。
+
+<br>
+
+如果是后端生成，可以由以下几种方式返回给前端：
+- 放在 `set-cookie` 响应头里；
+- 放在服务端自定义的响应头里；
+  > 后端还需要设置 `access-control-allow-headers` `access-control-expose-headers`
+- 放在返回的响应体数据里；
+前端拿到token后，存储到本地，在接下来的请求中，根据token判断用户登录是否过期。
+
+### 为什么浏览器要加入同源策略？
+因为要保证安全。
+
+XSS(跨站脚本攻击)：当用户已经登录一个网站后，登录权限的信息会存储在cookie上，然后用户进入黑客的网站，点击黑客网站上的链接，触发了一次请求，如果没有同源策略限制，这次请求就会将cookie发送出去，躲过权限验证。
+
+CSRF(跨站请求攻击)：用户登录一个网站，比如一个评论区，黑客在评论区里发送一段html，埋下了一个链接。用户点击黑客的评论时，就会发送一个请求，此时这个请求里就包含了用户登录的信息cookie，如果没有同源策略限制，这个请求就发出去了，可能就绕过了后端的身份验证，但是有同源策略的话，就会被拦下。
+
+### 为什么设置Token可以防范 CSRF ？
+因为CSRF只会将cookie转发，它并不知道cookie里有什么，也无法修改cookie，如果在cookie之外，比如请求体中加入一个token验证，那么真正安全的请求里就会有这个token，但是CSRF却无法做到。
+
+### preflight request 有啥作用？
+当发送 non-simple request(可能是跨origin请求，也可能不是)，你使用XMLHttpRequest发送了一个请求，但是浏览器会先发送一个preflight request， 这个请求通过后，再发送你定义的那个请求。
+
+之所以需要 preflight request, 还是出于安全问题。先发送一个请求给后端，让后端知道发送方是什么情况，如果在安全范围内，后端再设置一次安全范围内的http请求字段给对方，让对方接下来的请求中可以发送这些字段给自己。如果超出安全范围，后端可以直接拒绝。
+
+注意啊，这个preflight request，只有请求头，请求行，没有请求体，不会带来通信压力。
+
+### 什么是 simple request ?
+满足以下所有要求，就是 simple request：
+- 请求方法仅限：Get Post Head 
+- 除了浏览器自动添加的请求头外，只能包含这些请求头：
+  - Accept
+  - Accept-Language
+  - Content-Language
+  - Content-Type, 且只能选择这些值：
+    - application/x-www-form-urlencoded
+    - multipart/form-data
+    - text/plain
+  - Range， 必须是 simple range header value，比如`bytes=256- `
+- 如果使用XMLHttpRequest发送请求，不能使用`xhr.upload.addEventListener`
+- 请求中不能使用 ReadableStream，比如你用 fetch 发送了一个请求，并且使用 response.body 读取数据
+
+
+### 如何理解不能用编程的方式修改 forbidden header ?
+请求头里，有一部分字段，完全由浏览器控制，这部分字段被称作 forbidden header。
+
+也就是说，你不需要自己添加这些字段，当你使用XMLHttpRequest 和 fetch 发送请求的时候，浏览器会自动给你加上。如果你强行使用 XMLHttpRequest 或 fetch 给添加上了，浏览器可能会报错或者直接忽略掉你设置的这些字段值。
+
+不能用编程的方式修改，就是说你不能用 XMLHttpRequest 和 fetch 直接设置这些字段值。像 cookie 字段，你没办法在XMLHttpRequest直接设置, 但是你却可以用document.cookie修改，这并不会妨碍 cookie就是 forbidden header 的事实。编程方式，说的就是 XMLHttpRequest 和 fetch 
+
+
+
 ### OSI模型中各层协议举例
 * 应用层
   * http

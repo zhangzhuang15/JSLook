@@ -267,6 +267,7 @@ export type Fiber = {
   type: any,
 
   // The local state associated with this fiber.
+  // 真实DOM节点
   stateNode: any,
 
   // Conceptual aliases
@@ -301,6 +302,7 @@ export type Fiber = {
   updateQueue: mixed,
 
   // The state used to create the output
+  // 比如 存储hooks值
   memoizedState: any,
 
   // Dependencies (contexts, events) for this fiber, if it has any
@@ -334,6 +336,8 @@ export type Fiber = {
   // This is a pooled version of a Fiber. Every fiber that gets updated will
   // eventually have a pair. There are cases when we can clean up pairs to save
   // memory if we need to.
+  // 组件更新时，表示上一次的fiber节点
+  // 组件初始化时，是 null
   alternate: Fiber | null,
 
   // Time spent rendering this Fiber and its descendants for the current update.
@@ -412,3 +416,27 @@ const child = () => {
 }
 
 ```
+
+## 从hook被调用的时候，发生了什么
+```tsx 
+const component = () => {
+  const [message, setMessage] = useState("hello")
+  const change = () => {
+    setMessage("hello world")
+  };
+
+  return (
+    <div onClick={change}>
+      <h1>{message}</h1>
+    </div>
+  )
+}
+```
+当`setMessage`被调用的时候，React大致会做什么呢？
+1. 会更新 setMessage 对应的 hook， 这个 hook 位于 fiber节点的 memorizedState 属性；
+2. 将该 fiber 节点加入到调度中；
+3. 该 fiber 节点被调度的时候，会触发函数组件的更新（函数再执行一次），然后根据 reconciliation 创建新的fiber节点，旧fiber节点会赋值给新 fiber 节点的 alternate 属性，由于并发模式的引入，这个过程可以被中断；
+4. 当步骤3完成之后，就会来到 commit 阶段，这个阶段无法中断，在该阶段，会根据 fiber 节点上的type信息，判断要创建新的DOM节点，还是修改DOM节点，还是插入DOM节点，还是删除DOM节点，然后完成DOM节点的操作；
+5. 执行 useLayoutEffect 创建的 hook；
+6. 页面更新；
+7. 执行 useEffect 创建的 hook；
