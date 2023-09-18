@@ -3,6 +3,8 @@
 ## 技术参考文档
 [uni-app开发经验总结 juejin](https://juejin.cn/post/7255855818595647546)
 
+## 微信小程序的架构
+
 ## uni-app
 
 ### uni-app主包页面挂载问题

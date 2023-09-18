@@ -440,3 +440,435 @@ const component = () => {
 5. 执行 useLayoutEffect 创建的 hook；
 6. 页面更新；
 7. 执行 useEffect 创建的 hook；
+
+
+## dva qiankun umi 都是什么，各自有什么联系 ？
+umi是一个企业级前端框架，它提供了一系列工具和组件，帮助开发者更加高效地构建应用程序，它更接近是一套前端解决方案。它涵盖了以下的一些内容：
+- 提供状态管理工具(hooks)
+- 提供前端路由管理工具(函数API，组件)
+- 提供国际化工具
+- 插件接入能力
+
+qiankun是一个基`single-spa`的微前端实现库，它可以与umi配合使用，帮助开发者构建微前端架构。也就是说，你可以用umi开发各个业务线，然后使用qiankun将它们联合在一起，变成微前端体系。实际上，qiankun已经作为插件的形式引入到umi中，不需要你单独下载qiankun，单独配置使用，就像umi内部使用webpack构建项目，你不需要单独再下载webpack，编写webpack.config.js一样。
+
+dva也是一种前端解决方案，但不像umi涵盖的范围那么大，它只整合了`状态管理`、`前端路由`两个方面。作为前端数据流的一种方案，它的重点并不在于创造一个新的概念或者技术，而是根据业务开发中常见的情形，整合现有的技术点。只需要安装一个dva即可，就不需要单独下载 `redux`, `react-redux` 等库。dva底层整合了这些package:
+- redux 
+- react-redux 
+- react-router-dom
+- redux-saga
+- connected-react-router
+- react
+  
+概括而言，你使用dva可以：
+- 像react-redux那样，完成状态管理
+- 像react-router-dom那样，完成前端路由控制
+- 像redux-sage的写法那样，编写状态管理代码
+- 使用dva后，可以省略用React的API完成App挂载
+
+## dva中，可以dispatch一个异步操作(effect)，是如何实现的？
+众所周知，redux 只能 dispatch 一个 action 到 reducer 中，
+reducer是同步的；
+
+dva之所以可以做到这点，是因为它使用的`react-saga`库实现了这个功能；
+
+### 实现原理
+1. `react-saga`作为redux中间件使用，可以访问 redux store 的 dispatch 方法，[redux中间件文档](https://redux.js.org/api/applymiddleware)
+
+2. 在 sagaMiddleware 执行 run 方法的时候，将 effect 和 action.type 记录下来，sagaMiddleware 中间件被执行的时候，
+根据 action，分析其 action.type，触发对应的 effect
+```ts
+function sagaMiddleware({ getState, dispatch }) {
+    boundRunSaga = runSaga.bind(null, {
+      ...options,
+      context,
+      channel,
+      dispatch, // 捕捉了 redux store 的 dispatch 方法，之后会封装它
+      getState,
+      sagaMonitor,
+    })
+
+    return (next) => (action) => {
+      if (sagaMonitor && sagaMonitor.actionDispatched) {
+        sagaMonitor.actionDispatched(action)
+      }
+      const result = next(action) // hit reducers
+
+      // 就是在这里触发 effect 执行的；
+      // channel有个take方法，可以将 action.type
+      // 和 effect 存储起来，一旦 action.type 和 
+      // effect 的名字匹配，就会执行 effect
+      channel.put(action)
+
+      // 但问题来了，channel什么时候存储了 action.type
+      // 和 effect 呢？
+
+      return result
+    }
+}
+
+// 使用 redux-saga：
+// import { createStore, applyMiddleware } from 'redux'
+// import rootReducer from './reducers'
+// import { put, takeEvery, delay } from 'redux-saga/effects'
+// import createSagaMiddleware from 'redux-saga'
+//
+// function* incrementAsync() {
+//  yield delay(1000)
+//  yield put({ type: 'INCREMENT' })
+// }
+//
+// function* rootSaga() {
+//  yield takeEvery('INCREMENT_ASYNC', incrementAsync)
+// }
+//
+// const sagaMiddleware = createSagaMiddleware()
+// const store = createStore(rootReducer, applyMiddleware(sagaMiddleware))
+//
+// sagaMiddleware.run(rootSaga)
+
+// 按照上面，run方法一旦执行，就会把 rootSaga 传入到
+// boundRunSaga，boundRunSaga就会执行，也就是在这
+// 个函数中，action.type 和 effect 被存储起来了
+sagaMiddleware.run = (...args) => {
+  if (process.env.NODE_ENV !== 'production' && !boundRunSaga) {
+      throw new Error('Before running a Saga, you must mount the Saga middleware on the Store using applyMiddleware')
+    }
+  return boundRunSaga(...args)
+}
+
+```
+
+```ts 
+export function runSaga(
+  { channel = stdChannel(), dispatch, getState, context = {}, sagaMonitor, effectMiddlewares, onError = logError },
+  saga,
+  ...args
+) {
+  // 省略无关代码
+
+  // 我们的 rootSaga 函数被执行了，因为
+  // 定义为 function*,返回一个迭代器
+  const iterator = saga(...args)
+
+  // 省略无关代码
+  
+  const env = {
+    channel,
+    // 当在saga函数中，使用像 put 这样的redux-saga
+    // 内置函数，意味着触发一个 reducer 或者 另一个 effect；
+    //
+    // 如果触发 reducer，直接用 redux store 的 dispatch 
+    // 如果触发 effect，需要特别处理一下，给 action 加入一个
+    // 属性值作为标记；
+    //
+    // wrapSagaDispatch就是来兼顾两种情况的
+    dispatch: wrapSagaDispatch(dispatch),
+    getState,
+    sagaMonitor,
+    onError,
+    finalizeRunEffect,
+  }
+
+  return immediately(() => {
+    const task = proc(env, iterator, context, effectId, getMetaInfo(saga), /* isRoot */ true, undefined)
+
+    if (sagaMonitor) {
+      sagaMonitor.effectResolved(effectId, task)
+    }
+
+    return task
+  })
+}
+
+```
+```ts 
+// redux-sage/packages/core/src/internal/proc.js
+
+function proc(env, iterator, parentContext, parentEffectId, meta, isRoot, cont) {
+   // ....
+
+   // env.finalizeRunEffect 默认为 (v) => v ,
+   // 默认情况下，finalizeRunEffect 就是 runEffect
+   const finalRunEffect = env.finalizeRunEffect(runEffect)
+
+   // ....
+
+   next()
+
+   return task 
+
+   function next(arg, isErr) {
+    try {
+      let result 
+
+      if (isErr) {
+        // ....
+      } else if (shouldCancel(arg)) {
+        // ....
+      } else if (shouldTerminate(arg)) { 
+        // ....
+      } else {
+        result = iterator.next(arg)
+      }
+
+      if (!result.done) {
+        digestEffect(result.value, parentEffectId, next)
+      } else {
+        // .....
+      }
+
+    } catch (error) {
+      // ....
+    }
+
+   }
+
+   function digestEffect(effect, parentEffectId, cb, label = '') {
+    // .....
+
+    // finalizeRunEffect 其实就是 runEffect 函数
+    finalRunEffect(effect, effectId, currCb)
+   }
+
+   function runEffect(effect, effectId, currCb) {
+      if (is.promise(effect)) {
+        resolvePromise(effect, currCb)
+      } else if (is.iterator(effect)) {
+        // resolve iterator
+        proc(env, effect, task.context, effectId, meta, /* isRoot */ false, currCb)
+      } else if (effect && effect[IO]) {
+        // takeEvery的调用，会执行到这里，触发
+        // effectRunner, effect.type 长什么样，
+        // 请继续往下看
+        const effectRunner = effectRunnerMap[effect.type]
+        effectRunner(env, effect.payload, currCb, executingContext)
+      } else {
+        // anything else returned as is
+        currCb(effect)
+      }
+   }
+
+   // ....
+}
+```
+```ts 
+// redux-sage/packages/core/src/internal/effectRunnerMap.js 
+
+// ....
+
+function runTakeEffect(env, { channel = env.channel, pattern, maybe }, cb) {
+  const takeCb = (input) => {
+    if (input instanceof Error) {
+      cb(input, true)
+      return
+    }
+    if (isEnd(input) && !maybe) {
+      cb(TERMINATE)
+      return
+    }
+    // input就是 action， cb 就是 effect
+    cb(input)
+  }
+  try {
+    // 在这里将action.type 和 effect 注册，
+    // takeCb 记录 effect，matcher记录action.type
+    channel.take(takeCb, is.notUndef(pattern) ? matcher(pattern) : null)
+  } catch (err) {
+    cb(err, true)
+    return
+  }
+  cb.cancel = takeCb.cancel
+}
+
+// ....
+
+// 回答 effect.type长什么样的问题：
+// 像 put take call 这样的运算符，会创建一个 Effect
+// 类型的数据，该数据有个 type 属性， 该属性的值就是
+// effectTypes.TAKE .... effectTypes.SET_CONTEXT
+const effectRunnerMap = {
+  [effectTypes.TAKE]: runTakeEffect,
+  [effectTypes.PUT]: runPutEffect,
+  [effectTypes.ALL]: runAllEffect,
+  [effectTypes.RACE]: runRaceEffect,
+  [effectTypes.CALL]: runCallEffect,
+  [effectTypes.CPS]: runCPSEffect,
+  [effectTypes.FORK]: runForkEffect,
+  [effectTypes.JOIN]: runJoinEffect,
+  [effectTypes.CANCEL]: runCancelEffect,
+  [effectTypes.SELECT]: runSelectEffect,
+  [effectTypes.ACTION_CHANNEL]: runChannelEffect,
+  [effectTypes.CANCELLED]: runCancelledEffect,
+  [effectTypes.FLUSH]: runFlushEffect,
+  [effectTypes.GET_CONTEXT]: runGetContextEffect,
+  [effectTypes.SET_CONTEXT]: runSetContextEffect,
+}
+
+export default effectRunnerMap
+```
+```ts 
+// redux-sage/packages/core/src/internal/channel.js 
+
+// 默认情况下的 channel 就是 multicastChannel
+function multicastChannel() {
+  // ....
+
+  const close = () => {
+    if (process.env.NODE_ENV !== 'production') {
+      checkForbiddenStates()
+    }
+
+    closed = true
+    const takers = (currentTakers = nextTakers)
+    nextTakers = []
+    takers.forEach((taker) => {
+      taker(END)
+    })
+  }
+
+  return {
+    [MULTICAST]: true,
+    put(input) {
+      // ....
+
+      const takers = (currentTakers = nextTakers)
+
+      // input 就是 action；
+      // 所有的 effect 都存储在 takers 列表中，
+      // 每一个 taker 就是 effect, taker 上 
+      // 有个属性[MATCH], 它可以判断 action
+      // 是否匹配 taker， 匹配的话，就执行taker，
+      // 也即是 effect 被执行了 
+      for (let i = 0, len = takers.length; i < len; i++) {
+        const taker = takers[i]
+
+        if (taker[MATCH](input)) {
+          taker.cancel()
+          taker(input)
+        }
+      }
+    },
+    take(cb, matcher = matchers.wildcard) {
+      // ....
+
+      cb[MATCH] = matcher
+      ensureCanMutateNextTakers()
+      nextTakers.push(cb)
+
+      cb.cancel = once(() => {
+        ensureCanMutateNextTakers()
+        remove(nextTakers, cb)
+      })
+    },
+    close,
+  }
+}
+```
+<br>
+
+### dva基于react-saga,额外做的改动：
+
+1. 原本情况下， action.type 就是 effect 函数名或者 reducer函数名，但是 dva 给加入了 namespace 前缀，因此在dispatch触发action的时候，action.type 需要调整下 
+
+```ts 
+
+const M = {
+  namespace: "hello",
+  effects: {
+    *say() {
+      // ....
+    }
+  }
+}
+
+// 按照原本 redux-saga，要触发 say 方法 
+dispatch({ type: "say" })
+
+// dva处理后，需要
+dispatch({ type: "hello/say" })
+```
+
+2. 在 effect 函数定义中，支持第二个参数获取一些内置函数访问权
+
+```ts 
+const M = {
+  namespace: "hello",
+  effects: {
+    // 可以使用内置的 call put 方法了
+    *say({ payload }, { call, put }) {
+      // ....
+    }
+  }
+}
+```
+实现原理如下：
+```ts 
+// dva/packages/dva-core/src/getSaga.js
+
+// ....
+
+function getSaga(effects, model, onError, onEffect, opts = {}) {
+  // 这里的匿名函数就相当于上文我们给出的 rootSaga 函数了
+  return function*() {
+    for (const key in effects) {
+      if (Object.prototype.hasOwnProperty.call(effects, key)) {
+        const watcher = getWatcher(key, effects[key], model, onError, onEffect, opts);
+        const task = yield sagaEffects.fork(watcher);
+        yield sagaEffects.fork(function*() {
+          yield sagaEffects.take(`${model.namespace}/@@CANCEL_EFFECTS`);
+          yield sagaEffects.cancel(task);
+        });
+      }
+    }
+  };
+}
+
+function getWatcher(key, _effect, model, onError, onEffect, opts) {
+  let effect = _effect;
+  let type = 'takeEvery';
+  
+  // ....
+
+  function* sagaWithCatch(...args) {
+    const { __dva_resolve: resolve = noop, __dva_reject: reject = noop } =
+      args.length > 0 ? args[0] : {};
+    try {
+      yield sagaEffects.put({ type: `${key}${NAMESPACE_SEP}@@start` });
+
+      // 在这里实现的！
+      // effect 就是我们的 say 方法，args就是[action],
+      // createEffects的返回值就是那些内置的方法
+      const ret = yield effect(...args.concat(createEffects(model, opts)));
+      yield sagaEffects.put({ type: `${key}${NAMESPACE_SEP}@@end` });
+      resolve(ret);
+    } catch (e) {
+      onError(e, {
+        key,
+        effectArgs: args,
+      });
+      if (!e._dontReject) {
+        reject(e);
+      }
+    }
+  }
+
+  const sagaWithOnEffect = applyOnEffect(onEffect, sagaWithCatch, model, key);
+
+  switch (type) {
+    case 'watcher':
+      // ....
+    case 'takeLatest':
+      // ....
+    case 'throttle':
+      // ....
+    case 'poll':
+      // ....
+    default:
+      return function*() {
+        yield sagaEffects.takeEvery(key, sagaWithOnEffect);
+      };
+  }
+}
+
+// ....
+```

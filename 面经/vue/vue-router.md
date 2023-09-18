@@ -21,6 +21,8 @@
 - 提供**currentRoute**，令**RouterView**可以调用inject得到
 - 调用**HistoryAPIProvider**，负责前端路由控制的重点逻辑（包含currentRoute更新）
 
+## 关于 `history` `location` 的资料补充
+[react-router 官网的解释](https://reactrouter.com/en/main/start/concepts#history-and-locations)
 
 ## 编程技巧
 ### 前端的宏替换

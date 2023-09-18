@@ -1,0 +1,17 @@
+{
+    // minimum configs
+    "compilerOptions": {
+        "target": "ESNext",
+        // generate esmodule code ran by Node, don't use "NodeNext",
+        // it will output codes in commonJS format.
+        "module": "ESNext",
+        // we use bundler rollup to deal with .ts file,
+        // so choose "Bundler";
+        "moduleResolution": "Bundler",
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["./*"]
+        }
+    },
+    "include": ["index.ts", "./utils/*.ts", "rollup.config.ts"]
+}
