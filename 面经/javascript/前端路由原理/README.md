@@ -1,3 +1,6 @@
+## react-router 官网的解释
+[入口](https://reactrouter.com/en/main/start/concepts#history-and-locations)
+
 ## location
 
 ```javascript
@@ -14,7 +17,7 @@
  location.protocol  // "http"
  location.search    // "?age=4&birth=China"
 
- location.reload()  // 刷新页面
+ location.reload()  // 刷新页面, 会发送情求给后端的！
  location.replace("/black_cat")  // 加载 "http://www.cat.com/black_cat" 页面
 ```
 
@@ -34,6 +37,14 @@
   localStorage.getItem('name')  // "joke"
   sessionStorage.getItem('name') // null
 ```
+
+**注意**：
+- `location.reload`
+- `location.replace`
+- `location.assign`
+  > 与replace不同，支持用户可以页面back
+
+会发送请求到后端！
 
 
 
@@ -59,7 +70,7 @@
    history.back()   // url变成了 http://zhangsan.com/name, 页面没有发生变化
 
    // 你通过点击页面的链接,页面发生刷新，url变为  http://zhangsan.com/age
-   history.replace({name: 'zhangsan'}, '', '/')
+   history.replaceState({name: 'zhangsan'}, '', '/')
 
    // url 变成了 http://zhangsan.com/, 页面没有发生任何变化
    history.state   // { name: 'zhangsan'}
@@ -86,3 +97,13 @@
 > 从上边的流程操作中可以看到，pushState 和 replaceState 还是很危险的，
 > 一旦 location.reload() 出现404界面，不能一步回退，只能两步走，回退+重新加载。
 > 在url发生变化的时候，浏览器并不会发送http请求，可一旦reload，就会发出请求。
+
+
+
+## `popstate` and `hashchange`
+像`vue-router`这样的路由框架：
+- 核心是监听`window`对象的`popstate`事件和`hashchange`事件
+- 触发前端路由变更：
+  - 调用 `history`对象的 `popState` `pushState`方法
+  - 修改 `location`对象的 `hash`属性
+- 结合具体前端框架，做组件上的渲染更新

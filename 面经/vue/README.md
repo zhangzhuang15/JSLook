@@ -1,3 +1,11 @@
+[toc]
+
+### 响应式基本原理
+[vue2原理介绍文章](https://vue-js.com/learn-vue/reactive/object.html#_3-依赖收集)
+[vue3原理介绍视频](https://www.bilibili.com/video/BV1SZ4y1x7a9?p=2&vd_source=8e22a21e39978743c185c338fa9b6d6d)
+
+### 为什么在vue3中，解构会破坏响应式？
+
 ### 如何理解vue的单向数据流？
 父组件通过props传递数据给子组件，子组件只能读取数据。如果一旦子组件修改了数据，那么
 父组件原数据就会被修改，会影响其他子组件的数据发生变化。
@@ -34,7 +42,7 @@
 <br>
 
 
-### $attrs 和 $listener 有什么了解
+### \$attrs 和 \$listener 有什么了解
 用于二次封装，将先辈组件的属性和事件传给后辈组件
 ```javascript
 // 在父组件中
@@ -183,6 +191,8 @@ vm.$watch('age',
  }
  ```
  详情见[history.html](./history.html)
+ 
+ 最新的版本中，只有`popstate`事件被保留下来，没有使用`hashchange`
 
  <br>
 

@@ -35,3 +35,7 @@ MyPromise.all([promise_A, promise_B, "C"])
          .then(result => {
              console.log("MyPromise.all([promise_A, promise_B, 'C']): ", result);
          });
+
+
+let promise_C = new MyPromise(resolve => setTimeout(() => resolve("hello"), 3000));
+let promise_D = new MyPromise(resolve => resolve(promise_C)).then(v => console.log("okkkL: ", v))

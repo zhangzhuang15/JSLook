@@ -9,6 +9,10 @@
 <body>
     <p id="content">https://github.com/zhuangzhang/JSLook.git</p>
     <button id="btn">复制到剪贴板</button>
+    <button id="f-btn">禁止复制到剪贴板</button>
+    <script>
+        const content = document.getElementById("content");
+    </script>
     <script>
         const copyToClipboard = (text) => navigator.clipboard.writeText && navigator.clipboard.writeText(text);
 
@@ -16,6 +20,16 @@
 
         const btn = document.getElementById("btn");
         btn.addEventListener("click", () => copyToClipboard(paragraph.innerText));
+    </script>
+    <script>
+        const forbiddenBtn = document.getElementById("f-btn");
+        const handler = (event) => event.preventDefault();
+        forbiddenBtn.addEventListener("click", (e) => {
+            content.addEventListener("copy", handler);
+        });
+        forbiddenBtn.addEventListener("dblclick", (e) => {
+            content.removeEventListener("copy", handler);
+        });
     </script>
 </body>
 </html>

@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "module": "ESNext",
+        "moduleResolution": "NodeNext",
+        "paths": {
+            "@/*": ["./src/*"]
+        },
+    },
+    "include": ["./src/**/*.ts", "./test/**/*.ts"]
+}

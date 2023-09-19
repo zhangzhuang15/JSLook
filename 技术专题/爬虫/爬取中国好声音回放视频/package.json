@@ -1,0 +1,11 @@
+{
+  "name": "爬取中国好声音回放视频",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
