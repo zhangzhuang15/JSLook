@@ -449,7 +449,11 @@ umi是一个企业级前端框架，它提供了一系列工具和组件，帮�
 - 提供国际化工具
 - 插件接入能力
 
-qiankun是一个基`single-spa`的微前端实现库，它可以与umi配合使用，帮助开发者构建微前端架构。也就是说，你可以用umi开发各个业务线，然后使用qiankun将它们联合在一起，变成微前端体系。实际上，qiankun已经作为插件的形式引入到umi中，不需要你单独下载qiankun，单独配置使用，就像umi内部使用webpack构建项目，你不需要单独再下载webpack，编写webpack.config.js一样。
+qiankun是一个基`single-spa`的微前端实现库，它可以与umi配合使用，帮助开发者构建微前端架构。也就是说，你可以用umi开发各个业务线，然后使用qiankun将它们联合在一起，变成微前端体系。实际上，qiankun已经作为插件的形式引入到umi中，不需要你单独下载qiankun，单独配置使用，就像umi内部使用webpack构建项目，你不需要单独再下载webpack，编写webpack.config.js一样.
+
+qiankun相对于 `single-spa`来讲，补充了这些feature：
+- javascript sandbox
+- css isolation
 
 dva也是一种前端解决方案，但不像umi涵盖的范围那么大，它只整合了`状态管理`、`前端路由`两个方面。作为前端数据流的一种方案，它的重点并不在于创造一个新的概念或者技术，而是根据业务开发中常见的情形，整合现有的技术点。只需要安装一个dva即可，就不需要单独下载 `redux`, `react-redux` 等库。dva底层整合了这些package:
 - redux 

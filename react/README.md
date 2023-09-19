@@ -65,6 +65,62 @@ function GrandChild(props) {
 ### useLayoutEffect
 当你想在页面更新之后，对页面的DOM元素做一些操作，你就可以使用这个hook
 
+### forwardRef 
+创建一个组件，该组件可以接收一个 ref ，借助这个ref，可以将组件内部的document节点暴露给上层组件
+
+```tsx 
+const child = forwardRef((props, ref) => {
+  return (<div>
+    <input ref={ref} />
+  </div>)
+})
+
+const father = (props) => {
+  const ref = useRef();
+
+  const getInputValue = () => {
+    return ref.current?.value || ''
+  };
+
+  return (<div>
+    <child ref={ref} />
+  </div>)
+}
+```
+
+### useImperativeHandle
+定义 forwardRef 中的 ref 可以访问到什么
+
+```tsx 
+const child = forwardRef((props, ref) => {
+  useImperativeHandle(ref, () => {
+    return {
+      value: 24,
+      name: "jack"
+    }
+  });
+
+  return (<div>
+    <input ref={ref} />
+  </div>)
+})
+
+const father = (props) => {
+  const ref = useRef();
+
+  const getInputValue = () => {
+    // 返回 24 或者 ‘’，
+    // 而不是一个 <input> DOM 节点
+    return ref.current?.value || ''
+  };
+
+  return (<div>
+    <child ref={ref} />
+  </div>)
+}
+```
+
+
 ## Server Side Rendering
 [jump](https://www.bilibili.com/video/BV1MS4y167Bz?p=11&vd_source=8e22a21e39978743c185c338fa9b6d6d)
  

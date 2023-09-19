@@ -1,8 +1,14 @@
-[ webpack核心成员 Sean Larkin 的 webpack 分享](https://www.bilibili.com/video/BV1VS4y1G7W4/?spm_id_from=333.337.search-card.all.click&vd_source=8e22a21e39978743c185c338fa9b6d6d)
+[toc]
 
-[webpack打包基本原理演示](https://www.bilibili.com/video/BV1CJ411T7k5/?spm_id_from=333.337.search-card.all.click&vd_source=8e22a21e39978743c185c338fa9b6d6d)
+## webpack核心成员 Sean Larkin 的 webpack 分享
+[链接](https://www.bilibili.com/video/BV1VS4y1G7W4/?spm_id_from=333.337.search-card.all.click&vd_source=8e22a21e39978743c185c338fa9b6d6d)
+
+## webpack打包基本原理演示
+[链接](https://www.bilibili.com/video/BV1CJ411T7k5/?spm_id_from=333.337.search-card.all.click&vd_source=8e22a21e39978743c185c338fa9b6d6d)
 
 ---
+
+## Get started
 
 ```shell
 // 安装 webpack 
@@ -164,7 +170,7 @@ module.exports = {
 
 
 ## output.path 和 output.publicPath
-#### 当你使用webpack打包，打包之后生成的文件要存储在哪里呢？
+### 当你使用webpack打包，打包之后生成的文件要存储在哪里呢？
 output.path解决的就是这个问题。设置好output.path，打包好的文件就会存储在这个路径下边。**注意，这个路径必须是绝对路径。** 执行完打包操作后，你就能在这个路径下找到结果。
 
 *情景举例*：  
@@ -172,7 +178,7 @@ output.path解决的就是这个问题。设置好output.path，打包好的文�
 打包之后，你就可以在`/Project/dist/`下看到打包后的文件了。
 
 
-#### 在html文件中引用静态资源的路径问题？
+### 在html文件中引用静态资源的路径问题？
 我们在 `.css` 文件中会使用`url()`指定图片来源，比如设置一个`div`的背景图。
 如果图片是存放在远程的服务器上，我们直接在`url()`中写出图片完整的http路径即可。
 
@@ -243,3 +249,201 @@ webpack处理之后的 `url()` 刚好是 `url("./static/mmm.png")`, 又在 `inde
 > 你一开始在css文件中写的url相对路径，都会被webpack替换为 `output.publicPath + filename`;
 > output.publicPath 具体写成什么，要看你打包后的静态资源和入口html文件存放在哪里；
 > 入口html文件中，非html-webpack-plugin插件生成的路径，也就是你自己写死的`src` `href`, webpack不会去调整，如果不对劲，你需要自己调整。 
+
+## output.library output.libraryTarget output.libraryExport 有什么作用？
+当你开发完了一个js包，然后使用webpack打包处理后，会生成一个bundle文件，别人在引用这个bundle文件会出现很多情况。
+
+假设你开发的js包就只有一个入口文件:
+```js 
+// entry.js 
+
+export function hello() {
+    console.log("hello")
+}
+
+export function world() {
+    console.log("world");
+}
+
+```
+
+### 如果是在html的`<script>`标签里引入，如何访问js包的功能？
+
+这样定义：
+```js 
+module.exports = {
+    output: {
+        library: "Util",
+        libraryTarget: "var"
+    }
+}
+```
+这样使用：
+```html 
+<body>
+    <script src="./bundle.js"></script>
+    <script>
+        Util.hello()
+    </script>
+</body>
+```
+<br>
+<br>
+<br>
+
+这样定义：
+```js 
+module.exports = {
+    output: {
+        library: "Util",
+        libraryTarget: "window"
+    }
+}
+```
+这样使用：
+```html 
+<body>
+    <script src="./bundle.js"></script>
+    <script>
+        window.Util.hello()
+    </script>
+</body>
+```
+
+<br>
+<br>
+<br>
+
+这样定义：
+```js 
+module.exports = {
+    output: {
+        library: "Util",
+        libraryTarget: "this"
+    }
+}
+```
+这样使用：
+```html 
+<body>
+    <script src="./bundle.js"></script>
+    <script>
+        // 这里 this === window
+        // 在没有定义 this 的执行环境中，你可以自定义this变量！
+        // 比如 var this = {}
+        this.Util.hello()
+    </script>
+</body>
+```
+
+
+<br>
+<br>
+<br>
+
+
+这样定义：
+```js 
+module.exports = {
+    output: {
+        library: "Util",
+        libraryTarget: "amd"
+    }
+}
+```
+这样使用：
+```html 
+<body>
+    <script src="./bundle.js"></script>
+    <script>
+        window.Util.hello()
+    </script>
+</body>
+```
+
+<br>
+<br>
+<br>
+
+这样定义：
+```js 
+module.exports = {
+    output: {
+        library: "Util",
+        libraryTarget: "var",
+        libraryExport: ["world"]
+    }
+}
+```
+这样使用:
+```html
+<body>
+    <script src="./bundle.js"></script>
+    <script>
+        // 无法访问 hello 方法！
+        // Util.hello()
+
+        Util.world()
+    </script>
+</body>
+```
+
+<br>
+<br>
+<br>
+
+这样定义：
+```js 
+module.exports = {
+    output: {
+        libraryTarget: "module"
+    },
+    experiments: {
+        outputModule: true,
+    }
+}
+```
+这样使用:
+```html 
+<body>
+    <script type="module">
+        import * as Util from "<your-bundlejs-url>"
+
+        Util.hello()
+    </script>
+</body>
+```
+
+### 如果是在 node 里引入，怎么访问？
+这样定义：
+```js 
+module.exports = {
+    output: {
+        library: "Util",
+        libraryTarget: "commonjs"
+    }
+}
+```
+这样使用：
+```js 
+require("./bundles").Util.hello();
+```
+
+<br>
+<br>
+<br>
+
+这样定义:
+```js 
+module.exports = {
+    output: {
+        library: "Util",
+        libraryTarget: "commonjs2"
+    }
+}
+```
+这样使用:
+```js 
+// library: "Util" 的定义其实没用
+require("./bundle.js").hello();
+```

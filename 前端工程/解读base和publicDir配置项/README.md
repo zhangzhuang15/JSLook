@@ -3,6 +3,7 @@
 ### 在 vite 的配置中，`base`和`publicDir`配置项都是什么意思？
 
 其实不光 vite 中有这两个配置项，在 webpack\rollup也会有等价的配置项，可能命名不同，但他们表示的意思是一样的。这里就以vite为例，去解释。
+> webpack中，output.publicPath 等效于 vite 的 base 
 
 当我们vite build项目，生成的代码一般指定放置在与`src`目录同级的`dist`目录下。
 
