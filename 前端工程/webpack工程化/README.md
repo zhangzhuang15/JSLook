@@ -447,3 +447,88 @@ module.exports = {
 // library: "Util" 的定义其实没用
 require("./bundle.js").hello();
 ```
+
+
+## webpack怎么开启 tree-shaking ?
+1. package.json 加入 `"sideEffects": false`
+2. webpack.config.js
+   ```js 
+   module.exports = {
+    mode: "production",
+    optimization: {
+        usedExports: true,
+        sideEffects: true,
+    }
+   }
+   ```
+
+development模式会阻止tree-shaking
+
+## webpack怎么使用 code split ?
+```tsx 
+import { createRoot} from "react-dom/client"
+import { App } from "./App";
+
+
+const container = document.createElement("div");
+container.setAttribute("id", "root");
+document.body.appendChild(container);
+
+createRoot(container).render(
+    <App />
+);
+```
+默认情况下，打包生成的文件中，会包含`react-dom/client`中的代码，导致打包好的文件比较大，影响性能。而实际上，像这些依赖，可以抽取到单独的bundle文件，将原本很大的bundle文件，打散成体积更小的多个bundle文件，然后让浏览器一个个加载，而不是一口气加载一个大文件。这种优化，就是 code split。
+
+[官方教程](https://webpack.js.org/guides/code-splitting/)
+
+这里给出一个简易版本：
+```js 
+module.exports = {
+    output: {
+        filename: "[name].chunk.js"
+    },
+    optimization: {
+         splitChunks: {
+           chunks: "all"
+        }
+    }
+
+}
+```
+
+## webpack 如何关闭性能报告？
+启动webpack，打开浏览器后，默认会分析网页性能，如果不符合webpack推荐的性能指标，会在界面上显示一个问题报告，有时候这个很讨厌，我们想关闭它，只需:
+```js 
+module.exports = {
+    performance: {
+        hints: false
+    }
+}
+```
+
+## webpack怎么压缩js代码？
+```js 
+const terserPlugin = require("terser-webpack-plugin");
+
+module.exports = {
+    optimization: {
+        minimize: true,
+        minimizer: [new terserPlugin()],
+
+    }
+}
+```
+
+## webpack hmr 可以解决 react 组件刷新问题么？
+不可以。hmr是基于module而言，每次更新的时候，会把目标module重新使用 __webpack_require 加载一遍,只要 react 组件一经修改，组件所在的module就会更新，导致整个页面更新，然后组件就会从新初始化，组件之前的状态没有保留下来。这不是我们所期待的组件刷新。
+
+我们希望，组件文件经过修改后，该组件以及引用该组件的上级组件更新，而不是页面级别更新。
+
+因此，必须要有相关插件的支持，有一个 `react-refresh` 的包就是为了解决这个问题。
+
+`next`本身加入的 Fast Refresh 特性也是针对这个问题的。
+
+`vite-plugin-react`借鉴`react-refresh-webpack-plugin`完成该问题的支持。
+
+[Dan神给出的该问题解决思路](https://github.com/facebook/react/issues/16604)

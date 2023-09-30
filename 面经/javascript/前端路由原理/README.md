@@ -1,27 +1,41 @@
 ## react-router 官网的解释
 [入口](https://reactrouter.com/en/main/start/concepts#history-and-locations)
 
+## vue-router 的实现
+[跳转](../../vue/vue-router.md)
+
 ## location
 
+### 获取路由信息
 ```javascript
- // 浏览器环境运行
- // 假设当前网址 http://www.cat.com/white_cat?age=4&birth=China#Big
+ // http://www.cat.com:7755/white_cat?age=4&birth=China#Big
 
  location.href      // "http://www.cat.com/white_cat#Big"
  location.hostname  // "www.cat.com"
  location.port      // ""
- location.host      // "www.cat.com"
+ location.host      // "www.cat.com:7755" (如果端口号是 http 默认端口号的话，依旧是 www.cat.com)
  location.hash      // "Big"
  location.pathname  // '/white_cat'
  location.origin    // "http://www.cat.com"
  location.protocol  // "http"
  location.search    // "?age=4&birth=China"
-
- location.reload()  // 刷新页面, 会发送情求给后端的！
- location.replace("/black_cat")  // 加载 "http://www.cat.com/black_cat" 页面
 ```
+### 操纵页面
+真的会向后端发送请求！
+```js 
+// http://www.cat.com/color/red
 
-```javascript
+location.reload()  // 刷新页面
+location.replace("/black_cat")  // 加载 "http://www.cat.com/black_cat"
+location.assign("/white_cat") // 加载 "http://www.cat.com/white_cat"
+```
+replace 和 assign 的区别：
+- 在页面A，执行replace之后，无法通过点击后退按钮，回到页面A；
+- 执行assign之后，依旧可以点击后退按钮，回到页面A。
+
+### 对localStorage和sessionStorage的影响
+
+```js
   // 假设你位于 http://www.cat.com/white_cat
 
   localStorage.setItem('name', 'joke')
@@ -38,17 +52,9 @@
   sessionStorage.getItem('name') // null
 ```
 
-**注意**：
-- `location.reload`
-- `location.replace`
-- `location.assign`
-  > 与replace不同，支持用户可以页面back
-
-会发送请求到后端！
-
-
-
 ## history
+history的API操作前端路由，不会发送请求给后端！
+
 ```javascript
    // 假设你处于百度网页，现在你点击百度一下，查询一个关键词，来到关键词查询结果页面
    history.back()      // 后退
@@ -100,10 +106,21 @@
 
 
 
-## `popstate` and `hashchange`
-像`vue-router`这样的路由框架：
-- 核心是监听`window`对象的`popstate`事件和`hashchange`事件
-- 触发前端路由变更：
-  - 调用 `history`对象的 `popState` `pushState`方法
-  - 修改 `location`对象的 `hash`属性
-- 结合具体前端框架，做组件上的渲染更新
+## window的`popstate`事件
+什么时候会触发该事件：
+- 用户点击浏览器的前进或后退按钮
+- history.back()
+- history.go()
+- history.forward()
+
+**注意**：
+history.pushState() 和 history.replaceState() 不会触发`popstate`事件！
+
+## window的`hashchange`事件 
+当url中的hash发生变化，就会触发该事件
+
+## window的`beforeunload`事件 
+当用户手动修改url，按下回车时，会触发该事件；
+当用户点击页面上的链接，当前页面被替换的时候，会触发该事件；
+
+仅前端路由改变，不会触发该事件；

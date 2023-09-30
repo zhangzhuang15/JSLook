@@ -186,7 +186,7 @@ TS官网链接: https://www.typescriptlang.org/docs/handbook/module-resolution.h
 更详细的配置请前往 https://aka.ms/tsconfig
 
 ### FAQ
-#### 1、怎么去理解module字段？
+#### 1. 怎么去理解module字段？
 该参数就是指定 tsc 编译器产出何种 module 管理风格的js代码；
 
 如果指定 `CommonJS`, 在最终代码产物中，你会看到 `require` 函数，看不到 `import`;
@@ -228,6 +228,23 @@ import { hello } from "./common.utils";
     }
 }
 ```
+实际编译的时候，不会把 `@component/*` 转化为 `./src/component/*`, 这需要 bundler 的支持。
+
+webpack 里需要`tsconfig-paths-webpack-plugin`插件处理；
+
+rollup 里需要`@rollup/plugin-typescript`插件处理；
+
+esbuild 在开启 --bundle 选项后，会自动按照 tsconfig.json 的path配置，处理alias
 
 #### 4. 如何直接用import引入一个json文件？
 开启`resolveJsonModule`
+
+#### 5. 编译 tsx 的时候，需要开启哪个配置项？
+```json 
+{
+    "compilerOptions": {
+        "jsx": "react-jsx"
+    }
+}
+
+```

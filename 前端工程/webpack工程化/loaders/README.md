@@ -1,3 +1,5 @@
+[toc]
+
 ## What is Loader
 * loader是函数，声明类型为 (source: string) => string.  
 * loader的用途就是将文件内容进行转换。

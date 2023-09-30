@@ -5,6 +5,26 @@
 [vue3原理介绍视频](https://www.bilibili.com/video/BV1SZ4y1x7a9?p=2&vd_source=8e22a21e39978743c185c338fa9b6d6d)
 
 ### 为什么在vue3中，解构会破坏响应式？
+解构会创建新的对象。
+```ts 
+let obj = { name: "jack" };
+const { name } = obj;
+
+// name的解构，是创建一个新的对象，把里面的
+// name 属性值赋值给 name 变量
+```
+
+```ts 
+const obj = ref(0);
+
+// 必须通过obj的 dot 运算符才能触发响应式
+obj.value = 10;
+
+// 即便value是一个引用类型变量，但是离开了
+// obj，不通过 dot 运算符访问value，没办法
+// 触发响应式
+const {value} = obj;
+```
 
 ### 如何理解vue的单向数据流？
 父组件通过props传递数据给子组件，子组件只能读取数据。如果一旦子组件修改了数据，那么
@@ -24,7 +44,7 @@
 * 使用浏览器本地缓存，如 localStorage;
 * 路由传值；
 
-> eventBus实质上就是一个全局 Vue 实例，一个组件像该实例发送事件，
+> eventBus实质上就是一个全局 Vue 实例，一个组件向该实例发送事件，
 > 另一个组件注册事件，通过事件收发的机制，完成跨组件信息通讯；
 
 
@@ -53,6 +73,7 @@
 
 
 ### Vue组件的生命周期有哪些
+vue2:
 * beforeCreate: Vue实例化，但是还没有进行数据初始化和响应式处理；
 * created： 数据已经被初始化和响应式处理，可以访问和修改数据；
 * beforeMount: render函数调用，生成虚拟DOM，但是还没有挂载到真实的DOM上；
@@ -65,6 +86,17 @@
 * destroyed：实例销毁后调用；
 * errorCaptured: 捕获子孙组件的错误被调用。接收三个参数，error, errorComponent, errMessage。返回false的时候，可以组织错误继续上传。
 
+vue3:
+- setup
+- onBeforeMount
+- onMounted
+- onBeforeUpdate
+- onUpdated 
+- onBeforeUnmount
+- onUnmounted
+- onActivated
+- onDeactivated
+- onErrorCaptured
 
 <br>
 
@@ -113,6 +145,17 @@ vue2通过重写数组原型上的方法来达到对数组的修改监听。因�
 <br>
 
 
+### 自定义v-model 
+[官方介绍](https://cn.vuejs.org/guide/components/v-model.html#handling-v-model-modifiers)
+
+vue3中，默认使用v-model, 绑定的是组件`modelValue` 属性，model修饰符存储在组件`modelModifiers`属性，触发的更新事件是`update:modelValue`.
+
+如果指定 `v-model:title.catch`, 绑定的是组件`title`属性，model修饰符`catch`存储在组件`titleModifiers`属性，触发的更新事件是`update:title`.
+
+
+<br>
+
+
 ### 父组件和子组件的事件通讯是如何实现的？
 ```
 // 父组件
@@ -127,6 +170,9 @@ vue2通过重写数组原型上的方法来达到对数组的修改监听。因�
  在某个方法中调用 this.$emit('click')；
  就可以出发子组件的click事件，从而引发onClick方法被调用；
 ```
+
+- 父组件注册事件
+- 子组件触发事件
 
 <br>
 
@@ -249,7 +295,7 @@ vm.$watch('age',
 <br>
 
 ### 如何定义一个Vue的插件？
-```js
+```txt
 Vue插件就是一个 
 { 
    install(Vue, options) {
@@ -260,10 +306,12 @@ Vue插件就是一个
 ```
 在install方法中，使用Vue提供的方法定义全局filter，全局组件，
 或者在 Vue的原型上绑定自定义的方法，供其他组件掉用。
+
 ```js
-使用自定义的组件只需要
+// 使用自定义的组件只需要
 Vue.use(plugin, options)
 ```
+
 <br>
 
 ### Vuex的使用思路
