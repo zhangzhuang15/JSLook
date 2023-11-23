@@ -71,6 +71,15 @@
 
 <br>
 
+### 如何对回流和重绘做优化？
+[blog](https://dev.to/gopal1996/understanding-reflow-and-repaint-in-the-browser-1jbg)
+
+![](./image/parse_html.png)
+
+![](./image/reflow_repaint.png)
+
+<br>
+
 ### 什么是全局属性？
 全局属性就是所有的标签都可以使用的属性，比如 class id style等。
 
@@ -154,11 +163,11 @@ IE：
 <br>
 
 ### 新多媒体元素有哪些？
-* audio
-* video
-* source
-* embed
-* track
+* \<audio> 音频
+* \<video> 视频
+* \<source> 视频或音频的多个来源选择
+* \<embed> 支持其他的一些媒体格式，比如pdf，需要浏览器及其插件的支持
+* \<track>  字幕
 
 <br>
 

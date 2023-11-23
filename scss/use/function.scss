@@ -1,0 +1,9 @@
+@use "sass:string";
+
+@function helloColor($msg) {
+    @if string.index($msg, "hello") > -1 {
+        @return "black";
+    } 
+
+    @return "white";
+}

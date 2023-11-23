@@ -1,4 +1,5 @@
 import { get as httpGet } from "http";
+import { get as httpsGet } from "https";
 import { createWriteStream, readFileSync, existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { spawnSync } from "bun";
@@ -17,25 +18,15 @@ function useSignal<T>(): [((value: T) => void), ((reason: any) => void), Promise
 }
 
 // 1. get M3U file
-function getM3UFile(): Promise<string> {
-    const url = "http://hw-vl.cztv.com/channels/lantian/channel01/360p.m3u8/1691157979000,1691164800000";
-    const headers = {
-        'Accept': "*/*",
-        'Origin': "http://tv.cztv.com",
-        'Accept-Language': "zh-CN,zh-Hans;q=0.9",
-        'Host': 'hw-vl.cztv.com',
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.1 Safari/605.1.15',
-        'Referer': 'http://tv.cztv.com/',
-        'Accept-Encoding': 'gzip, deflate',
-        'Connection': 'keep-alive'
-    };
-
+function getM3UFile(m3uFileUrl: string, headers: Record<string, string>): Promise<string> {
     const m3uFile = `${tempDirAbsolutePath}/${Date.now().toString().slice(-5)}.m3u`;
     const writeStream = createWriteStream(m3uFile, { flags: 'w+', mode: 0o770 });
     const [signal, _, promise] = useSignal<string>();
     
-    httpGet(
-        url, 
+    const get = m3uFileUrl.includes("https") ? httpsGet : httpGet;
+
+    get(
+        m3uFileUrl, 
         { headers }, 
         (res) => {
             res.on("data", (chunk) => {
@@ -53,17 +44,18 @@ function getM3UFile(): Promise<string> {
     return promise;
 }
 
-function parseM3UFile(m3uFile: string): string[] {
+function parseM3UFile(m3uFile: string, tsFileMap: (tsFileName: string) => string): string[] {
     const content = readFileSync(m3uFile, "utf-8");
-    const origin = "http://hw-vl.cztv.com";
     return content
         .split("\n")
         .filter((line) => /^\/.*\.ts/g.test(line))
         // e.g. http://hw-vl.cztv.com/fdfafa/fadfd.ts
-        .map(line => `${origin}${line}`);
+        .map(tsFileMap);
 }
 
-function downloadTsFile(urls: string[]): Promise<string[]> {
+
+
+function downloadTsFile(urls: string[], howToRequestTsFile: Options["howToRequestTsFile"]): Promise<string[]> {
     const tag = Date.now().toString().slice(0, 5);
     const urlAndSavedFiles = urls.map((url, index) => [url, path.join(tempDirAbsolutePath, `${tag}_${index+1}.ts`),  path.join(tempDir,`${tag}_${index+1}.ts`)])
 
@@ -97,40 +89,37 @@ function downloadTsFile(urls: string[]): Promise<string[]> {
             );
 
             let retry = 0;
+
+            const tryAgain = () => {
+                if (retry < retryTimes) {
+                    retry++;
+                    return true;
+                };
+
+                return false;
+            };
+
+            const tryToDoFinishWork = () => {
+                finished++;
+                doFinishWork();
+            };
             
-            const fetchFile = (_url: string) => 
-                httpGet(_url, (res) => {
-                    res.on("data", chunk => writeStream.write(chunk));
-    
-                    res.on(
-                        "end", 
-                        () => { 
-                            writeStream.end(() => {
-                                finished++;
-                                doFinishWork();
-                            });
-                        
-                            writeStream.close();
-                        });
-                })
-                .on("error", (err) => {
-                    // really important part!
-                    // you have to retry if request is failed at first time
-                    if (retry < retryTimes) {
-                        retry++;
-                        fetchFile(_url);
-                    } else {
-                        failedQueue.push(index);
-                        writeStream.close();
-                        Promise.resolve().then(() => rmSync(savedFile));
-                        finished++;
-                        doFinishWork();
-                    }
-                });
+            const pushIntoFailedQueue = () => {
+                failedQueue.push(index);
+            };
+
+            const clearBrokenFile = () => Promise.resolve().then(() => rmSync(savedFile));
+
+            const hooks = {
+                tryAgain,
+                tryToDoFinishWork,
+                pushIntoFailedQueue,
+                clearBrokenFile,
+            };
             
             // avoid sending request so frequently,
             // in this way, server won't consider us as a hacker attack
-            setTimeout(() => { fetchFile(url)}, 0);
+            setTimeout(() => { howToRequestTsFile(url, writeStream,hooks)}, 0);
         });
         
     return promise;  
@@ -150,7 +139,7 @@ function tsToMp4(tsFiles: string[]): Promise<string> {
 }
 
 
-function main() {
+function makeDiskReady() {
     if (existsSync(tempDirAbsolutePath)) {
         // clear temp/*
         // rmSync is different from `rm` in shell!
@@ -160,16 +149,80 @@ function main() {
     }
 
     mkdirSync(tempDirAbsolutePath);
+}
 
-    getM3UFile()
-        .then(file => parseM3UFile(file))
-        .then(tsFiles => downloadTsFile(tsFiles))
+type Options = {
+    m3uFileUrl: string,
+    headers: Record<string, string>,
+    tsFileNameMap: (tsFileName: string) => string,
+    howToRequestTsFile: (url: string, writer: any, hooks: {
+        tryAgain: () => boolean,
+        tryToDoFinishWork: () => void,
+        pushIntoFailedQueue: () => void,
+        clearBrokenFile: () => Promise<void>,
+    }) => void,
+};
+
+function run(options: Options) {
+    makeDiskReady();
+    const { m3uFileUrl, headers, tsFileNameMap, howToRequestTsFile } = options;
+
+    getM3UFile(m3uFileUrl, headers)
+        .then(file => parseM3UFile(file, tsFileNameMap))
+        .then(tsFiles => downloadTsFile(tsFiles, howToRequestTsFile))
         .then(savedTsFiles => tsToMp4(savedTsFiles))
         .then(message => { console.log("all works done:\n%s", message)})
         .catch(err => { console.log("failed\nerror: ", err)})
 }
 
 
-main();
+const VoiceOfChinaOptions: Options = {
+    m3uFileUrl: "http://hw-vl.cztv.com/channels/lantian/channel01/360p.m3u8/1691157979000,1691164800000",
+    headers: {
+        'Accept': "*/*",
+        'Origin': "http://tv.cztv.com",
+        'Accept-Language': "zh-CN,zh-Hans;q=0.9",
+        'Host': 'hw-vl.cztv.com',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.1 Safari/605.1.15',
+        'Referer': 'http://tv.cztv.com/',
+        'Accept-Encoding': 'gzip, deflate',
+        'Connection': 'keep-alive'
+    },
+    tsFileNameMap: (tsFileName: string) => {
+        const origin = "http://hw-vl.cztv.com";
+        return `${origin}${tsFileName}`;
+    },
+    howToRequestTsFile: (url, writer, hooks) => {
+        const {pushIntoFailedQueue, tryAgain, tryToDoFinishWork, clearBrokenFile} = hooks;
+
+        const fetchFile = (_url: string) => 
+                httpGet(_url, (res) => {
+                    res.on("data", chunk => writer.write(chunk));
+    
+                    res.on(
+                        "end", 
+                        () => { 
+                            writer.end(() => {
+                               tryToDoFinishWork();
+                            });
+                            writer.close();
+                        });
+                })
+                .on("error", (err) => {
+                    // really important part!
+                    // you have to retry if request is failed at first time
+                    if (tryAgain()) {
+                        fetchFile(_url);
+                    } else {
+                       pushIntoFailedQueue();
+                       writer.close();
+                       clearBrokenFile();
+                       tryToDoFinishWork();
+                    }
+                });
+        
+        fetchFile(url);
+    }
+};
 
 

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <h3>Message From Parent Window:</h3>
+    <section id="content"></section>
+    <button id="btn">send message to parent window</button>
+    
+    <script>
+        const section = document.getElementById("content");
+        const button = document.getElementById("btn");
+
+        window.addEventListener("message", (ev) => {
+            const data = ev.data;
+
+            section.innerText = data;
+
+            window.parent.postMessage("I received");
+        });
+
+        button.addEventListener("click", () => {
+            window.parent.postMessage("Do you have dinner?");
+        });
+    </script>
+</body>
+</html>

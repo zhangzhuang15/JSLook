@@ -17,3 +17,6 @@
 同样，我们也会使用例如`npm run dev` 的方式启动程序，那么如何将参数传给 `dev` 表示的command line 呢？
 
 依次执行`package.json`的`scripts`中的命令，根据输出结果，体会规律吧！
+
+> 在解析 options 参数时，pnpm 和 npm 存在区别！尽量使用pnpm吧，直觉上它更合理
+> options参数到底传给npm，还是传给 program file，确实令人头痛，需要查看npm help

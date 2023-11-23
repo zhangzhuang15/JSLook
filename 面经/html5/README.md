@@ -260,3 +260,60 @@ bbbb表示javascript执行阶段
 3. 根据渲染树，浏览器进行布局计算，得到布局树。
 4. 在布局树的基础上进行分层，主线程会使用一套复杂的策略对整个布局树中进行分层。
 5. 最后，浏览器根据分层的结果，绘制出网页的每一个层，完成最终的渲染。
+
+### 非法的tag会破坏html解析么
+```html
+<html>
+  <body>
+    <j-stack></j-stack>
+  </body>
+</html>
+```
+显然，`<j-stack>`是非法的（我们没有使用`customElements.define`定义它），不用担心，它不会导致html解析失败，它会被浏览器直接忽略。
+
+### body 标签里面如果插入 html 标签会发生什么？
+```html 
+<html>
+  <body>
+    <div>
+      <html>
+        <head>
+          <link ref="stylesheet" href="http://fdafa.com/fdf.css" />
+        </head>
+        <j-head>
+          <link ref="stylesheet" href="http://ffdf.com/pp.css" />
+        </j-head>
+        <body>
+          <div class="jack"></div>
+        </body>
+      </html>
+    </div>
+  </body>
+</html>
+```
+内部的 `html` `head` `body`会被擦除，然后就成了这个样子：
+```html 
+<html>
+  <body>
+    <div>
+      <link ref="stylesheet" href="http://fdafa.com/fdf.css" />
+      
+      <j-head>
+        <link ref="stylesheet" href="http://ffdf.com/pp.css" />
+      </j-head>
+       
+      <div class="jack"></div>
+    </div>
+  </body>
+</html>
+```
+`j-head`内部的`link`会正常解析，浏览器会发送http请求获取css资源
+
+### `<link>`中常见的 `rel` 属性值
+`prefetch`: 告诉浏览器，提前发送请求，下载好资源；
+
+`modulepreload`: 告诉浏览器，提前发送请求下载js脚本，将脚本存入到 module map中，供之后执行；
+> [import map](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap)
+
+`preload`: 告诉浏览器，提前发送请求，缓存好资源，供之后使用，你必须设置好 `as` 属性值，告诉浏览器被请求的资源是哪个类型，比如 `font` `script` `image` 等等
+> https://developer.mozilla.org/en-US/docs/Web/HTML/Element/link#as

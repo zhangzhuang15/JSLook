@@ -11,6 +11,11 @@
 
 <br>
 
+### const let var class 的作用域问题
+[示例](../javascript/exercise_变量作用域_1.js)
+
+<br>
+
 ### Symbol有了解吗，迭代器有了解吗，哪些是可迭代的？
 Symbol: 
 * 充当对象的属性名，实现私有属性；

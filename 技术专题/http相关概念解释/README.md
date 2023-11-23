@@ -21,17 +21,23 @@
 ### Referer 指的是什么？
 Referer 是一个 HTTP 请求头，用于指示来源页面。它指定了发送请求的页面的 URL。服务器可以使用 Referer 头部字段来获取请求的上下文信息，例如用户从哪个页面跳转过来的.
 
+只要浏览器可以获取到请求源，就会带上 referer；
+
+比如你在网页`http://ccc.com/main`, 发送请求`http://api.ccc.com/main`，那么该请求中的 Referer 的值就是 `http://ccc.com/main`
+
 
 ### Origin 指的是什么？
 Origin 是一个 HTTP 请求头部字段，用于指示请求的来源。它指定了发送请求的页面的源（协议，域名和端口）。
 
 Origin 头部字段通常用于跨域请求的安全性验证。服务器可以使用 Origin 头部字段来判断是否允许来自特定源的请求。
 
+浏览器发送跨域请求，或者发送同源post请求时，就会自动带上 Origin 字段；
+
 当你：
 1. 处于页面 http://lisi.com/page-a;
-2. 点击页面的一个按钮，触发了一次AJAX请求。
+2. 点击页面的一个按钮，触发了一次AJAX请求`http://api.lisi.com/data/2004`。
 
-请求头中就会包含 Origin 字段，值为 `http://lisi.com`, 表明 发出请求的页面 处于哪种协议、哪个域名、哪个端口下的 web app。这样可以让服务方正确处理 cross-origin request。
+请求头中就会包含 Origin 字段，值为 `http://api.lisi.com`, 表明 发出请求的页面 处于哪种协议、哪个域名、哪个端口下的 web app。这样可以让服务方正确处理 cross-origin request。
 
 > Origin 比 Referer 优秀的地方在于，只会暴露 协议名、域名、端口号，不会暴露url的 path 部分。
 

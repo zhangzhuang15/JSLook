@@ -84,7 +84,7 @@ vue2:
 * deactivated: 被 keep-alive缓存的组件停用时调用；
 * beforeDestroy: 实例销毁前调用，实例数据依旧可以访问；
 * destroyed：实例销毁后调用；
-* errorCaptured: 捕获子孙组件的错误被调用。接收三个参数，error, errorComponent, errMessage。返回false的时候，可以组织错误继续上传。
+* errorCaptured: 捕获子孙组件的错误被调用。接收三个参数，error, errorComponent, errMessage。返回false的时候，可以阻止错误继续上传。
 
 vue3:
 - setup
@@ -242,7 +242,7 @@ vm.$watch('age',
 
  <br>
 
- ### Vue单页面组件开发中，style 会带上 scoped属性保证css样式不会造成全局污染，请问scoped的原理是什么？
+### style scoped属性的原理是什么？
 举个例子
 ```html
 <style scoped>
@@ -364,6 +364,12 @@ vuex由几个部分组成：
    new Vue({ store }).mount("#app")
    ```
 
+### 为什么vue要将组件更新放置于微任务队列中？
+浏览器的渲染逻辑是，执行一个宏任务，然后执行微任务队列里的所以微任务，接着重新渲染页面，然后执行下一个宏任务....
+
+将组件更新放在微任务中，可以将若干个组件的更新操作，在浏览器一次渲染过程中完成，形成批量更新的效果。
+
+如果放在宏任务中，组件的更新就会分散在多次浏览器渲染中，性能不太出色。
 
 
 

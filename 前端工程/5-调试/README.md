@@ -103,6 +103,10 @@ main()
 ---
 
 ### 调试 node ts 程序
+#### 快速调试 
+无须tsconfig.json, 无须手动编译；
+缺点是无法精确调试；
+
 确保：
 1. 安装typescript编译器: `npm install typescript`;
 2. 安装ts-node程序： `npm install ts-node`;
@@ -132,9 +136,57 @@ main()
 * ${workspaceFolder}指vscode打开的项目挂载在哪个文件夹下
 * args 的 ${file} 表示vscode编辑器中当前处于编辑状态的文件绝对路径
 
-补充：
-1. 如果在main.ts文件中使用import，执行`ts-node main.ts`会因为module引入格式的问题报错，应该使用`NODE_OPTIONS="--loader ts-node/esm" ts-node main.ts`
+注意点：
+1. 该方法无法保证调试的时候，程序准确地在断点处停止，部分位置打断点会无效。
+   ```ts{.line-numbers}
+   const hello = (msg: string[]) => {
+        let i = 0;
+        const l = msg.length;
+
+        for (;i < l; i++) {
+            console.log(msg[i]);
+        }
+
+        return true;
+   } 
+
+   const r = hello();
+   console.log(r);
+
+   // 第 12 行打断点，很可能无效；
+   // 第 6 行打断点，也很可能无效；
+   // 第 2 行打断点，有效，但是程序停止的位置却不在这里
+   ```
+2. 如果在main.ts文件中使用import，执行`ts-node main.ts`会因为module引入格式的问题报错，应该使用`NODE_OPTIONS="--loader ts-node/esm" ts-node main.ts`
 更多关于 ts-node 的信息见其在npm官网的介绍
+
+
+#### 完美调试 
+无需安装 ts-node；
+
+调试之前，先使用tsc编译ts代码，注意tsconfig.json要开启`sourceMap`;
+> 编译这一步，建议在tasks.json里定义
+
+launch.json:
+```json 
+{
+    "name": "perfectlly debug node ts",
+    "type": "node",
+    "request": "launch",
+    "program": "${file}",
+    "skipFiles": [
+        "<node_internals>/**"
+    ],
+    "outFiles": [
+        "${fileDirname}/**/*.js",
+        "!**/node_modules/**"
+    ]
+}
+```
+outFiles 给出编译后的js文件
+
+然后在 ts 文件里打好断点，直接调试即可。
+
 ---
 
 ### 根据进程号调试node程序
@@ -188,3 +240,174 @@ React框架编写的项目一旦运行后，就会开启一个服务进程，监
 ```
 > url 为 vue项目启动后的服务地址；
 > sourceMapPathOverrides 指定源代码映射，这样才能在调试的时候定位到源代码位置；
+
+### vscode launch.json 
+vscode里调试代码，是在 .vscode/launch.json配置的。
+
+```json 
+{
+    // “node” | "chrome"
+    // nodejs nodets 程序选择 "node" 
+    // 运行在浏览器里的应用，选择 "chrome"
+    "type": "",
+
+    // "attach" | "launch"
+    // 调试一个已经运行的node进程或浏览器应用，选择 "attach";
+    // 开启一个node进程，然后调试它，选择 "launch"
+    "request": "",
+
+    // 给本次调试工作起一个名字，方便在UI界面上查找
+    "name": "",
+
+    // 被调试的js文件或ts文件
+    "program": "",
+
+    // 解释器程序路径
+    // 当遇到vscode找不到node时，手动设置node的程序路径
+    "runtimeExecutable": "",
+
+    // 送给解释器程序的参数
+    // node -c hello main.js -p 
+    // -c hello 送给 node，就是 runtimeArgs,
+    // -p 送入main.js， 就是 args
+    "runtimeArgs": [""],
+    "args": [""],
+
+    // current working directory
+    "cwd": "",
+
+    // 调试的时候，被省略的文件跳转不到
+    "skipFiles": [""],
+
+    // 如果request: "launch", 在真正
+    // 启动进程前，先执行该任务。
+    // 这个任务应该在 .vscode/tasks.json中定义。
+    // preLaunchTask 的值就是 task 的 label 属性值
+    "preLaunchTask": "",
+
+    // 如果调试ts文件，要在这里给出编译后的js代码在哪里，
+    // 方便 vscode 在调试的时候，完成sourcemap
+    "outFiles": [""]
+}
+```
+
+问题：
+1. vscode找不到 node 怎么办？
+ 一般不会出现这种问题，可以设置`runtimeExecutable`解决，但不推荐。可以尝试重启vscode。
+
+### vscode tasks.json 
+```json 
+{
+    "tasks": [
+        {
+            // task名，便于在 command palette 寻找
+            "label": "",
+
+            // "shell" | "process"
+            // 命令想在shell中执行，选择 "shell"
+            // fork一个进程，execute命令，选择 "process"
+            "type": "shell",
+
+            // 命令
+            "command": "tsc",
+
+            // 额外的一些配置
+            "options": {
+                // 当前工作目录
+                "cwd": "",
+                // 环境变量
+                "env": {}
+            },
+
+            // task分组，也是便于在 command palette 寻找
+            "group": "build"
+        }
+    ],
+    "inputs": [
+         {
+            // 输入变量唯一标识，在task中使用 ${input:projectName} 访问
+            "id": "projectName",
+
+            // "pickString" | "promptString" | "command"
+            // 让用户输入一个值，选择 "promptString",
+            // 让用户选择一个值，选择 "pickString",
+            // 想执行一个命令，将命令返回值作为值，选择 "command"
+            "type": "promptString",
+
+            // vscode UI界面的 placeholder
+            "description": "your project name, such as demo",
+
+            // 默认值
+            "default": ".",
+            
+            // 配合 type: "pickString" 使用
+            "options": ["A", "B"],
+            
+            // 配合 type: "command" 使用 
+            // 这里的命令是在vscode里注册的command，不是常见的
+            // commnandline
+            "command": "",
+            // 传入 command 的可选参数
+            "args": {
+                "url": "https://zhangzhuang15.github.io/"
+            },
+        }
+    ]
+}
+
+```
+
+问题：
+1. shell无法执行某个命令，找不到该命令
+一般不会有这的问题。只要你在vscode集成终端里可以成功执行某个命令，在 `type: "shell"`的 task 里，一定可以执行的。建议重启vscode，或者完成vscode版本更新。
+
+### vscode varaibles 
+假设：
+1. vscode文件编辑窗口打开文件`/home/your-username/your-project/folder/file.ext`
+2. vscode的workspace对应文件夹`/home/your-username/your-project` 
+
+则：
+- ${userHome}
+  /home/your-username
+
+- ${workspaceFolder}
+  /home/your-username/your-project
+
+- ${workspaceFolderBasename}
+  your-project
+
+- ${file}
+  /home/your-username/your-project/folder/file.ext
+
+- ${fileWorkspaceFolder}
+  /home/your-username/your-project
+
+- ${relativeFile}
+  folder/file.ext
+
+- ${relativeFileDirname} 
+  folder
+
+- ${fileBasename}
+  file.ext
+
+- ${fileBasenameNoExtension}
+  file
+
+- ${fileDirname}
+  /home/your-username/your-project/folder
+
+- ${fileExtname}
+   .ext
+
+- ${lineNumber}
+  line number of the cursor
+
+- ${selectedText}
+  text selected in your code editor
+
+- ${execPath}
+  location of Code.exe
+
+- ${pathSeparator}
+  / on macOS or linux, \ on Windows

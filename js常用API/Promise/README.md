@@ -1,0 +1,1 @@
+[promise A+规范](https://promisesaplus.com)

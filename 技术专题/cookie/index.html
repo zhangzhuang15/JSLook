@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <body>
+        <button id="main">click me</button>
+        <script>
+            const b = document.getElementById("main");
+            b.addEventListener("click", () => {
+                const xhr = new XMLHttpRequest();
+                xhr.open("GET", "http://b.com:8000/api");
+                xhr.withCredentials = true;
+                xhr.send();
+
+            });
+        </script>
+    </body>
+</html>

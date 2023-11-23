@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <h2>message from iframe:</h2>
+    <section id="message">ok</section>
+    <button id="btn">send message to iframe</button>
+    <button id="btn2">reload /demo.html in iframe</button>
+
+    <br />
+
+    <!--- 以下两种写法都是可以的，目的是调试js代码。
+          将js代码直接写入<script>中，打上断点后，只有异步回调里的断点生效（比如 addEventListener），
+          变量定义之处，断点停不下来；
+          demo.html里是可以将js代码写入<script>，打上断点后，vscode调试可以完成；
+
+          具体原因不得而知，应该和 src 属性触发的内容加载机制有关，在加载的时候，vscode
+          开启的debug mode 浏览器似乎可以捕捉到这一点，注入sourcemap代码，让调试可以顺利进行；
+
+          调试的时候，必须在launch.json指定 webRoot，让它指向本文件所在的目录，可以填入
+          绝对路径，也可以填入${fileDirname}；
+    -->
+    <!-- <script type="module" src="/client.js"></script> -->
+    <script src="/client.js" defer></script>
+
+    <!-- 特别注意，不要写成 <iframe id="demo" src="/demo.html" /> 
+         这个写法是错误的，会让后边的html没办法解析
+    -->
+    <!--
+        默认情况下， src应该和当前origin保持一致，也就是同源；
+        指定跨域url也是可以的，比如这里的 https://bilibili.com;
+        当然也会遇到CSP问题(Content Security Policy), 比如 https://www.baidu.com,
+        百度会返回一个 Content-Security-Policy 响应头，告知浏览器只有在指定的url下，才
+        允许<iframe>加载 http://www.baidu.com
+    -->
+    <iframe id="demo" title="demo website" src="https://bilibili.com"></iframe>
+       
+    <!-- 作为对比，可以在下边打上断点试试 -->
+    <!-- <script>
+        const iframe = document.getElementById("demo");
+        iframe.name = "demo";
+
+        const message = document.getElementById("message");
+        const button = document.getElementById("btn");
+        const button2 = document.getElementById("btn2");
+        
+        button.addEventListener("click", () => {
+           iframe.contentWindow.postMessage("hello");
+        });
+
+        button2.addEventListener("click", () => {
+           window.open("/demo.html", "demo");
+        });
+
+        window.addEventListener("message", (ev) => {
+           const data = ev.data;
+           message.innerHTML = data;
+        });
+    </script>
+   -->
+</body>
+</html>
