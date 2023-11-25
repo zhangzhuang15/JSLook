@@ -80,7 +80,13 @@ class MyPromise {
         try {
             fn(resolve, reject);
         } catch(e) {
-            reject(e);
+            // when status has been FullFilled or Rejected,
+            // ignore error
+            
+            if (this.status === "Pending") {
+                reject(e);
+            }
+           
         }
     }
 
@@ -134,9 +140,14 @@ class MyPromise {
                     resolve(_value);
                 });
                 _this.onRejectedFn.push( reason => {
-                    try{
+                    // onRejected 可能是 undefined，也就是
+                    // 使用者在 then 方法里，只传入了fulfilled
+                    // 情况的回调，这时候相当于他没有对reject情况
+                    // 进行捕捉，所以要加入 try catch 照顾这种
+                    // 情况
+                    try {
                         _reason = onRejected(reason) || undefined;
-                    }catch(e){
+                    } catch(e){
                         reject(e);
                     }
                     reject(_reason);

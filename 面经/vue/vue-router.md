@@ -49,20 +49,31 @@ function setState() {
 - 添加订阅者，取消订阅者
 
 ## FAQ
-### 路由发生变化的时候，如何触发页面更新？
-#### 点击 前进/后退
-调用以下API也同理:
+### 前端路由发生变化的时候，如何触发页面更新？
+#### 基本分析
+前端路由发生变化，主要通过以下方式触发：
+- 点击浏览器的 前进/后退 按钮
 -  `history.go()` 
 -  `history.back()` 
 -  `history.forward()`
+-  `history.pushState()`
+-  `hisotry.replaceState()`
 
-直接修改url，按下回车的情形，也同理。
+直接修改url，按下回车，会向后端发送请求，不属于前端路由变化的情形，因此不考虑在内。
 
 监听window的**popstate**和**beforeunload**事件
 
 ```ts 
+// 点击前进、后退按钮；
+// history.go()
+// history.forward()
+// history.back()
+// 会触发 popState 事件
 window.addEventListener('popstate', popStateHandler)
 
+// 发送请求，重新加载当前页面；
+// 发送请求，加载新的页面；
+// 会触发 beforeunload 事件；
 window.addEventListener('beforeunload',beforeUnloadListener, { passive: true })
 ```
 
@@ -372,18 +383,15 @@ currentRoute 更新了，injectedRoute就会更新，进而令RouterView更新�
 currentRoute也就更新了。
 
 梳理一下全过程：
-- 路由变化的时候，执行popstate事件函数
-- 在该事件函数中会调用封装的navigate函数，执行一些守卫函数，但最重要的是更新 currentRoute
-- currentRoute是响应式的，其更新会传递给 RouterView 组件，组件于是更新
+- 调用vue-router封装好的API，触发前端路由变化
+- 前端路由变化如果触发popstate事件函数，会调用封装好的navigate函数，更新 currentRoute
+- 前端路由变化如果没有触发popstate事件函数，依旧会调用封装好的navigate函数，更新 currentRoute
+- currentRoute是响应式的，其更新会传递给 RouterView 组件，于是组件更新
 
 #### 监听hash变化的情形
 上一小节，讲述的是`WebHistory`的方案，而`WebHashHistory`没有给出`hashchange`的事件监听，而是复用了`WebHistory`的方案。
 
-**这样做的根据**：
-
-如果hash是通过浏览器人机交互的方式修改的，那么popstate事件也会被触发，无需监听hashchange事件；
-
-如果hash是通过API修改的，因为vue-router已经封装好API供用户使用，用户操作正常的话，一定是通过vue-router的API驱动路由改变，而不是用原生的API，路由变动就可以被API本身拦截到了，无需做任何事件监听。
+主要原因是popstate事件和history API 的浏览器兼容程度更好。
 
 ### MemoryHistory实现的思路
 所谓History对象，就是要提供和原生history一样的API，控制前端路由，这样既能完成原生history的路由控制功能，而且可以扩展原生API，将必要的逻辑处理注入。

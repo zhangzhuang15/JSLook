@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share Something</title>
+</head>
+<body>
+    <p>click the button, sharing a website to your friend</p>
+    <button id="share">Sharing</button>
+    
+    <script>
+        const button = document.getElementById("share");
+        button.addEventListener("click", () => {
+            const shareObj = {
+                title: "Baidu website",
+                text: "Baidu Entry Url",
+                url: "https://www.baidu.com/"
+            };
+
+            // if you wanna share files, please
+            // config shareObj.files which is
+            // File[] type
+
+            // some browsers may not support sharing API
+            if (navigator.share) {
+                // 在Safari上，效果类似于点击浏览器的分享按钮；
+                // 弹出的卡片，会自动解析 shareObj.url，然后
+                // 将百度的信息展示出来， shareObj.title 和
+                // shareObj.text 不能改变这一行为
+                navigator
+                  .share(shareObj)
+                  .then(() => {
+                    window.alert("share successfully");
+                  })
+                  .catch(() => {
+                    // 分享失败或者放弃分享
+                    window.alert("share failedly");
+                  });
+            } else {
+                window.alert("Your browser don't allow sharing");
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+@use "./variable.scss" as v;
+@use "./function.scss" as f;
+@use "./mixins.scss" as m;
+
+.body {
+    height: v.$height;
+    
+    width: v.$-width;
+}
+
+.hello {
+    @include m.flexable-all-center;
+    background-color: f.helloColor("hello");
+}

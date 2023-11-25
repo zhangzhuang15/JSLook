@@ -47,7 +47,10 @@
 实现终端进度条
 
 #### 🌟ora
-实现终端spinner提示
+实现终端spinner提示 
+
+#### 🌟figures
+终端Unicode图标
 
 #### 🌟inquirer
 终端用户输入交互
@@ -83,6 +86,9 @@
 
 #### 🌟cross-port-killer
 跨平台的进程信号推送器，实现向某个进程发送信号
+
+#### 🌟concurrently
+Run commands concurrently
 
 ---
 
@@ -189,6 +195,10 @@ http请求库， nodejs、移动端、浏览器、React Native均可
 #### 🌟chokidar
 文件系统变动检测器
 
+#### 🌟rimraf
+A deep deletion module for node (like `rm -rf`)
+
+
 #### resolve
 查询一个模块入口文件的绝对路径
 
@@ -239,10 +249,15 @@ js动画库
 #### vivus
 js动画库，让我们使用svg制作动画
 
-#### GreenSock JS 
+#### gsap
 绘制动画库
 
 苹果官网跟随滚动的页面动画，就可以用这个库实现
+
+#### framer-motion
+过渡动画库
+
+比如一段文字由消失到浮现的渐变
 
 #### SortableJS
 拖拽库
@@ -404,6 +419,10 @@ git-hooks 的工具库，vite项目中应用了这个库。比 husky 更简单�
 #### 🌟only-allow
 限制项目使用哪个包管理器
 
+#### 🌟js-correct-lockfile
+检测lockfile匹配包管理器。
+比如维护者用yarn开发，项目有 yarn.lock；
+当贡献者使用npm开发时，会检测出 package.lock，然后警告贡献者使用 yarn
 ---
 
 
@@ -496,8 +515,16 @@ react框架下的前端路由管理器；
 #### prisma
 database ORM framework
 
-### pg 
+#### pg 
 postgresql client, help you connect to postgresql server, do CRUD, but doesn't provide you ORM tool
+
+
+---
+
+
+### Rollup
+
+![](./前端工程/rollup配置.md#recommended-plugins)
 
 
 ---

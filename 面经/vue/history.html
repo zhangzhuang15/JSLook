@@ -3,6 +3,7 @@
     <head></head>
     <body>
         <button>change path</button>
+        <button>location replace</button>
         <script>
             // 历史回退时触发
             // 第一次回退， e.target = { m: 'p' }
@@ -13,12 +14,27 @@
             window.onload = function(e) {
                 history.pushState({ m: 'p'}, '', '/jack')
             }
-            const button = document.querySelector('button')
-            button.addEventListener('click', e => {
-                setTimeout( _ => {
-                    history.pushState({ m: 'q'}, '', '/pack')
-                }, 2 * 1000)
-            })
+
+            window.onbeforeunload = function(e) {
+                console.log("before page unload: ",  e);
+                console.log("to: ", location.href);
+                history.replaceState({m: "t"}, '', '/rat')
+            };
+            {
+                const button = document.querySelector('button')
+                button.addEventListener('click', e => {
+                    setTimeout( _ => {
+                         history.pushState({ m: 'q'}, '', '/pack')
+                    }, 2 * 1000)
+                })
+            }
+            {
+                const button = document.querySelectorAll("button").item(1);
+                button.addEventListener("click", e => {
+                    location.replace("/jack");
+                });
+            }
+            
         </script>
     </body>
 </html>

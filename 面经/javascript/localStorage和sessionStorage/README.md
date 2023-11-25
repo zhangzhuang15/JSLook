@@ -28,3 +28,8 @@
    // 打开网页B（A和B不同域）
    localStorage.getItem('name') // null
 ```
+
+## 同Origin访问权
+localStorage 和 sessionStorage 要按照 origin 存储数据. 换句话讲，在 origin-A 存储的数据，在 origin-B 无法访问。
+
+origin = protocol + domain + port

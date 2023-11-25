@@ -48,8 +48,8 @@ TIME_WAIT阶段的目的：
 ### https握手过程
 首先完成tcp的三次握手；
 接着：
-1. 客户端发送请求给服务端，申请服务端证书；
-2. 服务端将证书以明文的方式发送给客户端；
+1. 客户端发送请求给服务端，申请服务端证书，还会将自己支持的TLS协议版本和加密套件告诉服务端；
+2. 服务端将证书以明文的方式发送给客户端，还会将服务端选择的TLS协议版本和加密套件告诉客户端；
 3. 客户端验证证书，从证书里提取服务端perm（公钥），客户端生成对称密钥，将对称密钥用服务端公钥加密，发送给服务端；
 4. 服务端返回ack，告知客户端刚才的请求已经收到。
 
@@ -80,6 +80,9 @@ http1.1，只允许上一个请求完整返回后，再去处理下一个请求�
 **http1.1支持多个并行的tcp连接，难道解决不了这个问题么？**
 主流浏览器支持单个域名最多创建6个tcp连接。如果你请求的资源是6个，恰巧分配到6个tcp连接上，单独看一个tcp连接，它只会处理一个资源，不会有队头阻塞的问题。可实际上，你请求的资源不只6个，那么依然会出现单个tcp连接上，请求若干个资源的现象，这就又出现队头阻塞的问题。
 另一方面，打开多个tcp连接，很增加操作系统压力。
+
+**http/1.1的 pipeline 特性解决不了该问题么**
+pipline特性，可以让多个请求一个接一个发送出去，不需要等待上一个请求返回后，再发送下一个请求，但是在处理请求的返回结果时，必须要在处理上一个请求结果之后，再处理下一个结果，这里依旧是队首阻塞问题。
 
 ### tcp的队头阻塞
 应用层有队头阻塞问题，tcp层次也有。其原因在于，当tcp发送数据包1、2、3，对方接收到1、3，发现缺少数据包2，于是暂停将数据包3返回，这样数据包2就阻塞了数据包3。如果缺失数据包1，那么数据包2、3就会被阻塞。
@@ -143,6 +146,43 @@ Token可以在前端生成，也可以在后端生成。
 - 放在返回的响应体数据里；
 前端拿到token后，存储到本地，在接下来的请求中，根据token判断用户登录是否过期。
 
+### cookie的几个问题
+#### 如何禁止js访问cookie值
+在服务端设置Set-Cookie Header，或者使用 document.cookie修改cookie时，将cookie的 httpOnly 属性设置为 true。
+
+```txt 
+Set-Cookie: name=jack; HttpOnly
+```
+
+#### 浏览器端js能访问哪些cookie？
+取决于 Cookie 的 Domain 和 Path。
+
+实验：[cookie接收实验](../../技术专题/cookie/index.js)
+
+结论：
+浏览器位于页面：http://a.b.com/index.html, 
+发送请求：http://a.b.com/api, 
+响应头：
+```txt 
+Set-Cookie: a=4
+Set-Cookie: b=5; Path=/index.html 
+Set-Cookie: c=6; Path=/api 
+Set-Cookie: d=7; Domain=b.com
+Set-Cookie: e=8; Domain=b.com; Path=/work
+```
+你能使用document.cookie访问到 a b d.
+因为：
+c 的路径是 /api, 不是 /index.html, 无法被访问;
+d 的域名是 b.com，a.b.com是 b.com的 subdomain, 可以被访问到；
+e 的域名情况和d一样，但是Path没有匹配 /index.html, 无法被访问；
+
+在上述操作基础上，再次发送一个请求: http://b.com/abi，并且带上cookie，则服务端只能收到d.
+因为：
+a b c 的域名都是 a.b.com， 不是 b.com；
+e 的域名是正确的，但是 Path不匹配 /abi;
+
+
+
 ### 为什么浏览器要加入同源策略？
 因为要保证安全。
 
@@ -150,17 +190,23 @@ XSS(跨站脚本攻击)：当用户已经登录一个网站后，登录权限的
 
 CSRF(跨站请求攻击)：用户登录一个网站，比如一个评论区，黑客在评论区里发送一段html，埋下了一个链接。用户点击黑客的评论时，就会发送一个请求，此时这个请求里就包含了用户登录的信息cookie，如果没有同源策略限制，这个请求就发出去了，可能就绕过了后端的身份验证，但是有同源策略的话，就会被拦下。
 
+### 哪些资源文件被允许跨域
+js css png mp3 mp4 pdf 这些文件都被允许跨域访问；
+
+注意，上述文件如果经过 Ajax or Fetch，依旧会引发跨域哦
+
 ### 为什么设置Token可以防范 CSRF ？
 因为CSRF只会将cookie转发，它并不知道cookie里有什么，也无法修改cookie，如果在cookie之外，比如请求体中加入一个token验证，那么真正安全的请求里就会有这个token，但是CSRF却无法做到。
 
 ### preflight request 有啥作用？
-当发送 non-simple request(可能是跨origin请求，也可能不是)，你使用XMLHttpRequest发送了一个请求，但是浏览器会先发送一个preflight request， 这个请求通过后，再发送你定义的那个请求。
+当发送跨域请求时，你使用XMLHttpRequest发送了一个请求，如果这个请求是 non-simple 请求，浏览器会先发送一个preflight request， 这个请求通过后，再发送你定义的那个请求。
 
 之所以需要 preflight request, 还是出于安全问题。先发送一个请求给后端，让后端知道发送方是什么情况，如果在安全范围内，后端再设置一次安全范围内的http请求字段给对方，让对方接下来的请求中可以发送这些字段给自己。如果超出安全范围，后端可以直接拒绝。
 
 注意啊，这个preflight request，只有请求头，请求行，没有请求体，不会带来通信压力。
 
 ### 什么是 simple request ?
+simple request可以是跨域请求，也可以不是；
 满足以下所有要求，就是 simple request：
 - 请求方法仅限：Get Post Head 
 - 除了浏览器自动添加的请求头外，只能包含这些请求头：
@@ -169,7 +215,23 @@ CSRF(跨站请求攻击)：用户登录一个网站，比如一个评论区，�
   - Content-Language
   - Content-Type, 且只能选择这些值：
     - application/x-www-form-urlencoded
+      ```txt 
+      name=jack&age=5
+      ```
     - multipart/form-data
+      ```txt 
+      POST /upload HTTP/1.1
+      Host: example.com
+      Content-Type: multipart/form-data; boundary=AABBCCJ
+
+      --AABBCCJ
+      Content-Disposition: form-data; name="file"
+      Content-Type: text/plain
+      Content-Length: 3
+
+      abc
+      --AABBCCJ--
+      ```
     - text/plain
   - Range， 必须是 simple range header value，比如`bytes=256- `
 - 如果使用XMLHttpRequest发送请求，不能使用`xhr.upload.addEventListener`
@@ -183,7 +245,61 @@ CSRF(跨站请求攻击)：用户登录一个网站，比如一个评论区，�
 
 不能用编程的方式修改，就是说你不能用 XMLHttpRequest 和 fetch 直接设置这些字段值。像 cookie 字段，你没办法在XMLHttpRequest直接设置, 但是你却可以用document.cookie修改，这并不会妨碍 cookie就是 forbidden header 的事实。编程方式，说的就是 XMLHttpRequest 和 fetch 
 
+### CSP(Content Security Policy)
+refer:
+https://content-security-policy.com/#directive
 
+CSP的实质就是白名单制度，开发者明确告诉客户端，哪些外部资源可以加载和执行，等同于提供白名单。它的实现和执行全部由浏览器完成，开发者只需提供配置.
+
+开发者配置 `Content-Security-Policy` response header 实现。
+
+
+### url最长有多长
+|浏览器 or 服务器 |url最大长度|
+|:---:|:---:|
+| IE | 2083个字符 |
+| Firefox | 65536个字符 |
+| Safari | 80000个字符 |
+| Opera | 190000个字符 |
+| Chrome | 8182个字符 |
+| Apache服务器 | 8192个字符 |
+| Microsoft Internet Information Server(IIS) | 16384个字符 |
+
+### http中get请求和post请求的区别
+Get请求：数据放在url中传输；不太安全；请求的数据可以被浏览器缓存；幂等请求，不会改变服务器状态；
+> 按照Http/1.1规范，Get请求的数据不可以放在body里，但在具体实现上，可以放在body里 
+
+Post请求：数据放在body中传输；较安全；请求的数据不可以被浏览器缓存；非幂等请求;
+
+### http请求中的强制缓存和协商缓存
+强制缓存是指，浏览器请求一个资源的时候，不询问服务器，直接从本地内存或者磁盘获取；
+> 应用场景：不需要经常更新，比如网站logo；
+
+协商缓存是指，浏览器请求一个资源的时候，都要询问服务器，验证资源的过期情况，如果没有过期，直接从本地获取，否则重新从服务器获取；
+> 应用场景：资源更新频率不大，比如网站头条新闻；
+
+强制缓存相关的请求头：
+- `cache-control`
+  - no-store  资源完全不缓存
+  - no-cache  资源需要缓存，每次请求资源时，要向服务器验证资源是否过期
+  - max-age=200 资源需要缓存，在缓存后的200s内是未过期的
+
+- `Expires`, 指定一个时间，在该时间之后，资源就认为是过期了
+  > Cache-Control优先级比Expires高，二者存在，Expires会被忽略
+
+
+协商缓存相关的请求头：
+- `ETag` 资源的字符串标记，当资源更新时，字符串标记会重新生成，并且和以前的标记不一样，用作 response header
+- `If-Match` 指定资源的字符串标记，服务器拿到该字段去判断资源是否过期，搭配 `ETag` 使用；
+
+- `Last-Modified` 服务器通过这个header，告诉浏览器资源最近更新的时间节点 
+- `If-Modified-Since` 搭配`Last-Modified`使用，存储的是上一次`Last-Modified`的时间节点，如果在这个时间节点之后，资源被修改，服务器将最新的资源返回给浏览器，否则浏览器直接从本地缓存获取
+
+
+### 什么是uuid？
+uuid(Universally Unique Identifier), 由32个16进制数组成的数字标识，如 "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAB92";
+
+按照这样的规律，uuid的数量非常庞大，使用者可以用它作为资源的唯一标识符号。
 
 ### OSI模型中各层协议举例
 * 应用层

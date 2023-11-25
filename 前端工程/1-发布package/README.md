@@ -1,3 +1,5 @@
+[toc]
+
 # 先注册账户
 最最最开始的步骤。
 
@@ -55,3 +57,5 @@ lerna发布的话，会拿着所有非私有package问你，让你确认它们�
 - 如果是一个确切的版本号，如`0.0.0`，那么所有package的包被lerna发布时，采用同一个版本号；
 - 如果是`independent`，那么lerna发布的时候，会依次问你每个package的版本号应该是多少；
 
+# package.json 
+[前往](../packageJson总结.md)

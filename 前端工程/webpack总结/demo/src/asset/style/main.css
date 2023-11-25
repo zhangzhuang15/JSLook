@@ -1,0 +1,19 @@
+@charset "UTF-8";
+.big {
+  font-size: 50px;
+  font-weight: 500;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid lightcoral;
+}
+.container .elem {
+  background: url("../image/柯南2.webp");
+  background-size: cover;
+  margin: 0 10px;
+  width: 50px;
+  min-height: 50px;
+}/*# sourceMappingURL=main.css.map */

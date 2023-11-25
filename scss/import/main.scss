@@ -1,0 +1,9 @@
+@import "./custom.scss";
+
+.hello {
+    height: 50px;
+
+    @import "./flexable.scss";
+}
+
+@import "./flexable.scss";

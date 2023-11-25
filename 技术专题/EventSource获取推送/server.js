@@ -17,7 +17,13 @@ const server = http.createServer((req, res) => {
             // 那么服务端应先发送 event: track\n\n
             // 之后再发送 data: 具体数据\n\n
             // 这是 SSE的报文格式要求
-            let result = `data: ${data[index%3]}\n\n`;
+            // refer: https://github.com/mdn/dom-examples/blob/main/server-sent-events/sse.php
+            let result = '';
+            if (index % 3 === 2) {
+                result += 'event: special';
+                result += '\n\n';
+            }
+            result += `data: ${data[index%3]}\n\n`;
             res.write(result);
             index++;
             if (index === 6) {

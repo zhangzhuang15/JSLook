@@ -38,6 +38,9 @@
     </div>
   };
   ```
+  > PureComponent进行的是浅比较，也就是说如果是引用数据类型的数据，只会比较是不是同一个地址，而不会比较这个地址里面的数据是否一致。浅比较会忽略属性和状态的突变情况，也就是数据引用指针没有变化，而数据发生改变的时候render是不会执行的。如果需要重新渲染，那么就需要重新开辟空间引用数据。当组件更新时，如果组件的props或者state都没有改变，render函数就不会触发。省去虚拟DOM的生成和对比过程，达到提升性能的目的
+
+
 - `memo`
   ```tsx
   const Child = () => {};
@@ -82,7 +85,7 @@ function Child() {
 
 之后react为vnode节点生成新的fiber节点。
 
-组件的dom节点挂在于旧fiber节点。
+组件的dom节点挂在旧fiber节点。
 
 对比新、旧fiber节点上的信息，对比 fiber节点上存储的 vnode 节点信息，对旧fiber节点上的dom节点进行更新。
 
@@ -110,7 +113,7 @@ dom节点更新之后，页面内容就刷新了。
 key保证唯一，是为了在判断一致的时候，保证一对儿新旧fiber节点
 参与，而不是许多fiber节点参与。
 
-不能使用Math.random() 生成的key虽然唯一，但是组件刷新的时候，该函数会再次执行，新fiber节点的key会和旧fiber节点的key不一样，导致 dom 节点无法被复用。
+不能使用Math.random() 生成的key，key虽然唯一，但是组件刷新的时候，该函数会再次执行，新fiber节点的key会和旧fiber节点的key不一样，导致 dom 节点无法被复用。
 
 ## setState是同步的还是异步的
 React < 18:
@@ -141,12 +144,12 @@ dom节点是DOM中的合法节点，是一个DOM对象，由浏览器定义。
 
 fiber节点、vnode节点、hook都是javascript对象，由React定义。
 
-fiber节点引用了 vnode节点、dom节点、hook。
+fiber节点引用了 dom节点、hook， 它没有引用vnode节点，但是一些属性值取自vnode节点。
 
 fiber.stateNode 引用 dom 节点；
 fiber.memorizedState 引用 hook；
 
-经Babel编译的jsx，都会变成一个vnode。
+经Babel编译的jsx，都会变成一个vnode。在react更新时，使用vnode创建fiber节点。
 
 hook是一个对象，存储状态值和依赖。
 ```tsx 
@@ -169,7 +172,9 @@ hook就会存储每次组件刷新时的状态值v，还有依赖 m；
 
 ## useLayoutEffect和useEffect的差别
 - 都根据依赖项去做执行
-- useLayoutEffect执行时机是在浏览器重绘之前
+- useLayoutEffect执行时机是在浏览器重绘之前，DOM树更新之后
+- useLayoutEffect用于精确获知更新后的DOM信息场景
+- useEffect不会阻塞浏览器渲染
 
 
 ## 函数组件返回`<></>`包裹的html，`<></>`会被渲染成什么？
@@ -203,14 +208,70 @@ DOM 更新后，React就会调用组件的 componentDidMount componentDidUpdate 
 
 在React 18 中，Render阶段可以被打断、恢复，由同步变成了异步操作。
 
+```txt
+performConcurrentWorkOnRoot()[不断调度]
+    -> renderRootConcurrent() 
+          -> workLoopConcurrent()
+               -> performUnitOfWork()
+                    -> beginWork()
+                          -> updateFunctionComponent()
+                                -> reconcileChildren()
+                                      -> mountChildFibers() or reconcileChildFibers()
+
+                    ->  completeUnitOfWork or workInProgress = next
+
+    -> finishConcurrentRender()[整个fiber树全部都更新后]
+          -> commitRoot()
+               -> commitRootImpl()
+                     -> commitMutationEffects()[更新DOM节点][先更新子节点DOM，再更新父节点DOM]
+                     -> commitLayoutEffects()[执行useLayout注册的hook]
+                           -> commitLayoutEffectOnFiber()
+                                  ->  commitHookEffectListMount()
+                     -> requestPaint()
+
+                
+react总会调用 ensureRootIsScheduled函数展开下一个调度，该函数又是调用
+Scheduler.js 里的 unstable_scheduleCallback, 这个函数底层又依赖workLoop函数，
+当调用 requestPaint()的时候，全局变量 needsPaint会设置为true，workLoop就不会
+调度任务，这样js就可以休息一会儿，留给浏览器绘制页面。注意，当修改DOM树之后，如果js
+代码没有执行完毕，浏览器无法绘制页面！
+
+react调度器底层实现：
+1. DOM 和 Worker 环境：利用 MessageChannel (setTimeout有最低4ms的限制，因此不选择它)
+2. Nodejs 和 IE: setImmediate
+3. 其他：setTimeout
+
+
+react hook 被调用时，会根据上一个状态值，算出当前值，并返回，同时会将
+performConcurrentWorkOnRoot函数加入调度，重新开启一轮fiber树的更新
+
+```
+
 
 ## React重点数据类型
 **Hook**
 ```ts 
+
+// Hook 存储在 Fiber.memorizedState 上
 type Hook = {
+  // 存储 Effect, State
+  //
+  // useEffect 会将 Effect 在 hook.memorizedState
+  // 挂载一遍，也会在 fiber.updateQueue 挂载一遍
   memoizedState: any,
   baseState: any,
   baseQueue: Update<any, any> | null,
+
+  // useState useReducer这样的hook会用到，每次
+  // 调用 setFunction 更新hook的时候，都会将一个
+  // Update加入到queue中；
+  //
+  // 在update阶段，调用 useState 这样的hook时，
+  // 会将queue中的Update链表合并到baseQueue 
+  // 然后遍历baseQueue计算出新的State值，
+  // 随着 useState 的返回值传给上层
+  //
+  // queue 和 baseQueue 用循环链表存储update
   queue: any,
   next: Hook | null,
 }
@@ -220,7 +281,9 @@ type Hook = {
 ```ts 
 type Effect = {
   tag: HookFlags,
+  // mount effect
   create: () => (() => void) | void,
+  // unMount effect 
   destroy: (() => void) | void,
   deps: Array<mixed> | null,
   next: Effect,
@@ -264,6 +327,7 @@ export type Fiber = {
   elementType: any,
 
   // The resolved function/class/ associated with this fiber.
+  // 这个fiber代表的是函数组件、还是类组件等等
   type: any,
 
   // The local state associated with this fiber.
@@ -280,10 +344,13 @@ export type Fiber = {
   // This is effectively the parent, but there can be multiple parents (two)
   // so this is only the parent of the thing we're currently processing.
   // It is conceptually the same as the return address of a stack frame.
+  // 父fiber
   return: Fiber | null,
 
   // Singly Linked List Tree Structure.
+  // 第一个子fiber
   child: Fiber | null,
+  // 后续兄弟fiber
   sibling: Fiber | null,
   index: number,
 
@@ -295,10 +362,13 @@ export type Fiber = {
     | RefObject,
 
   // Input is the data coming into process this fiber. Arguments. Props.
+  // 组件props即将要被更新为的值
   pendingProps: any, // This type will be more specific once we overload the tag.
+  // 组件当前的props值
   memoizedProps: any, // The props used to create the output.
 
   // A queue of state updates and callbacks.
+  // 存储 effects 
   updateQueue: mixed,
 
   // The state used to create the output
@@ -317,8 +387,10 @@ export type Fiber = {
   mode: TypeOfMode,
 
   // Effect
+  // 根据这个标识，完成真实DOM增删改的操作
   flags: Flags,
   subtreeFlags: Flags,
+  // 更新时，需要被删除的子fiber
   deletions: Array<Fiber> | null,
 
   // Singly linked list fast path to the next fiber with side-effects.
@@ -441,6 +513,8 @@ const component = () => {
 6. 页面更新；
 7. 执行 useEffect 创建的 hook；
 
+## react为什么将渲染阶段放置在宏任务队列执行？
+因为react渲染阶段工作开销比较大，如果放在微任务队列中，可能会阻塞页面更新。
 
 ## dva qiankun umi 都是什么，各自有什么联系 ？
 umi是一个企业级前端框架，它提供了一系列工具和组件，帮助开发者更加高效地构建应用程序，它更接近是一套前端解决方案。它涵盖了以下的一些内容：
@@ -875,4 +949,64 @@ function getWatcher(key, _effect, model, onError, onEffect, opts) {
 }
 
 // ....
+```
+
+## react运行时梳理
+```txt 
+
+reactDOMRoot = 
+React.createRoot() [react-dom/src/client/ReactDOM.js]
+  createRoot() [react-dom/src/client/ReactDOMRoot.js]
+    createContainer() [react-reconciler/src/ReactFiberReconciler.new.js]
+      createFiberRoot() [react-reconciler/src/ReactFiberRoot.new.js]
+        createHostRootFiber() [react-reconciler/src/ReactFiber.new.js]
+
+
+reactDOMRoot.render() [react-dom/src/client/ReactDOMRoot.new.js]
+  updateContainer() [react-reconciler/src/ReactFiberReconciler.new.js]
+    scheduleUpdateOnFiber() [react-reconciler/src/ReactFiberWorkLoop.new.js]
+      ensureRootIsScheduled() [react-reconciler/src/ReactFiberWorkLoop.new.js]
+        scheduleCallback(performConcurrentWorkOnRoot) [react-reconciler/src/ReactFiberWorkLoop.new.js, 调度]
+          Scheduler_scheduleCallback() [scheduler/src/forks/Scheduler.js的unstable_scheduleCallback函数]
+            requestHostTimeout() [使用setTimeout实现]
+              handleTimeout()
+                requestHostCallback()
+                  schedulePerformWorkUntilDeadline() [根据平台差异，采取不同实现，浏览器端使用MessageChannel实现，该函数会利用port.postMessage触发onMessage事件，唤醒事件响应函数]
+                    performWorkUntilDeadline() [onMessage的事件响应函数]
+                      performConcurrentWorkOnRoot() [react-reconciler/src/ReactFiberWorkLoop.new.js] 
+                      函数内，会完成一次render,
+                      如果render没有完成的话，会执行一次ensureRootIsScheduled()，返回 null；
+                      如果 render完成的话，就会执行commitRoot, 最后返回 null;
+
+                      如果该函数返回true，表示调度器仍旧有任务要处理，
+                      会跳转到 performWorkUntilDeadline(), 
+                      继续触发 onMessage事件
+                      
+          
+beginWork() [react-reconciler/src/ReactFiberBeginWork.new.js] 
+记录了 render 的具体实现过程
+
+commitRoot() [react-reconciler/src/ReactFiberWorkLoop.new.js] 
+记录了 commit 阶段的具体实现过程
+
+
+react hooks的具体实现位于 react-reconciler/src/ReactFiberHooks.new.js
+如果因为render的时候，更新函数组件，调用了hook，只会更新函数组件fiber节
+点上的hook信息；
+否则，比如说点击事件函数执行的时候，调用了hook，就会更新fiber节点信息，同
+时调用scheduleUpdateOnFiber函数，安排一次调度，从 fiberRoot开始一次新
+的render-commit过程；
+  
+```
+
+```txt 
+
+workInProgressRoot: FiberRoot
+
+workInProgress: Fiber  
+  concurrent模式下，render阶段会被拆解，每次完成一个fiber节点的render操作，
+  就会检测是否超时，如果超时，就把即将要render的fiber节点记录下来，供下一次
+  调度时继续，workInProgress就是记录该fiber节点的；
+
+每次commit的时候，都是从FiberRoot开始的；
 ```

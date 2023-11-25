@@ -99,3 +99,7 @@ store.dispatch({ type: "ADD", payload: 10 })
  * 每次都会重新生成一遍上述的state。
  */
 ```
+
+## 和 react-redux的联系
+- react-redux 是基于 redux 开发的，做了一些写法上的封装，简化使用者心智；
+- react-redux 在 redux 的基础上，融入了react中的 Context 组件；

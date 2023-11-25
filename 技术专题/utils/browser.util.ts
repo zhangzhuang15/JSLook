@@ -312,3 +312,20 @@ const openWebsiteInWindow = (url, width, height, left, top) => {
         }, (err) => reject(err));
     });
  };
+
+ // 获取dom节点的样式
+ const getDomStyle = (node: HTMLElement, includeInline: boolean = false) => {
+    // 只返回嵌入式样式
+    if (includeInline === false) {
+        return node.style;
+    }
+
+    // 返回嵌入式和内联式 样式
+    return window.getComputedStyle(node);
+
+    /**
+     * 写在 <style></style> 之间的css样式，是内联式样式；
+     * <p style="position: relative"> 的 style，是嵌入式样式；
+     * <link rel="stylesheet" href="http://hww.com/fffdaf.css" /> 是外联式样式；
+     */
+ };

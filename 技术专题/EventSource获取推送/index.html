@@ -14,6 +14,10 @@
         var client = new EventSource("http://localhost:8099/vm/data/message");
         var content = document.getElementById("main");
 
+        client.addEventListener('special', (e) => {
+            console.log('special one: ', e.data);
+        });
+        
         client.onmessage = function (e) {
             content.innerHTML = e.data;
         }

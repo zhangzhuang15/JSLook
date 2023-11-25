@@ -1,0 +1,18 @@
+{
+    // minimum configs  when you write CommonJS nodejs in typescript
+    // "module" can be "CommonJS" or "NodeNext" or "Node16"
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "NodeNext",
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "moduleResolution": "NodeNext",
+        // Note that this feature does not change how import paths are emitted by tsc, 
+        // so paths should only be used to inform TypeScript that another tool has this 
+        // mapping and will use it at runtime or when bundling.
+        "paths": {
+            "@/*": ["./utils/*"]
+        },
+    },
+    "include": ["*.ts", "./utils/*.ts"]
+}

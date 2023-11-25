@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "node main.js",
     "dev:1": "npm run dev --do jerry 25",
+    "dev:1.1": "npm run dev jerry --do 25",
+    "dev:1.2": "pnpm run dev --do jerry 25",
     "dev:2": "npm run dev -- --do jerry 25",
     "dev:3": "node main.js --do jerry 25",
     "dev:4": "node --do jerry 23 main.js",
