@@ -11,6 +11,9 @@
  * 使用 fluent-ffmpeg 库完成这个事情。
  * 
  * .mp4 一定不能有音频，否则本方案无效。
+ * 
+ * 用法：
+ * node mergeMp3ToMp4.js hello.mp3 hello.mp4 output.mp4
  */
 
 const ffmpeg = require("fluent-ffmpeg");

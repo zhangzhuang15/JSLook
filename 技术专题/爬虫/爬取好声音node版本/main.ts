@@ -196,7 +196,7 @@ function run(options: Options) {
 }
 
 const VoiceOfChinaOptions: Options = {
-    m3uFileUrl: "https://tjfangyh666.xyz/videos/5ac2f7d463c8eb25513f9cd39c0e3e54/g.m3u8?h=794e659ec68c9a9",
+    m3uFileUrl: "<your-m3u8-file-url>",
     headers: {},
     tsFileNameMap: (tsFileName: string) => {
         // e.g. https://fdfas/dsfa/g.m3u8dfafaffada => https://fdfas/dsfa/

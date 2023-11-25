@@ -20,6 +20,7 @@ node_modules
 *.test.ts
 *.test.js.*
 *.test.html
+*.test.sh
 *.js.map
 */**/dist
 */dist
