@@ -1,0 +1,22 @@
+{
+  "name": "mocha-babel-node",
+  "version": "1.0.0",
+  "description": "tell you how to run mocha typescript unit test file based on babel",
+  "main": "index.js",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "test": "mocha"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.23.3",
+    "@babel/preset-env": "^7.23.3",
+    "@babel/preset-typescript": "^7.23.3",
+    "@babel/register": "^7.22.15",
+    "@types/mocha": "^10.0.6",
+    "mocha": "^10.2.0",
+    "typescript": "^5.3.2"
+  }
+}

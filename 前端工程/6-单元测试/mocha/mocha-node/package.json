@@ -1,0 +1,22 @@
+{
+  "name": "mocha-node",
+  "version": "1.0.0",
+  "description": "tell you how to run mocha typescript unit test file based on tsc completely compilation",
+  "main": "index.js",
+  "scripts": {
+    "clear": "rimraf ./dist",
+    "check:type": "tsc --noEmit",
+    "compile": "tsc",
+    "test": "pnpm run complie && mocha",
+    "test:debug": "pnpm run complie && mocha inspect"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "mocha": "^10.2.0",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.2"
+  }
+}

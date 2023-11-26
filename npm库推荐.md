@@ -106,6 +106,9 @@ Run commands concurrently
 #### 🌟hash-sum
 生成hash值的轻量级库
 
+#### estree-walker 
+遍历符合 [ESTree Spec](https://github.com/estree/estree) 的AST
+
 ---
 
 
@@ -225,8 +228,33 @@ windows Unix 统一化的 "path" module of Node
 #### js-xlsx
 解析、编写 excel
 
-#### 🌟source-map 
+#### 🌟source-map-js
 sourcemap文件解析器和生成器
+
+#### merge-source-map 
+合并sourcemap
+
+比如有一段代码A，经过AST转化后，变成代码B，
+那么A到B之间就会有一个sourcemap-A；
+
+如果将代码B再经过AST转化后，变成代码C，
+那么B到C之间就会有一个sourcemap-B；
+
+那代码A到代码C之间的sourcemap你就可以利用
+merge-source-map这个库，基于 sourcemap-A
+和 sourcemap-B 得到。
+
+#### postcss 
+处理css代码的工具
+
+#### postcss-selector-parser
+postcss生态中，处理 css selector 的工具；
+
+你可以用这个工具，给css selector 加入属性修饰：
+`.hello {}` => `.hello[data-s="2"] {}`
+
+#### postcss-modules
+postcss的一个插件，实现 css module；
 
 ---
 
