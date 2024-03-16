@@ -21,11 +21,12 @@ node_modules
 *.test.js.*
 *.test.html
 *.test.sh
+*.test.md
 *.js.map
 */**/dist
 */dist
 scss/**/*.css
-scss/**/*.css.map
+**/*.css.map
 **/vitest/coverage/**/*
 misc/**/*
 JSLook.code-*

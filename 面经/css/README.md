@@ -209,3 +209,26 @@ IE：
 [scoped css and css module](../公司/好未来.md#了解过css-module么)
 
 [use styled component in react app](https://www.bilibili.com/video/BV18a411C74j?p=5&vd_source=8e22a21e39978743c185c338fa9b6d6d)
+
+
+### 如何实现超区域省略
+```css 
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+```
+
+### 如何指定固定行数省略
+```css
+.ellipsis {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden; 
+}
+```
+
+### PNG图片支持透明度么
+PNG图片支持透明度，JPEG不支持，JPEG是有损压缩算法

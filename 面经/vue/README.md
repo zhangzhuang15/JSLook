@@ -127,8 +127,7 @@ vue2.0为例：
 
 
 ### vue如何实现对数组的监听，为什么不对数组下标修改做劫持？
-vue2通过重写数组原型上的方法来达到对数组的修改监听。因为数组中的元素数量很大，
-对每个元素都进行劫持，非常耗性能。
+vue2通过重写数组原型上的方法来达到对数组的修改监听。因为数组中的元素数量很大，对每个元素都进行劫持，非常耗性能。
 
 
 <br>
@@ -151,6 +150,30 @@ vue2通过重写数组原型上的方法来达到对数组的修改监听。因�
 vue3中，默认使用v-model, 绑定的是组件`modelValue` 属性，model修饰符存储在组件`modelModifiers`属性，触发的更新事件是`update:modelValue`.
 
 如果指定 `v-model:title.catch`, 绑定的是组件`title`属性，model修饰符`catch`存储在组件`titleModifiers`属性，触发的更新事件是`update:title`.
+
+vue2中：
+```js 
+export default {
+   model: {
+      prop: "checked",
+      event: "change",
+   }
+   props: {
+      checked: {
+         type: Boolean,
+         required: true,
+      }
+   },
+   methods: {
+      onChange() {
+         this.$emit("change", true)
+      }
+   }
+}
+```
+```html
+<component-a v-model="touch" />
+```
 
 
 <br>
@@ -372,4 +395,115 @@ vuex由几个部分组成：
 如果放在宏任务中，组件的更新就会分散在多次浏览器渲染中，性能不太出色。
 
 
+### watchEffect 和 watch 的区别 
+watchEffect 目的是当依赖的响应式变量更新时，可以再次执行 effect；
+watch 的目的是，当依赖的响应式变量更新时，执行effect得到新值，然后将新值和旧值送入cb执行；
 
+watch如果设置 `immediate`，则会立即执行effect，并且执行一次callback；
+
+
+watch如果设置 `deep`，则在effect执行的时候，会将依赖的响应式变量值的各个own属性访问一遍，做到深度依赖收集
+比如:
+```js 
+const r = ref({ name:"jack", age: 10 })
+
+// 只能检测出 r.value.name = 'peter' 这种变化
+watch(() => r.value.name, (newValue, oldValue) => {})
+
+// r.value.name = "peter" 可以检测到，
+// r.value.age = 13 可以检测到，
+// 注意，送入 newValue 的值是 r.value, 不是变动的属性值，比如r.value.name
+watch(() => r, (newValue, oldValue) => {}, { deep: true })
+
+```
+
+详见源码`packages/runtime-core/src/apiWatch.ts` doWatch 函数
+
+
+### 响应式如何触发渲染
+响应式变量改动后，会因其响应特性，将组件的render放入微任务队列，当render执行的时候，
+得到一个新VNode树，之后新、旧Vnode树比对，进行patch，patch的时候是同步的，没有异步
+操作，并且Vnode 和 Dom Node 都会更新。
+
+看看React的情况：
+- React在比对新、旧fiber树的时候，是从整个 app 的根节点开始的，vue是从响应式变量所在的组件开始的
+- React在比对新、旧fiber树的时候，会先将fiber节点更新，之后在commit阶段，完整更新DOM节点，vue会更新
+vnode，也会更新DOM，不是分开做的
+- Vue是组件范围内的更新，React是整个应用范围内的更新
+
+相比较React，vue确实轻便一些，但依旧有生成vnode树的开销，感觉还是有些笨重
+
+像React和Vue，非常依赖运行时系统，就像带有GC的编程语言一样，是否可以开发一款无GC的框架呢？
+
+
+### vue中关于数组的响应式迷惑
+踩坑了。有一次工作中，关于用索引号的方式修改一个数组，是否会引发响应式反应，我和同事持有不同的看法。这个问题
+我之前踩过坑，但后来写react，时间久了，关于vue的这个坑就给忘了。后来我下班回家，晚上起了一个小项目，兼顾vue2.0
+源码，又搞了一遍，才算搞清楚，在这里说下该问题。
+
+结论是，用索引号方式修改一个数组，是否会引发响应式反应，要看你修改的方式
+
+```html
+<template>
+  <div>
+   <button @click.stop="change"></button>
+   <button @click.stop="change2"></button>
+     <span>{{ values[0].value }}</span>
+     <span>{{ joke.hello }}</span>
+  </div>
+</template>
+<script>
+export default {
+   data() {
+      return {
+         values: [{ value: '5'}],
+         joke: {
+            hello: 10
+         }
+      }
+   },
+   methods: {
+      change() {
+         // 可以触发响应式更新
+         this.values = [{ value: '15' }]
+         // 可以触发响应式更新
+         this.values[0].value = '115'
+         // 没有触发响应式更新，但是 values 的值确实更新了
+         this.values[0] = { value: '11115' }
+      },
+      change2() {
+         this.values[0] = { value: "11115" }
+         this.joke.hello = 100
+
+         // 此时响应式更新了，what?
+         // 其实，这个更新是由 joke.hello 触发的，
+         // values 并没有触发更新，但是呢，values
+         // 的值更新了，组件更新的时候，会执行render
+         // 函数，该函数使用的就是values更新后的值，
+         // 因此渲染到页面上，也是更新的
+      }
+   }
+}
+</script>
+```
+**底层原理**
+以上述为例，vue2.0在初始化组件的时候，会执行`observe(data())`(源码位置src/core/instance/state.ts),
+observe的时候，对 `values` `joke` 做响应式处理，因此你在`this.values = [{ value: 15 }]` 的时候，
+会触发更新，对于数组类型的属性 `values`，observe会遍历所有的子元素，如果子元素是 object 的话，就会对
+它做响应式处理，因此你在 `this.values[0].value = 1555`，是可以触发更新的。observe不会对数组本身做
+响应式处理，也就是说，不会对索引号做拦截。
+
+### vue组件实例的初始化顺序
+见vue2.0源码src/core/instance/init.ts
+
+这可以帮助你把握生命周期函数中怎么访问到实例数据
+
+
+### provide 和 inject 是怎么实现的
+原理超级简单，就是搭建以 vm._provide 属性为基准的原型链。
+
+比如 inject 的属性名是 ‘animal’，会寻找 vm.$parent._provide.animal,
+如果没有，就会找 vm.$parent._provide.__proto__.animal, 就是按照原型链寻找 
+
+
+### 响应式变量触发，渲染，队列，调度，都是什么关系？

@@ -25,7 +25,13 @@ Seamless integration between Rollup and Babel.
 ### rollup-plugin-analyzer
 Mad metrics for your rollup bundles, know all the things
 
+### rollup-plugin-inject
 
+> 在 rxjs 源码里发现
+
+### rollup-plugin-alias
+
+> 在 rxjs 源码里发现
 
 ## FAQ
 ### 1、rollup 配置文件不能是 ts 文件？

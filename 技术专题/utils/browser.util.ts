@@ -29,7 +29,42 @@ const isIE = () => !isOpera() && ( navigator.userAgent.indexOf('.Net') > -1 || n
 // 判断移动端(手机， Pad)
 const isMobile = () => ['Android', 'iPhone', 'SymbianOS', 'Windows Phone', 'iPad', 'iPod'].some(key => navigator.userAgent.indexOf(key) > -1)
 
-// 系统为黑暗模式
+/**
+ * 判断当前操作系统是否为黑暗模式；
+ * 
+ * 如果操作系统是暗黑模式，浏览器就会自动生成 prefers-color-scheme: dark;
+ * 反之，浏览器就会自动生成 prefers-color-scheme: light;
+ * 
+ * 我们只能检测当前操作系统的模式是哪一个，无法通过Web API修改它；
+ * 
+ * 操作系统是哪一个模式，不会决定网页的颜色，需要网页开发者去适配。使用
+ * prefers-color-scheme 的媒体查询，在暗黑模式和高亮模式下设置好不一样
+ * 的css颜色变量，实现在跟随系统模式时，网页颜色的替换。
+ * 
+ * 如何主动触发网页模式的改变呢？原理很简单，利用 `<html>` 上的class名，
+ * 当要触发为暗黑模式的时候，将 class 名修改为 dark，反之 修改为 light。
+ * 当然了，光修改class可不行，依旧要配合class名设置好css颜色变量值，道理
+ * 和上边 prefers-color-scheme 媒体查询一样。表面上看，网页的模式发生
+ * 改变了，但是 prefers-color-scheme 是没有发生变化的，之前是 dark，
+ * 修改 class 名后，依旧是 dark，除非你在操作系统配置层面切换了模式。 
+ * 
+ * 和主题模式相关的内容还有：
+ * 
+ * `<meta name="theme-color" content="rgb(255, 0, 0)">` 
+ * 表示网页周围的颜色，采用红色，注意这不会让网页内容区域变成红色，
+ * 可能会让搜索栏变成红色。当然了，这个meta标签起到的是建议作用，
+ * 实际会不会这样显示，并不一定，要看浏览器；
+ * 
+ * `color-theme: normal`
+ * 表示一个html element渲染的时候，按照浏览器自身的颜色品味去渲染，
+ * 不跟随操作系统，这个css属性会影响到element的文字颜色，背景颜色。
+ * 除了 normal ，还可以选择 
+ * - `light` 
+ * - `dark` 
+ * - `only light` 
+ * - `only dark`
+ * - `light dark`  
+ */ 
 const isDarkMode = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
 
 // 是否为横屏
@@ -329,3 +364,74 @@ const openWebsiteInWindow = (url, width, height, left, top) => {
      * <link rel="stylesheet" href="http://hww.com/fffdaf.css" /> 是外联式样式；
      */
  };
+
+ /**
+  * 判断 node 内部的文字是否出现了超出省略。
+  * 
+  * 可以是单行超出省略：
+  * ```
+  * 你好...
+  * ```
+  * 
+  * 也可以是多行超出省略：
+  * ```
+  * fdfafffdafad
+  * fdfafadfdaff
+  * dfaffdaff...
+  * ```
+  * 
+  * 请注意css端的实现方式：
+  * 
+  * 多行必须如此实现：
+  * 
+  * ```css
+  * .ellipsis {
+  *   display: -webkit-box;
+  *   -webkit-line-clamp: 2;
+  *   -webkit-box-orient: vertical;
+  *   overflow: hidden;
+  * }
+  * ```
+  * 
+  * 单行可以用上述方式实现，也可以如此实现：
+  * 
+  * ```css
+  * .ellipsis {
+  *   white-space: nowrap;
+  *   text-overflow: ellipsis;
+  *   overflow: hidden;
+  * }
+  * ```
+  * 
+  * 建议使用第一种方式实现;
+  * 
+  * 采用第二种方式，会给出警告提示;
+  * 
+  * @param node html element, 比如 `<div>`
+  */
+ const isTextEllipsis = (node: HTMLElement) => {
+    const style = getDomStyle(node, true);
+
+    if ('webkitLineClamp' in style) {
+        // 使用 display: -webkit-box
+        //      -webkit-line-clamp: 2
+        //     -webkit-box-orient: vertical
+        //     overflow: hidden
+        // 实现的行省略
+
+        // 你没看错，比较的是 scrollHeight, 不是 scrollWidth
+        return node.scrollHeight > node.clientHeight
+    } 
+
+    // 认为采用 white-space: nowrap; text-overflow: ellipsis；
+    // overflow: hidden 实现的行省略, 但该方法只支持单行省略
+    console.warn(
+        "please make sure that node only takes up 1 line\n" + 
+        "if not, the result returned by isTextEllipsis may be a mistake\n" +
+        "TagName: " + node.tagName + "\n" +
+        "className: " + node.className
+    )
+
+    // 如果实现方法正确，行数是单行省略，正常值就是这个
+    return node.scrollWidth > node.clientWidth
+ }

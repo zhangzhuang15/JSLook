@@ -1,3 +1,5 @@
+[toc]
+
 # Something about Node EventLoop
 
 ## intro from official website
@@ -909,4 +911,25 @@ std::string SnapshotBuilder::Generate(
   return result;
 }
 
+```
+
+## async 函数返回一个promise，为什么会间隔两个微任务后执行？
+```js
+async function hello() {
+  return Promise.resolve("ok")
+}
+
+hello().then(v => console.log(v))
+
+Promise
+  .resolve()
+  .then(() => console.log(1))
+  .then(() => console.log(2))
+  .then(() => console.log(3))
+
+// 会打印 1 2 ok 3
+// 很奇怪，为什么呢？
+
+// 已知情况：
+// 这个和 v8 有关，与node事件循环无关
 ```

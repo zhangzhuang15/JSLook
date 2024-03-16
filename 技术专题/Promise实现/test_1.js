@@ -1,11 +1,30 @@
-const MyPromise = require("./mypromise");
+const { MyPromise, flushQueue } = require("./mypromise")
 
-MyPromise.resolve(MyPromise.resolve(5)).then(val => console.log(val));
+// then 中返回 Fulfilled Promise
 
-MyPromise.resolve().then(() => MyPromise.resolve(10)).then(val => console.log(val));
+console.log("Promise Perform:")
+Promise
+  .resolve()
+  .then(() => Promise.resolve(10))
+  .then(v => console.log(v))
+Promise
+  .resolve()
+  .then(() => console.log(1))
+  .then(() => console.log(2))
+  .then(() => console.log(3))
 
-MyPromise
-    .resolve()
-    .then(() => console.log(1))
-    .then(() => console.log(2))
-    .then(() => console.log(3))
+setTimeout(() => {
+    console.log()
+    console.log("MyPromise Perform: ")
+    MyPromise
+      .resolve()
+      .then(() => MyPromise.resolve(10))
+      .then(v => console.log(v))
+    MyPromise
+      .resolve()
+      .then(() => console.log(1))
+      .then(() => console.log(2))
+      .then(() => console.log(3))
+
+    flushQueue()
+}, 100)

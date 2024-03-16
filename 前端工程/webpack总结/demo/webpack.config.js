@@ -41,6 +41,10 @@ module.exports = {
         use: [{
           loader: "babel-loader",
         }]
+      },
+      {
+        test: /worker\.js/,
+        use: 'raw-loader'
       }
     ]
   },

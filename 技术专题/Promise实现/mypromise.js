@@ -2,6 +2,51 @@
  *  手撕实现 Promise
  */
 
+const queue = [];
+let defer = false;
+
+function createCounterFn(fn, count) {
+    return () => {
+        let invoke = false;
+        if (count > 0) {
+            count--;
+            return { invoke, fn }
+        } 
+
+        invoke = true;
+        return { invoke, fn };
+    }
+}
+
+function enqueue(fn) {
+    queue.push(fn)
+}
+
+function flushQueue() {
+    runtime = true
+    while (queue.length > 0) {
+        const counterFn = queue.shift()
+        
+        const { invoke, fn } = counterFn()
+
+        if (invoke) {
+            fn();
+        } else {
+            queue.splice(1, 0, counterFn)
+        }
+    }
+    runtime = false
+}
+
+function nextTick(fn) {
+    const counterFn = createCounterFn(fn, 1)
+    enqueue(counterFn)
+}
+
+function nextTwoTick(fn) {
+    const counterFn = createCounterFn(fn, 2)
+    enqueue(counterFn)
+}
 
 class MyPromise {
     status = "Pending";
@@ -13,65 +58,92 @@ class MyPromise {
     constructor(fn){
 
         const reject = reason => {
+            if (this.status !== "Pending") {
+                return
+            }
             /**
              * 和 Promise 实际运行效果对比后，发现
              * 无需判断 reason 是否为 Promise
              */
             
-            // if(reason instanceof MyPromise) {
-            //     reason.then( data => {}, err => { 
-            //         this.reason = err;
-            //         this.onRejectedFn.forEach( fn => { fn(err);});
-            //         this.onRejectedFn = [];
-            //         this.status = "Rejected";
-            //     });
-            //     return
-            // } else {
-                this.reason = reason;
-            // }
+            this.reason = reason;
+           
             // 使用 this.reason的拷贝执行 reject 回调函数，
             // 不要破坏 this.reason 本身！
             const __reason = this.reason;
+            this.status = "Rejected";
+
+            if (this.onRejectedFn.length === 0) {
+                // MyPromise 进入 Rejected 状态，但没有相关处理函数
+                throw Error(`[UnhandledMyPromiseRejection] with reason "${reason}"`)
+            }
             this.onRejectedFn.forEach( fn => { fn(__reason);});
             this.onRejectedFn = [];
-            this.status = "Rejected";
         };
 
         const dispatchOnFulfilledFn = (value) => {
             this.onFulfilledFn.forEach(
                 fn => { 
-                    try { 
-                        // 这里不需要 __value = fn(__value);
-                        // 因为调用 then 方法注册回调函数后，回调函数
-                        // 的返回值 属于 then方法返回的新的Promise对象；
-                        // fn(__value) 本身会触发 resolve方法，将值交给新的Promise对象；
-                        fn(value);
-                    } catch(e) {
-                        reject(e);
+                    const _fn = () => {
+                        try { 
+                            // 这里不需要 __value = fn(__value);
+                            // 因为调用 then 方法注册回调函数后，回调函数
+                            // 的返回值 属于 then方法返回的新的Promise对象；
+                            // fn(__value) 本身会触发 resolve方法，将值交给新的Promise对象；
+                            fn(value);
+                        } catch(e) {
+                            reject(e);
+                        }
                     }
+                    const countFn = createCounterFn(_fn, 0)
+                    enqueue(countFn);   
                 });
+            
+            // clearFn
+            return () => {
+                this.onFulfilledFn = []
+            }
         };
 
         const resolve = value => {
-            if( value instanceof MyPromise){
-                value
-                    .then(
-                        data => { 
+            if (this.status !== "Pending") {
+                return
+            }
+            if (value instanceof MyPromise) {
+                const fn = () => {
+                    value.then(
+                        data => {
                             this.value = data;
+                            this.status = "Fulfilled";
                             dispatchOnFulfilledFn(data);
                             this.onFulfilledFn = [];
-                            this.status = "Fulfilled";
                         },
                         reason => {
-                            reject(reason);
-                        });
+                            reject(reason)
+                        }
+                    );
+
+                }
+                nextTwoTick(fn);
+                return
+            } else if (typeof value === 'object' && typeof value.then === "function") {
+                // const _resolve = (data) => {
+                //     nextTick(() => resolve(data))
+                // }
+                // const _reject = (reason) => {
+                //     nextTick(() => reject(reason))
+                // }
+                // value.then(_resolve ,_reject)
+                const fn = () => value.then(resolve, reject);
+                const countFn = createCounterFn(fn, 0);
+                enqueue(countFn);
                 return
             } else {
                 this.value = value;
+                this.status = "Fulfilled";
             }
-            dispatchOnFulfilledFn(value);
-            this.onFulfilledFn = [];
-            this.status = "Fulfilled";
+            const clear = dispatchOnFulfilledFn(value);
+            clear();
         };
 
         // fn 是调用者定义的 (resolve, reject) => {} 函数，
@@ -96,30 +168,37 @@ class MyPromise {
            return this;
 
         if(this.status == "Fulfilled"){
-            let value;
-            try {
-                value = onFulfilled(this.value) || undefined;
-            } catch(e) {
-                return new MyPromise((resolve, reject) => { reject(e)});
-            }
-            // then 返回的是一个新的 Promise
+           // then 返回的是一个新的 Promise
            return new MyPromise((resolve, reject) => { 
-            if (value instanceof MyPromise) {
-                process.nextTick(() => resolve(value));
-            } else {
-                resolve(value);
-            }
-        });
+             const fn = () => {
+                let value;
+                try {
+                    value = onFulfilled(this.value) || undefined;
+                    resolve(value)
+                } catch(e) {
+                    reject(e)
+                }
+             }
+
+             const countFn = createCounterFn(fn , 0)
+             enqueue(countFn)
+           });
         }
 
         if(this.status == "Rejected"){
-           let reason;
-           try{
-               reason = onRejected(this.reason) || undefined;
-           } catch(e) {
-               return new MyPromise((resolve, reject) => { reject(e);});
+           if (onRejected === null || typeof onRejected !== "function") {
+              throw Error(`[UnhandledMyPromiseRejection] with reason "${this.reason}"`)
            }
-           return new MyPromise((resolve, reject) => { resolve(reason)});
+
+           return new MyPromise((resolve, reject) => { 
+              let reason;
+              try{
+                  reason = onRejected(this.reason) || undefined;
+                  resolve(reason)
+              } catch(e) {
+                  reject(e);
+              }
+           })
         }
 
         if(this.status == "Pending"){
@@ -137,21 +216,26 @@ class MyPromise {
                     }catch(e){
                         reject(e);
                     }
+
                     resolve(_value);
                 });
-                _this.onRejectedFn.push( reason => {
-                    // onRejected 可能是 undefined，也就是
-                    // 使用者在 then 方法里，只传入了fulfilled
-                    // 情况的回调，这时候相当于他没有对reject情况
-                    // 进行捕捉，所以要加入 try catch 照顾这种
-                    // 情况
-                    try {
-                        _reason = onRejected(reason) || undefined;
-                    } catch(e){
-                        reject(e);
-                    }
-                    reject(_reason);
-                });
+
+                if (typeof onRejected === 'function') {
+                    _this.onRejectedFn.push( reason => {
+                        // onRejected 可能是 undefined，也就是
+                        // 使用者在 then 方法里，只传入了fulfilled
+                        // 情况的回调，这时候相当于他没有对reject情况
+                        // 进行捕捉，所以要加入 try catch 照顾这种
+                        // 情况
+                        try {
+                            _reason = onRejected(reason) || undefined;
+                        } catch(e){
+                            reject(e);
+                        }
+                        reject(_reason);
+                    });
+                }
+               
             });
             return p;
         }
@@ -196,34 +280,25 @@ class MyPromise {
                 });
             });
         } else {
-            return MyPromise(
-                (resolve, reject) => {
-                    if(promises instanceof MyPromise) {
-                        promises.then(data => resolve(data), err => reject(err));
-                    } else if(promises instanceof Error){
-                        reject(promises);
-                    } else {
-                        resolve(promises);
-                    }
-                }
-            );
+            return new MyPromise((resolve, reject) => resolve(promises));
         }
     }
 
     static resolve(value) {
         if (value instanceof MyPromise) {
-            return new MyPromise((resolve, reject) => {
-                value.then(data => resolve(data), reason => reject(reason));
+            return new MyPromise((_resolve, _reject) => {
+                if (value.status === "Fulfilled") {
+                    _resolve(value.value)
+                } else if (value.status === "Rejected") {
+                    _reject(value.reason)
+                } else {
+                   value.then(data => _resolve(data), reason => _reject(reason));
+                }
+               
             });
         }
 
-        else if (typeof value === "object" && typeof value.then === "function") {
-            return new Promise((resolve, reject) => {
-                value.then(resolve, reject);
-            });
-        }
-
-        return new MyPromise((resolve) => resolve(value));
+        return new MyPromise((_resolve) => _resolve(value));
     }
 
     static reject(reason) {
@@ -235,4 +310,7 @@ class MyPromise {
 
 
 
-module.exports = MyPromise;
+module.exports = {
+    MyPromise,
+    flushQueue
+};

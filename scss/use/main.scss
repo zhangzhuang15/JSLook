@@ -5,10 +5,10 @@
 .body {
     height: v.$height;
     
-    width: v.$-width;
+    // width: v.$-width;
 }
 
 .hello {
-    @include m.flexable-all-center;
+    @include m.flexable-all-center($color:red);
     background-color: f.helloColor("hello");
 }

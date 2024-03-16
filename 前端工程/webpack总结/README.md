@@ -565,3 +565,9 @@ module.exports = {
 使用 `sass-resources-loader`;
 预定义的变量假设放在 a.scss 中，将 a.scss 的路径加入到上述loader的 resources 选项中，就可以实现
 在其他 scss 文件中，直接使用这些变量，无需引入 a.scss;
+
+### 为什么启动dev server后没有看到dist文件夹
+默认情况下，打包好的文件会存储在内存，不会放在磁盘，因此你看不到dist文件夹，但这个行为
+也可以通过配置 `devServer.writeToDisk: true ` 改变。
+
+### bundle、chunk and module ?

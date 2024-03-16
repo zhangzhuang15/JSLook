@@ -239,6 +239,10 @@ esbuild 在开启 --bundle 选项后，会自动按照 tsconfig.json 的path配�
 #### 4. 如何直接用import引入一个json文件？
 开启`resolveJsonModule`
 
+这里只是在ts编译上支持引入json文件，ts编译的时候，不会智能将json文件内容转化为js对象，
+结果完全依赖js运行时如何处理`import j from './a.test.json'`, 如果运行时不能正确
+处理，那么你依旧无法访问到json内容
+
 #### 5. 编译 tsx 的时候，需要开启哪个配置项？
 ```json 
 {

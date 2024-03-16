@@ -12,6 +12,12 @@ work:
 work:
 - 无需跳转到 Dictionary App, 直接在vscode界面完成功能
 
+## vscode-see-your-component
+用户只需要写组件代码，无需启动dev服务器，立即可以预览组件效果
+
+## ts-cfg-macro
+提供像rust那样的cfg宏
+
 
 ## 框架思考 
 vue 和 react 都引入了 runtime，用户代码都是跑在 runtime，而 jquery 仅仅作为 API 的简化，没有引入 runtime， 但是需要开发人员去搜索dom节点，维护起来不方便。

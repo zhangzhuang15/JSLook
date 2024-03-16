@@ -64,15 +64,17 @@ function downloadTsFile(urls: string[], howToRequestTsFile: HowToRequestTsFile):
     // we just retry at most 3 times if one url is requested with fail
     const retryTimes = 3;
 
-    const doFinishWork = (callback?: () => void) => {
+    const doFinishWork = (callback?: (failedUrlAndDest: { url: string, dest: string }[]) => void) => {
         if (finished === all) {
-            failedQueue.forEach((index) => console.log("failed:\nurl: %s\ndest: %s", urlAndSavedFiles[index][0], urlAndSavedFiles[index][1]))
+            const failedUrlAndDest = failedQueue.map(index => ({ url: urlAndSavedFiles[index][0], dest: urlAndSavedFiles[index][1] }))
+            failedUrlAndDest.forEach(({ url, dest }) => console.log("failed:\nurl: %s\ndest: %s", url, dest))
+            
             signal(
                 urlAndSavedFiles
                     .filter((_, index) => failedQueue.indexOf(index) === -1)
                     .map(([_, __, file]) => file)
             );
-            callback?.();
+            callback?.(failedUrlAndDest);
             // 释放内存
             urlAndSavedFiles.splice(0);
         }
@@ -185,6 +187,13 @@ function run(options: Options) {
     getM3UFile(m3uFileUrl, headers)
         .then(file => parseM3UFile(file, tsFileNameMap))
         .then(tsFiles => downloadTsFile(tsFiles, howToRequestTsFile))
+        .then(savedTsFiles => { 
+            console.log("download done: ts files")
+            if (process.env.stopAfterTsFilesDownload === 'true') {
+                throw Error("stop after download all of ts files")
+            }
+            return savedTsFiles
+        })
         .then(savedTsFiles => tsToMp4(savedTsFiles))
         .then(message => { console.log("all works done:\n%s", message)})
         .then(() => {
@@ -196,7 +205,8 @@ function run(options: Options) {
 }
 
 const VoiceOfChinaOptions: Options = {
-    m3uFileUrl: "<your-m3u8-file-url>",
+    m3uFileUrl: "https://qhshenghuo.xyz/videos/ed22de81305e207cbbd4ca4b467d7f280ecc6c67/g.m3u8?h=d11925605f2a1ef",
+    // m3uFileUrl: "<your-m3u8-file-url>",
     headers: {},
     tsFileNameMap: (tsFileName: string) => {
         // e.g. https://fdfas/dsfa/g.m3u8dfafaffada => https://fdfas/dsfa/
@@ -226,5 +236,26 @@ run(VoiceOfChinaOptions);
 // 1. mp4去字幕：
 // ffmpeg -i video.mp4 -vcodec copy -acodec copy -sn video-no-subs.mp4
 //
+//
 // 2. mp4转mp3:
 // ffmpeg -i output.mp4 -vn -ar 44100 -ac 2 -b:a 192k output.mp3
+//
+//  192k指的是音频比特率，值越大，单位时间采取的数据越多，音乐质量越高，
+//  常见取值： 32k 48k 64k 96k 128k 192k 256k;
+//  建议使用 大于 32k 的值，32k的时候，声音会断断续续，发虚，这里有一个实验：
+//     原来的音频是2.1M，经过不同比特率处理后，得到的新文件的大小
+//           32k         1.2M
+//           48k         1.5M
+//           64k         2M
+//           72k         2M
+//           80k         2.5M
+//           96k         3.1M
+//
+// 3. 多个mp3合并
+// ffmpeg -i "concat:1.mp3|2.mp3|3.mp3" -c copy ./out.mp3
+//
+// 4. 多个mp4合并
+// ffmpeg -i "concat:1.mp4|2.mp4|3.mp4" -c copy ./out.mp4
+// 如果多个Mp4无法正常合并，非常有可能是其中的某几个mp4文件损坏，比如 macOS的
+// 预览无法看到视频，这些损坏的文件会将视频分割开，导致它所在的视频组合并失败，
+// 只需将这些视频找出来删除即可

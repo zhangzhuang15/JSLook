@@ -1,5 +1,6 @@
-@mixin flexable-all-center {
+@mixin flexable-all-center($color: black) {
     display: flex;
     align-items: center;
     justify-content: center;
+    color: $color;
 }

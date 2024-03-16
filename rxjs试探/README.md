@@ -21,6 +21,14 @@ rxjs 是数据处理的一个库，可以从以下的角度理解它：
 ## Subscription 
 提供 `unsubscribe` `add` `remove` 实现的就是 Subscription
 
+`unsubscribe`的语义就是，一旦调用，就取消了 Subscriber(或者Observer)与Observable的订阅关系，
+Observable再产生新的数据，不会被 Subscriber（或者Observer）消费；
+
+`add` 就是添加一些回调函数，当 `unsubscribe`执行后，这些回调就会按照添加时的先后顺序依次执行；
+
+`remove` 就是将 `add`添加的那个回调删除，这样 `unsubscribe`执行后，这个回调就不会执行；
+
+
 ## Observer 
 Observer是订阅 Observable 的对象，当 Observable 对象产出数据的时候，Observer 消费这些数据；
 

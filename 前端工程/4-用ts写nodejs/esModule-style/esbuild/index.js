@@ -1,18 +1,37 @@
+var __defProp = Object.defineProperty;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __esm = (fn, res) => function __init() {
+  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+};
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+
 // utils/index.ts
-var hello = () => console.log("hello");
+var utils_exports = {};
+__export(utils_exports, {
+  hello: () => hello
+});
+var hello;
+var init_utils = __esm({
+  "utils/index.ts"() {
+    hello = () => console.log("hello");
+  }
+});
 
 // utils/add.ts
 var add = (a, b) => a + b;
 
 // index.ts
-var import_node_url = require("node:url");
-var import_node_module = require("node:module");
-var import_meta = {};
-hello();
+import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
+Promise.resolve().then(() => (init_utils(), utils_exports)).then(({ hello: hello2 }) => {
+  hello2();
+});
 var t = add(1, 2);
 console.log("1 + 2: ", t);
-var require2 = (0, import_node_module.createRequire)(import_meta.url);
+var require2 = createRequire(import.meta.url);
 var Bobby = require2("./data.json");
 console.log("Bobby: ", Bobby);
-console.log("__filename: ", (0, import_node_url.fileURLToPath)(import_meta.url));
-console.log("__dirname: ", __dirname);
+console.log("__filename: ", fileURLToPath(import.meta.url));

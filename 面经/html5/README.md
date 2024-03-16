@@ -14,6 +14,14 @@
 
 <br>
 
+### XHtml 是什么
+可扩展的html，比html更加严格：
+- 必须包含闭标签，比如`<br />`
+- 标签内的属性不能简写，比如 `readonly`
+- 标签名必须小写
+
+<br>
+
 ### html5 中input的新特性
 * color 
   > 颜色控件
@@ -317,3 +325,5 @@ bbbb表示javascript执行阶段
 
 `preload`: 告诉浏览器，提前发送请求，缓存好资源，供之后使用，你必须设置好 `as` 属性值，告诉浏览器被请求的资源是哪个类型，比如 `font` `script` `image` 等等
 > https://developer.mozilla.org/en-US/docs/Web/HTML/Element/link#as
+
+`alternate`: 对文档信息的一个fallback处理。比如文档给出 `<title>hello</title>`, 并且有 `<link rel="alternate" title="你好">`, 当 `hello` 无法正常展示的时候，就会启用`你好`.

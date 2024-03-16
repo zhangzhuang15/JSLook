@@ -73,3 +73,10 @@ $ cp data.json ./out/data.json
 $ node out/index.js
 ```
 
+### 关于 import() 
+如果你写成`import("./index")`, 使用bundler处理时，bundler在一些插件的加持下，会对“./index”有自己
+的解析，“./index”就被解析为 "./index.js" or "./index.cjs" or "./index.mjs" 等等，生成的bundle
+文件里，路径就带有文件扩展名，node执行的时候，就不会出现未能找到package的情况。
+
+反之，如果你让node直接执行`import("./index")`， node 不会自动确定文件扩展名，会直接报错！
+

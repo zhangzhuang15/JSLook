@@ -49,3 +49,22 @@ Host 是一个 HTTP 请求头部字段，用于指示请求的目标主机。它
 2. 在该页面发送请求，http://hcp.com/api/v2/list;
    
 请求头中就会包含 Host字段： "http://hcp.com", 表示请求的域名和协议是什么，方便服务方的虚拟service工作。
+
+
+
+### 同源策略 
+refer: https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy
+
+协议名、域名、端口号一致，才算同源；
+
+```txt
+
+http://abc.aa.com/ 和 http://aa.com/ 不算同源哦
+```
+
+`script`标签，允许跨域，如果指定 `same-origin`，才会引发CORS；
+`link`标签引入外部css，必须保证其 `content-type`正确，才允许跨域；
+`img` `video` `audio` `embed` `object`标签允许跨域；
+`iframe`标签允许跨域，但会限制脚本访问一些信息；
+应用`@font-face`的Fonts, 会有一个src属性，有些浏览器支持跨域，有些要求same-origin;
+

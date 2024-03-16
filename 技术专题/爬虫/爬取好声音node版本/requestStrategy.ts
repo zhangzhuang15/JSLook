@@ -1,10 +1,11 @@
 import { connect } from "node:http2";
 import { get as httpsGet } from "https";
 import { memorize } from "./util";
+import fs from "node:fs";
 
 export type HowToRequestTsFile = (url: string, writer: any, hooks: {
     tryAgain: () => boolean,
-    tryToDoFinishWork: (callback?: () => void) => void,
+    tryToDoFinishWork: (callback?: (context: any) => void) => void,
     pushIntoFailedQueue: () => void,
     clearBrokenFile: () => Promise<void>,
 }) => void;
@@ -71,7 +72,13 @@ export const requestByHttps: HowToRequestTsFile = (url, writer, hooks) => {
             pushIntoFailedQueue();
             writer.close(() => {
                 clearBrokenFile().then(() => {
-                    tryToDoFinishWork();
+                    tryToDoFinishWork((failedMessage) => {
+                        const logFile = fs.openSync('./log.txt', fs.constants.O_CREAT | fs.constants.O_RDWR | fs.constants.O_TRUNC, 0o755);
+                        for (const item of failedMessage) {
+                           fs.writeSync(logFile, `${item.url}\n${item.dest}`)
+                        }
+                        fs.closeSync(logFile)
+                    });
                 });
             });
         }

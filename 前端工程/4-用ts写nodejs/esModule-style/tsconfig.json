@@ -8,6 +8,7 @@
         // we use bundler rollup to deal with .ts file,
         // so choose "Bundler";
         "moduleResolution": "Bundler",
+        "resolveJsonModule": true,
         "baseUrl": ".",
         "paths": {
             "@/*": ["./*"]

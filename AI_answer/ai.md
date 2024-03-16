@@ -2,7 +2,7 @@
 
 ## Template
 ### what I ask 
-open AI answer or New Bing answer
+open AI answer or New Bing answer or 文心一言
 
 <br>
 
@@ -394,3 +394,11 @@ Docker containers have four network modes: bridge, host, none, and container.
 - Container mode allows a container to share the network namespace with another container. They can communicate using localhost.
   
 To enable communication between containers, you can use the container's IP address or hostname. Docker also provides a DNS server that allows containers to resolve each other's names.
+
+
+### 什么是内容寻址系统
+文心一言：
+内容寻址文件系统是一种文件系统，它根据文件内容的哈希值来定位文件。这种文件系统通过将文件内容计算出一个唯一的哈希值，然后将哈希值用作文件的唯一标识符。由于文件的哈希值只与文件内容有关，因此即使文件名或元数据发生更改，文件的哈希值也会相应地更改。
+内容寻址文件系统的一个主要优点是它可以提供快速、可靠的文件访问。由于文件是根据其内容而不是文件名进行访问的，因此可以避免文件名冲突和误操作。此外，由于文件内容的哈希值是唯一的，因此可以确保文件的完整性和一致性。
+Git 是一个内容寻址文件系统，它使用简单的键值对数据库来实现版本控制。Git 通过计算每个文件的哈希值来存储和管理文件，并使用这些哈希值来快速访问和比较文件版本。
+

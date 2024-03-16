@@ -295,6 +295,8 @@ Post请求：数据放在body中传输；较安全；请求的数据不可以被
 - `Last-Modified` 服务器通过这个header，告诉浏览器资源最近更新的时间节点 
 - `If-Modified-Since` 搭配`Last-Modified`使用，存储的是上一次`Last-Modified`的时间节点，如果在这个时间节点之后，资源被修改，服务器将最新的资源返回给浏览器，否则浏览器直接从本地缓存获取
 
+强和弱是针对是否要发送请求和后端协商而言的，无需协商，就是强制缓存
+
 
 ### 什么是uuid？
 uuid(Universally Unique Identifier), 由32个16进制数组成的数字标识，如 "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAB92";

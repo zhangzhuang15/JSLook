@@ -66,3 +66,109 @@ store._state是响应式的，store.state也是响应式的，是利用`vue.reac
 
 ## future
 随着vue3.0稳定并发布，vuex已经无法胜任，应改用[pinia](https://pinia.vuejs.org/core-concepts/)
+
+pinia在设计上，使用了hooks的思路，vuex的module概念被提升为store概念，使用hook的时候，是按需引入的，不会把所有的store都引入，在vuex中，你需要在main.js中，向Vue注册store，而store里的所有module，也是在注册的时候一并加入的，在pinia里，不是这样，只有在你引入store的时候，store才会注册。
+
+在vuex中，要用 `commit` 调用 mutation，用`dispatch`调用action，你还必须指定mutation或者action的路径名，增加记忆负担。
+
+在pinia中，取消 mutation, 只有 action，而且无需记忆路径名，你定义的action名是什么，就直接用这个名称的函数就可以了，比如action名是 hello， 调用 store.hello 即可。
+
+
+## Caveat
+### non-namespace module
+如果没有给module设置`namespaced: true`，所有module：
+- mutation 都会注册到 store._mutations 
+- actions 都会注册到 store._actions 
+- getters 都会注册到 store._wrappedGetters
+
+_mutations, _actions, _wrappedGetters都是 Map 结构，它们的key怎么取的呢？
+
+mutation的函数名，会作为 _mutations 的 key；
+
+action的函数名，会作为 _actions 的 key；
+
+getter的函数名，会作为 _wrappedGetters 的 key；
+
+很有可能两个module拥有同名的mutation，比如都叫`HRL`，则它们都会被放入到 store._mutations["HRL"]中，没错，它是一个数组。
+
+当你用 `commit("HRL")`时，结果两个都被触发了，这个就是 non-namespace 的问题。
+
+action也是如此。
+
+如果有两个名字一样的 getter，第二个 getter 就会被忽略，不予注册。
+
+module的 state，名字是"Dog"的module，它的state会注册到 store._state.Dog 上边。
+
+因此如果两个module名字相同，也会出现问题：
+```js 
+const module = {
+    state: {},
+    modules: {
+        Cat: {
+            state: {}
+        },
+        Dog: {
+            state: {},
+            modules: {
+                // 又一个state，这里边的 state 会覆盖掉外层的Cat.state，令其数据丢失
+                Cat: {
+                    state: {}
+                }
+            }
+        }
+    }
+}
+```
+
+解决上述问题，就可以用 namespaced；
+
+所谓namespace，就是让每一个module带有一个路径名，就像文件路径一样，这样可以区分两个module，举个例子：
+```js 
+const rootModule = {
+    state: {
+        hello: ""
+    },
+    namespaced: true,
+    modules: {
+        dog: {
+            namespaced: true,
+            state: {
+                hello: ""
+            },
+            modules: {
+                husky: {
+                    state: {},
+                },
+                tiddy: {
+                    namespaced: true,
+                    state: {}
+                }
+            }
+        },
+        cat: {
+            state: {}
+        }
+    }
+}
+
+/**
+ * rootModule 的namespace为 “”
+ * 
+ * dog module 的 namespace为 “dog/”
+ * 
+ * kusky module 的 namespace也是 "dog/"
+ * 
+ * tiddy module 的 namespace是 "dog/tiddy/"
+ * 
+ * cat module 的 namespace 是 ""
+ */
+```
+namespaced也有问题，如果 rootModule 和 cat Module 都有一个 叫做 HTL 的 mutation，再次发生重复！
+
+如果你要访问 rootModule 的 hello state，要用`store.state.hello`;
+
+如果你要访问 dog Module 的 hello state, 要用`store.state.dog.hello`;
+
+如果 rootModule 有一个 dog state，那么 dog module 就会把它覆盖掉！
+
+无论你使用 namespace 还是 non-namespace，都会有很严重的心智负担，这便是 vuex 的致命伤！
