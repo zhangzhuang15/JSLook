@@ -1,21 +1,41 @@
 [toc]
 
-## 底层基础
-vite建立在 rollup esbuild 基础上，vite的配置项会涉及到 rollup 配置项
+## 官网 
+[visit](https://cn.vitejs.dev/guide/api-hmr)
 
-## 创建vite项目
+## 底层基础
+vite建立在 rollup esbuild 基础上，vite的配置项会涉及到 rollup 配置项;
+
+vite创新之处在于模块更新的方式上，文件更新之后，网页会通过 import 语法触发
+一次请求，接收到请求之后，会使用esbuild快速编译更新，回传给网页，达到热更新
+的效果。
+
+而webpack更新的方式，是把整个项目重新编译一遍，回传给网页。
+
+## 配置 
+- vite.config.js 
+- vite.config.ts
+
+配置内容无需死记硬背，查看官网慢慢配置即可
+
+## 安装
 ```sh 
 $ pnpm create vite
 ```
+安装 vite，并且使用 vite 作为脚手架创建一个项目
 
-## vue SFC 和 scss less 
-在vite加持下，开发vue SFC, 只需要确保安装好 `sass` `less`，就可以无需多余的配置，在 `<style>` 中使用了，但要加入 lang 属性：
+## FAQ 
+### vue SFC中怎么使用 `scss` `less`
+在vite加持下，开发vue SFC, 只需要确保安装好 `sass` `less`就可以了，无需配置！
+
+在 `<style>` 中使用时，要加入 lang 属性：
+
 ```html
 <style lang="scss"></style>
 <style lang="scss" scoped></style>
 ```
 
-## css module 
+### vue SFC中怎么使用 `css module` 
 vite默认支持。
 
 作为css module 的文件，必须命名为 `*.module.css` 的形式
@@ -23,8 +43,6 @@ vite默认支持。
 如果要支持 `*.module.less`, 需要`pnpm install -D less`
 
 如果要支持 `*.module.scss`, 需要`pnpm install -D sass`
-
----
 
 在ts文件中，`styles`没有类型提示：
 ```ts 
@@ -37,6 +55,7 @@ styles.app
 ```sh 
 $ pnpm install -D typescript-plugin-css-modules
 ```
+
 ```json 
 /* tsconfig.json */
 
@@ -50,6 +69,7 @@ $ pnpm install -D typescript-plugin-css-modules
     }
 }
 ```
+
 ```json 
 // your vscode workspace settings.json 
 {
@@ -57,15 +77,15 @@ $ pnpm install -D typescript-plugin-css-modules
     "typescript.tsdk": "node_modules/typescript/lib"
 }
 ```
-你的项目更目录作为 workspace，在vscode中打开
+你的项目根目录作为 workspace，在vscode中打开
 
-## base publicDir
+### `base` and  `publicDir` ?
 其实不光 vite 中有这两个配置项，在 webpack\rollup也会有等价的配置项，可能命名不同，但他们表示的意思是一样的。这里就以vite为例，去解释。
-> webpack中，output.publicPath 等效于 vite 的 base 
+> webpack中，`output.publicPath` 等效于 vite 的 `base`
 
-当我们vite build项目，生成的代码一般指定放置在与`src`目录同级的`dist`目录下。
+当执行 `vite build`，生成的代码一般指定放置在与`src`目录同级的`dist`目录下。
 
-然后我们就会把`dist`目录放到服务器，用`nginx`配上路由，就可以访问了。
+然后我们会把`dist`目录放到服务器，用`nginx`配上路由，就可以访问了。
 
 不妨假设部署的服务器域名为 `hh.com`, 项目目录整体有如下结构：
 ```txt
@@ -99,7 +119,7 @@ Project
 ```
 
 #### base
-通过不同情况下，`base`的值带来的结果，你就能理解这个值的意思了：
+不同情况下，看看`base`带来的不同结果，你就能理解这个值的意思了：
 
 1. 默认情况下，`base`的值是`/`, 这样生成的 `Project/dist/index.html`中，src的属性值就是 `/assets/index.oo989rer.js`；
 
@@ -119,7 +139,7 @@ Project
 
 依旧是上面的例子，你一定注意到了`Project/dist/logo.ico`文件。
 
-这个文件，不是在dist文件夹生成后，被开发人员添加的。
+这个文件，不是在dist文件夹生成后，再被开发人员添加的。
 
 它也不是 vite 生成 dist 文件夹的时候，生成的。
 
