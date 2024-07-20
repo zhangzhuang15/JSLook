@@ -1,4 +1,4 @@
-##Description
+## Description
 在参与vscode插件[code cursor](https://github.com/Helixform/CodeCursor)的过程中，遇到上游应用cursor APP的 API更新，导致插件原来的请求无法正常运行。
 
 跟踪 cursor APP 中的请求，发现对方由 http1.1的 https 请求方式改变为 http2.0 + connect protocol + https 的请求方式。

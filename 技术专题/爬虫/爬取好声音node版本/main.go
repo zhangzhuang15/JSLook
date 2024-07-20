@@ -258,6 +258,52 @@ func workOfMP4(locmp4 string, output string) {
 }
 
 func main() {
+	flag.Usage = func() {
+		message := `
+merge patched ts files into mp4, or merge mutiple mp4 
+files into one.
+
+
+if you want to merge ts files into one mp4, use
+"./main -work 1 -tsloc temp -out outDir -threads 1"
+
+program will look for ts files in "temp" folder, and merge
+into one mp4 file in "outDir" folder.
+
+
+
+if you want to merge ts files into mutiple mp4, use
+"./main -work 1 -tsloc temp -out outDir -threads 3"
+
+program will look for ts files in "temp" folder, and merge
+into 3 mp4 files in "outDir" folder.
+
+
+
+if you want to merge multiple mp4 files into one, use
+"./main -work 2 -mp4loc temp -out outDir"
+
+program will look for mp4 files in "temp" folder, and merge
+into one mp4 file in "outDir" folder.
+
+
+
+if you want to merge multiple mp4 files into several big mp4
+files, use
+"./main -work 2 -mp4loc temp -out outDir -threads 2"
+
+program will look for mp4 files in "temp" folder, and merge
+into 2 mp4 files in "outDir" folder.
+
+
+
+Usage:
+`
+		message = strings.TrimPrefix(message, "\n")
+		writer := flag.CommandLine.Output()
+		fmt.Fprintf(writer, message)
+		flag.PrintDefaults()
+	}
 	workType := flag.Int("work", 0, "处理什么任务：0 不处理；1 处理ts；2处理mp4")
 
 	tsLocation := flag.String("tsloc", "temp", "ts文件位于哪个文件夹下")
@@ -272,7 +318,7 @@ func main() {
 
 	switch *workType {
 	case 0:
-		flag.PrintDefaults()
+		flag.Usage()
 		return
 	case 1:
 		workOfTs(*tsLocation, *threads, *output)
@@ -281,6 +327,6 @@ func main() {
 		workOfMP4(*mp4Location, *output)
 		return
 	default:
-		flag.PrintDefaults()
+		flag.Usage()
 	}
 }

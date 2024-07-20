@@ -14,6 +14,8 @@ function run() {
         // 将之前暂存的返回值更新为3，之后run函数的返回值就成了3
         return 3;
     }
+
+    return 4;
 }
 
 function main() {

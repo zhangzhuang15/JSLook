@@ -1,8 +1,12 @@
 {
     "compilerOptions": {
-        "module": "NodeNext",
-        "moduleResolution": "NodeNext",
-        "target": "ESNext"
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "esModuleInterop": true,
+        "target": "ESNext",
+        "jsx": "react",
+        "jsxFactory": "React.createElement",
+        "jsxFragmentFactory": "React.Fragment"
     },
-    "include": ["./*.ts"]
+    "include": ["./*.ts", "./*.tsx"]
 }

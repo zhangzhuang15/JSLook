@@ -1,0 +1,36 @@
+.flexable {
+    display: flex;
+}
+
+.vertical-center {
+    align-items: center;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+/*
+ * 引入这个mixin后，元素内最多展示 $n 行
+ * 文字，超过部分显示为 ...
+ * 
+ * 需要给元素制定固定宽度，或者经布局计算后元素宽度固定
+ * 
+ * text-overflow 属性会失效
+*/
+@mixin nLine($n: 1) {
+    display: -webkit-box;
+    -webkit-line-clamp: $n;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/*
+ * 实现背景-玻璃毛边化
+ *
+ * 要求背景颜色本身具备透明度，比如 rgba(0, 0, 0, 0.4),
+ * 但是 rgba(0, 0, 0, 1) 是不可以的
+*/
+@mixin glassBlur($value: 2px) {
+    backdrop-filter: blur($value);
+}

@@ -1,10 +1,20 @@
 import { get as httpGet } from "http";
 import { get as httpsGet } from "https";
-import { createWriteStream, readFileSync, existsSync, mkdirSync, rmSync, writeFileSync, readdirSync, statSync} from "node:fs";
-import path from "node:path";
-import { spawnSync } from "node:child_process";
+import { 
+    createWriteStream, 
+    readFileSync, 
+    existsSync, 
+    mkdirSync, 
+    rmSync, 
+    writeFileSync, 
+    readdirSync, 
+    statSync
+} from "fs";
+import path from "path";
+import { spawnSync } from "child_process";
 import { useSignal, tickCount } from "./util";
 import { type HowToRequestTsFile, requestByHttps } from "./requestStrategy";
+import inquirer from "inquirer";
 
 const dirname = __dirname;
 const tempDir = "temp";
@@ -159,6 +169,8 @@ function tsToMp4(tsFiles: string[]): Promise<string> {
 
 function makeDiskReady() {
     if (existsSync(tempDirAbsolutePath)) {
+        console.log(new Date().toString())
+        console.log("clear up directory: ", tempDirAbsolutePath)
         // clear temp/*
         // rmSync is different from `rm` in shell!
         // when run `rm -rf temp`, temp will be removed too,
@@ -184,8 +196,21 @@ function run(options: Options) {
     makeDiskReady();
     const { m3uFileUrl, headers, tsFileNameMap, howToRequestTsFile } = options;
 
+    console.log(new Date().toString())
+    console.log("start to download m3u8 file...\n")
+
     getM3UFile(m3uFileUrl, headers)
+        .then(file => {
+            console.log(new Date().toString())
+            console.log("start to parse m3u file...\n")
+            return file
+        })
         .then(file => parseM3UFile(file, tsFileNameMap))
+        .then(tsFiles => {
+            console.log(new Date().toString())
+            console.log("start to download ts file...\n")
+            return tsFiles
+        })
         .then(tsFiles => downloadTsFile(tsFiles, howToRequestTsFile))
         .then(savedTsFiles => { 
             console.log("download done: ts files")
@@ -194,18 +219,45 @@ function run(options: Options) {
             }
             return savedTsFiles
         })
+        .then(savedTsFiles => {
+            const questions = [
+                { 
+                    type: 'confirm',
+                    name: 'generateMp4AtOnce',
+                    message: "merge ts files into mp4 ?",
+                    default: true
+                }
+            ];
+
+            return inquirer
+              .prompt(questions)
+              .then(answers => {
+                const generateMp4AtOnce = answers['generateMp4AtOnce'];
+                if (generateMp4AtOnce) {
+                    return savedTsFiles;
+                }
+
+                throw Error("manuallyGenerateMp4")
+            })
+        })
         .then(savedTsFiles => tsToMp4(savedTsFiles))
         .then(message => { console.log("all works done:\n%s", message)})
         .then(() => {
-            const seconds = 5;
+            const seconds = 10;
             console.log(`after ${seconds} seconds operate: clear ts or m3u files`);
             setTimeout(() => onlyKeepOutputFile(), seconds * 1_000);
         })
-        .catch(err => { console.log("failed\nerror: ", err)})
+        .catch(err => { 
+            if ((err as Error).message === "manuallyGenerateMp4") {
+                console.log("please manually generate mp4 file")
+                return;
+            }
+            console.log("failed\nerror: ", err)
+        })
 }
 
 const VoiceOfChinaOptions: Options = {
-    m3uFileUrl: "https://qhshenghuo.xyz/videos/ed22de81305e207cbbd4ca4b467d7f280ecc6c67/g.m3u8?h=d11925605f2a1ef",
+    m3uFileUrl: "https://wrooo.com/videos/9120187b35f4c6f9be1258079fd93cdc/g.m3u8?h=89a53648b2734f0",
     // m3uFileUrl: "<your-m3u8-file-url>",
     headers: {},
     tsFileNameMap: (tsFileName: string) => {
@@ -223,6 +275,9 @@ type Options = {
     howToRequestTsFile: HowToRequestTsFile,
 };
 
+if (process.argv.length === 3) {
+    VoiceOfChinaOptions.m3uFileUrl = process.argv[2]
+}
 
 run(VoiceOfChinaOptions);
 

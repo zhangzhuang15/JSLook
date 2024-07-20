@@ -8,6 +8,9 @@
 
 ---
 
+## future
+未来会迁移到个人官网项目
+
 ## 配置
 - `webpack.config.js`
 - `webpack.config.ts`
@@ -600,5 +603,78 @@ module.exports = {
 ### 为什么启动dev server后没有看到dist文件夹
 默认情况下，打包好的文件会存储在内存，不会放在磁盘，因此你看不到dist文件夹，但这个行为
 也可以通过配置 `devServer.writeToDisk: true ` 改变。
+
+### webpack 无法处理 “node:path” ？
+webpack 无法解析 “node:path” 路径，但是 node 识别；
+
+解决方法是：
+- webpack 5.0+
+- webpack.config.js 设置 `target: "node"`
+
+### 如何删除 `License.txt` ?
+webpack5+ 总会生成 `License.txt` 文件, 因为它默认使用 `terser-webpack-plugin`
+压缩代码，里边有个配置项被webpack设置为`extractComments: true`；
+
+解决方式就是自己设置webpack的 `optimization`。尽管webpack内部使用
+`terser-webpack-plugin`，但是它没有通过`webpack`包将这个插件暴露给
+使用者，因此要手动安装`terser-webpack-plugin`:
+
+```shell
+pnpm install -D terser-webpack-plugin
+```
+
+之后设置webpack.config.js即可：
+
+```js 
+const TerserPlugin = require("terser-webpack-plugin");
+module.exports = {
+    optimization: {
+        minimizer: [
+            new TerserPlugin({extractComments: false})
+        ]
+    }
+}
+```
+
+### 如何删除代码中的注释
+打包后的代码里依旧存在`@license`这种注释，如何删除呢？
+
+```js 
+const TerserPlugin = require("terser-webpack-plugin");
+module.exports = {
+    optimization: {
+        minimizer: [
+            new TerserPlugin({
+                terserOptions: {
+                    format: {
+                        comments: false
+                    }
+                }
+            })
+        ]
+    }
+}
+```
+
+### 如何自定义生成的.js文件名 ？
+```js 
+const path = require('path');
+module.exports = {
+    entry: {
+        "main": path.join(__dirname, "main.js"),
+        "app": path.join(__dirname, "app.js")
+    },
+    output: {
+        filename: "0234.[name].[hash:3].js"
+    }
+}
+```
+
+- `[name]` 对应的是 `main` `app`;
+- `[hash:3]` 对应的是文件hash值的前3位；
+
+这样打包的结果就是：
+- `0234.main.991.js`
+- `0234.app.a21.js`
 
 ### bundle、chunk and module ?

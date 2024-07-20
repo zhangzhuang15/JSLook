@@ -19,6 +19,14 @@
 const ffmpeg = require("fluent-ffmpeg");
 const chalk = require("chalk");
 
+if (["-h", "--help"].some(token => process.argv.includes(token))) {
+    const usage = `
+    Usage:
+        node mergeMp3ToMp4.js hello.mp3 hello.mp4 output.mp4
+    `.trim()
+    console.log(usage)
+    process.exit(0);
+}
 
 if (process.argv.length < 5) {
     console.log(chalk.red("sorry, you must tell me where is mp3, mp4 and where you want to save on"));
@@ -47,6 +55,52 @@ new ffmpeg()
         // 中间处理时间比较长，真正的处理时间要么根据本事件完成，
         // 要么通过监听进程 exit 事件完成
         const end = new Date();
-        console.log(`🎉Done! cost time: ${chalk.cyan(String(end - start))}ms`)
+        const costTime = end - start;
+        const second = 1000;
+        const minute = 60 * second;
+        const hour = 60 * minute; 
+        let r = ""
+        let t = costTime
+        let state = "hour"
+        while (t > 0) {
+            switch (state) {
+                case "hour":{
+                    const h = Math.floor(t/hour);
+                    if (h > 0) {
+                        r += `${h}h `;
+                    }
+                    t -= h * hour;
+                    state = "minute";
+                    break;
+                }
+                case "minute": {
+                    const m = Math.floor(t/minute);
+                    if (m > 0) {
+                        r += `${m}m `;
+                    }
+                    t -= m * minute;
+                    state = "second";
+                    break;
+                }
+                case "second": {
+                    const s = Math.floor(t/second);
+                    if (s > 0) {
+                        r += `${s}s `;
+                    }
+                    t -= s * second;
+                    state = "milli";
+                    break;
+                }
+                case "milli": {
+                    r += `${t}ms`;
+                    t = 0;
+                    break;
+                }
+                default:
+            }
+        }
+    
+        
+        console.log(`🎉Done! cost time: ${r}`)
     });
 

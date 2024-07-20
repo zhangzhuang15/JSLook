@@ -1,11 +1,11 @@
-import { connect } from "node:http2";
+import { connect } from "http2";
 import { get as httpsGet } from "https";
 import { memorize } from "./util";
-import fs from "node:fs";
+import fs from "fs";
 
 export type HowToRequestTsFile = (url: string, writer: any, hooks: {
     tryAgain: () => boolean,
-    tryToDoFinishWork: (callback?: (context: any) => void) => void,
+    tryToDoFinishWork: (callback?: (context?: any) => void) => void,
     pushIntoFailedQueue: () => void,
     clearBrokenFile: () => Promise<void>,
 }) => void;
@@ -55,7 +55,7 @@ export const requestByHttp2: HowToRequestTsFile = (url, writer, hooks) => {
 
 
 export const requestByHttps: HowToRequestTsFile = (url, writer, hooks) => {
-    const {pushIntoFailedQueue, tryAgain, tryToDoFinishWork, clearBrokenFile} = hooks;
+    const { pushIntoFailedQueue, tryAgain, tryToDoFinishWork, clearBrokenFile } = hooks;
     
     // 有些服务器会设置一层请求检测，将部分请求标记为网络攻击，
     // 一旦被标记为网络攻击，请求方就会上黑名单，请求被阻断，
@@ -85,7 +85,7 @@ export const requestByHttps: HowToRequestTsFile = (url, writer, hooks) => {
     };
 
     const fetchFile = () => {
-        const clientRequest = httpsGet(url, { headers });
+        const clientRequest = httpsGet(url, { headers, timeout: 5000 });
     
         clientRequest.on("response", (r) => {
             const milliseconds = 5_000;
